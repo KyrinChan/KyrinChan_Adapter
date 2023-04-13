@@ -13,142 +13,142 @@ export class ChatgptManagement extends plugin {
       priority: 500,
       rule: [
         {
-          reg: '#chatgpt开启(问题)?(回复)?确认',
+          reg: '>chatgpt开启(问题)?(回复)?确认',
           fnc: 'turnOnConfirm',
           permission: 'master'
         },
         {
-          reg: '#chatgpt关闭(问题)?(回复)?确认',
+          reg: '>chatgpt关闭(问题)?(回复)?确认',
           fnc: 'turnOffConfirm',
           permission: 'master'
         },
         {
-          reg: '#chatgpt(设置|绑定)(token|Token)',
+          reg: '>chatgpt(设置|绑定)(token|Token)',
           fnc: 'setAccessToken',
           permission: 'master'
         },
         {
-          reg: '#chatgpt(设置|绑定|添加)(必应|Bing |bing )(token|Token)',
+          reg: '>chatgpt(设置|绑定|添加)(必应|Bing |bing )(token|Token)',
           fnc: 'setBingAccessToken',
           permission: 'master'
         },
         {
-          reg: '#chatgpt(删除|移除)(必应|Bing |bing )(token|Token)',
+          reg: '>chatgpt(删除|移除)(必应|Bing |bing )(token|Token)',
           fnc: 'delBingAccessToken',
           permission: 'master'
         },
         {
-          reg: '#chatgpt(查看|浏览)(必应|Bing |bing )(token|Token)',
+          reg: '>chatgpt(查看|浏览)(必应|Bing |bing )(token|Token)',
           fnc: 'getBingAccessToken',
           permission: 'master'
         },
         {
-          reg: '#chatgpt(迁移|恢复)(必应|Bing |bing )(token|Token)',
+          reg: '>chatgpt(迁移|恢复)(必应|Bing |bing )(token|Token)',
           fnc: 'migrateBingAccessToken',
           permission: 'master'
         },
         {
-          reg: '^#chatgpt切换浏览器$',
+          reg: '^>chatgpt切换浏览器$',
           fnc: 'useBrowserBasedSolution',
           permission: 'master'
         },
         {
-          reg: '^#chatgpt切换API$',
+          reg: '^>chatgpt切换API$',
           fnc: 'useOpenAIAPIBasedSolution',
           permission: 'master'
         },
         {
-          reg: '^#chatgpt切换(ChatGLM|chatglm)$',
+          reg: '^>chatgpt切换(ChatGLM|chatglm)$',
           fnc: 'useChatGLMSolution',
           permission: 'master'
         },
         {
-          reg: '^#chatgpt切换API3$',
+          reg: '^>chatgpt切换API3$',
           fnc: 'useReversedAPIBasedSolution2',
           permission: 'master'
         },
         {
-          reg: '^#chatgpt切换(必应|Bing)$',
+          reg: '^>chatgpt切换(必应|Bing)$',
           fnc: 'useBingSolution',
           permission: 'master'
         },
         {
-          reg: '^#chatgpt(必应|Bing)切换',
+          reg: '^>chatgpt(必应|Bing)切换',
           fnc: 'changeBingTone',
           permission: 'master'
         },
         {
-          reg: '^#chatgpt(必应|Bing)(开启|关闭)建议(回复)?',
+          reg: '^>chatgpt(必应|Bing)(开启|关闭)建议(回复)?',
           fnc: 'bingOpenSuggestedResponses',
           permission: 'master'
         },
         {
-          reg: '^#chatgpt模式(帮助)?$',
+          reg: '^>chatgpt模式(帮助)?$',
           fnc: 'modeHelp'
         },
         {
-          reg: '^#chatgpt(强制)?更新$',
+          reg: '^>chatgpt(强制)?更新$',
           fnc: 'updateChatGPTPlugin'
         },
         {
-          reg: '^#chatgpt(本群)?(群\\d+)?闭嘴',
+          reg: '^>chatgpt(本群)?(群\\d+)?闭嘴',
           fnc: 'shutUp',
           permission: 'master'
         },
         {
-          reg: '^#chatgpt(本群)?(群\\d+)?(张嘴|开口|说话|上班)',
+          reg: '^>chatgpt(本群)?(群\\d+)?(张嘴|开口|说话|上班)',
           fnc: 'openMouth',
           permission: 'master'
         },
         {
-          reg: '^#chatgpt查看闭嘴',
+          reg: '^>chatgpt查看闭嘴',
           fnc: 'listShutUp',
           permission: 'master'
         },
         {
-          reg: '^#chatgpt设置(API|key)(Key|key)',
+          reg: '^>chatgpt设置(API|key)(Key|key)',
           fnc: 'setAPIKey',
           permission: 'master'
         },
         {
-          reg: '^#chatgpt设置(API|api)设定',
+          reg: '^>chatgpt设置(API|api)设定',
           fnc: 'setAPIPromptPrefix',
           permission: 'master'
         },
         {
-          reg: '^#chatgpt设置(Bing|必应|Sydney|悉尼|sydney|bing)设定',
+          reg: '^>chatgpt设置(Bing|必应|Sydney|悉尼|sydney|bing)设定',
           fnc: 'setBingPromptPrefix',
           permission: 'master'
         },
         {
-          reg: '^#chatgpt(开启|关闭)画图$',
+          reg: '^>chatgpt(开启|关闭)画图$',
           fnc: 'switchDraw',
           permission: 'master'
         },
         {
-          reg: '^#chatgpt查看(API|api)设定$',
+          reg: '^>chatgpt查看(API|api)设定$',
           fnc: 'queryAPIPromptPrefix',
           permission: 'master'
         },
         {
-          reg: '^#chatgpt查看(Bing|必应|Sydney|悉尼|sydney|bing)设定$',
+          reg: '^>chatgpt查看(Bing|必应|Sydney|悉尼|sydney|bing)设定$',
           fnc: 'queryBingPromptPrefix',
           permission: 'master'
         },
         {
           /** 命令正则匹配 */
-          reg: '^#(关闭|打开)群聊上下文',
+          reg: '^>(关闭|打开)群聊上下文',
           /** 执行方法 */
           fnc: 'enableGroupContext',
           permission: 'master'
         },
         {
-          reg: '^#(设置|修改)管理密码',
+          reg: '^>(设置|修改)管理密码',
           fnc: 'setAdminPassword',
           permission: 'master'
         },
         {
-          reg: '^#chatgpt系统(设置|配置|管理)',
+          reg: '^>chatgpt系统(设置|配置|管理)',
           fnc: 'adminPage',
           permission: 'master'
         }
@@ -384,7 +384,7 @@ export class ChatgptManagement extends plugin {
   }
 
   async changeBingTone (e) {
-    let tongStyle = e.msg.replace(/^#chatgpt(必应|Bing)切换/, '')
+    let tongStyle = e.msg.replace(/^>chatgpt(必应|Bing)切换/, '')
     if (!tongStyle) {
       return
     }
@@ -508,7 +508,7 @@ export class ChatgptManagement extends plugin {
   }
 
   async shutUp (e) {
-    let duration = e.msg.replace(/^#chatgpt(本群)?(群\d+)?闭嘴/, '')
+    let duration = e.msg.replace(/^>chatgpt(本群)?(群\d+)?闭嘴/, '')
     let scope
     let time = 3600000
     if (duration === '永久') {
@@ -523,13 +523,13 @@ export class ChatgptManagement extends plugin {
         if (await redis.get(`CHATGPT:SHUT_UP:${scope}`)) {
           await redis.del(`CHATGPT:SHUT_UP:${scope}`)
           await redis.set(`CHATGPT:SHUT_UP:${scope}`, '1', { EX: time })
-          await e.reply(`好的，从现在开始我会在当前群聊闭嘴${formatDuration(time)}`)
+          await e.reply(`好的，凯琳酱在这里就不说话了喵~${formatDuration(time)}`)
         } else {
           await redis.set(`CHATGPT:SHUT_UP:${scope}`, '1', { EX: time })
-          await e.reply(`好的，从现在开始我会在当前群聊闭嘴${formatDuration(time)}`)
+          await e.reply(`好的，凯琳酱在这里就不说话了喵~${formatDuration(time)}`)
         }
       } else {
-        await e.reply('本群是指？你也没在群聊里让我闭嘴啊？')
+        await e.reply('本群是指什么呢喵？')
         return false
       }
     } else if (match) {
@@ -538,10 +538,10 @@ export class ChatgptManagement extends plugin {
         if (await redis.get(`CHATGPT:SHUT_UP:${groupId}`)) {
           await redis.del(`CHATGPT:SHUT_UP:${groupId}`)
           await redis.set(`CHATGPT:SHUT_UP:${groupId}`, '1', { EX: time })
-          await e.reply(`好的，从现在开始我会在群聊${groupId}闭嘴${formatDuration(time)}`)
+          await e.reply(`好的，凯琳酱在${groupId}就不说话了喵~${formatDuration(time)}`)
         } else {
           await redis.set(`CHATGPT:SHUT_UP:${groupId}`, '1', { EX: time })
-          await e.reply(`好的，从现在开始我会在群聊${groupId}闭嘴${formatDuration(time)}`)
+          await e.reply(`好的，凯琳酱在${groupId}就不说话了喵~${formatDuration(time)}`)
         }
       } else {
         await e.reply('这是什么群？')
@@ -551,26 +551,26 @@ export class ChatgptManagement extends plugin {
       if (await redis.get('CHATGPT:SHUT_UP:ALL')) {
         await redis.del('CHATGPT:SHUT_UP:ALL')
         await redis.set('CHATGPT:SHUT_UP:ALL', '1', { EX: time })
-        await e.reply(`好的，我会再闭嘴${formatDuration(time)}`)
+        await e.reply(`好的，再加上${formatDuration(time)}咯~`)
       } else {
         await redis.set('CHATGPT:SHUT_UP:ALL', '1', { EX: time })
-        await e.reply(`好的，我会闭嘴${formatDuration(time)}`)
+        await e.reply(`好的，没问题哒${formatDuration(time)}`)
       }
     }
   }
 
   async openMouth (e) {
-    const match = e.msg.match(/^#chatgpt群(\d+)/)
+    const match = e.msg.match(/^>chatgpt群(\d+)/)
     if (e.msg.indexOf('本群') > -1) {
       if (await redis.get('CHATGPT:SHUT_UP:ALL')) {
-        await e.reply('主人，我现在全局闭嘴呢，你让我在这个群张嘴咱也不敢张啊')
+        await e.reply('静音了捏~')
         return false
       }
       if (e.isGroup) {
         let scope = e.group.group_id
         if (await redis.get(`CHATGPT:SHUT_UP:${scope}`)) {
           await redis.del(`CHATGPT:SHUT_UP:${scope}`)
-          await e.reply('好的主人，我终于又可以在本群说话了')
+          await e.reply('啊哈~')
         } else {
           await e.reply('啊？我也没闭嘴啊？')
         }
@@ -580,14 +580,14 @@ export class ChatgptManagement extends plugin {
       }
     } else if (match) {
       if (await redis.get('CHATGPT:SHUT_UP:ALL')) {
-        await e.reply('主人，我现在全局闭嘴呢，你让我在那个群张嘴咱也不敢张啊')
+        await e.reply('真的静音了捏~')
         return false
       }
       const groupId = parseInt(match[1], 10)
       if (Bot.getGroupList().get(groupId)) {
         if (await redis.get(`CHATGPT:SHUT_UP:${groupId}`)) {
           await redis.del(`CHATGPT:SHUT_UP:${groupId}`)
-          await e.reply(`好的主人，我终于又可以在群${groupId}说话了`)
+          await e.reply(`好的捏，在${groupId}可以说话了捏！`)
         } else {
           await e.reply(`啊？我也没在群${groupId}闭嘴啊？`)
         }
@@ -602,14 +602,14 @@ export class ChatgptManagement extends plugin {
         for (let i = 0; i < keys.length; i++) {
           await redis.del(keys[i])
         }
-        await e.reply('好的，我会结束所有闭嘴')
+        await e.reply('好的，我会结束所有静音')
       } else if (keys || keys.length > 0) {
         for (let i = 0; i < keys.length; i++) {
           await redis.del(keys[i])
         }
-        await e.reply('好的，我会结束所有闭嘴？')
+        await e.reply('好的，我会结束所有静音？')
       } else {
-        await e.reply('我没有在任何地方闭嘴啊？')
+        await e.reply('我没有在任何地方静音啊？')
       }
     }
   }
@@ -617,7 +617,7 @@ export class ChatgptManagement extends plugin {
   async listShutUp () {
     let keys = await redis.keys('CHATGPT:SHUT_UP:*')
     if (!keys || keys.length === 0) {
-      await this.reply('我没有在任何群闭嘴', true)
+      await this.reply('我没有在任何群静音', true)
     } else {
       let list = []
       for (let i = 0; i < keys.length; i++) {

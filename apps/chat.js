@@ -631,12 +631,12 @@ export class chatgpt extends plugin {
         // 添加超时设置
         await redis.pSetEx('CHATGPT:CHAT_QUEUE_TIMEOUT', Config.defaultTimeoutMs, randomId)
         if (confirmOn) {
-          await this.reply('我正在思考如何回复你，请稍等', true, { recallMsg: 8 })
+          await this.reply('♪(´▽｀) 让凯琳酱想一想哦', true, { recallMsg: 8 })
         }
       } else {
         let length = await redis.lLen('CHATGPT:CHAT_QUEUE') - 1
         if (confirmOn) {
-          await this.reply(`我正在思考如何回复你，请稍等，当前队列前方还有${length}个问题`, true, { recallMsg: 8 })
+          await this.reply(`（＞人＜；） 请给凯琳酱多一点时间想一想？还有${length}个问题呢~`, true, { recallMsg: 8 })
         }
         logger.info(`chatgpt队列前方还有${length}个问题。管理员可通过#清空队列来强制清除所有等待的问题。`)
         // 开始排队
@@ -651,7 +651,7 @@ export class chatgpt extends plugin {
               await redis.pSetEx('CHATGPT:CHAT_QUEUE_TIMEOUT', Config.defaultTimeoutMs, await redis.lIndex('CHATGPT:CHAT_QUEUE', 0))
               if (confirmOn) {
                 let length = await redis.lLen('CHATGPT:CHAT_QUEUE') - 1
-                await this.reply(`问题想不明白放弃了，开始思考下一个问题，当前队列前方还有${length}个问题`, true, { recallMsg: 8 })
+                await this.reply(`啊 ＞︿＜ 想不明白了捏~ 还剩下${length}个问题呢`, true, { recallMsg: 8 })
                 logger.info(`问题超时已弹出，chatgpt队列前方还有${length}个问题。管理员可通过#清空队列来强制清除所有等待的问题。`)
               }
             }
@@ -663,7 +663,7 @@ export class chatgpt extends plugin {
       let confirm = await redis.get('CHATGPT:CONFIRM')
       let confirmOn = (!confirm || confirm === 'on') // confirm默认开启
       if (confirmOn) {
-        await this.reply('我正在思考如何回复你，请稍等', true, { recallMsg: 8 })
+        await this.reply('♪(´▽｀) 让凯琳酱想一想哦', true, { recallMsg: 8 })
       }
     }
     logger.info(`chatgpt prompt: ${prompt}`)
@@ -787,7 +787,7 @@ export class chatgpt extends plugin {
       // 检索是否有屏蔽词
       const blockWord = Config.blockWords.find(word => response.toLowerCase().includes(word.toLowerCase()))
       if (blockWord) {
-        await this.reply('返回内容存在敏感词，我不想回答你', true)
+        await this.reply('有点问题，我不想回答你...', true)
         return false
       }
       // 处理中断的代码区域

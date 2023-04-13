@@ -21,7 +21,7 @@ export class history extends plugin {
       priority: 500,
       rule: [
         {
-          reg: '^#(chatgpt|ChatGPT)(导出)?聊天记录',
+          reg: '^>(chatgpt|ChatGPT)(导出)?聊天记录',
           fnc: 'history'
         }
       ]

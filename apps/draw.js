@@ -14,23 +14,23 @@ export class dalle extends plugin {
       priority: 500,
       rule: [
         {
-          reg: '^#(chatgpt|ChatGPT|dalle|Dalle)(绘图|画图)',
+          reg: '^>(chatgpt|ChatGPT|dalle|Dalle)(绘图|画图)',
           fnc: 'draw'
         },
         {
-          reg: '^#(chatgpt|ChatGPT|dalle|Dalle)(修图|图片变形|改图)$',
+          reg: '^>(chatgpt|ChatGPT|dalle|Dalle)(修图|图片变形|改图)$',
           fnc: 'variation'
         },
         {
-          reg: '^#(搞|改)(她|他)头像',
+          reg: '^>(搞|改)(她|他)头像',
           fnc: 'avatarVariation'
         },
         {
-          reg: '^#(chatgpt|dalle)编辑图片',
+          reg: '^>(chatgpt|dalle)编辑图片',
           fnc: 'edit'
         },
         {
-          reg: '^#bing(画图|绘图)',
+          reg: '^>bing(画图|绘图)',
           fnc: 'bingDraw'
         }
       ]
@@ -234,7 +234,7 @@ export class dalle extends plugin {
       this.reply(`冷却中，请${ttl}秒后再试`)
       return false
     }
-    let prompt = e.msg.replace(/^#bing(画图|绘图)/, '')
+    let prompt = e.msg.replace(/^>bing(画图|绘图)/, '')
     if (!prompt) {
       this.reply('请提供绘图prompt')
       return false
