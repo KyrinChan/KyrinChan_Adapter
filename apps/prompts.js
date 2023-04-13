@@ -13,70 +13,70 @@ export class help extends plugin {
       priority: 500,
       rule: [
         {
-          reg: '^#(chatgpt|ChatGPT)设定列表$',
+          reg: '^>(chatgpt|ChatGPT)设定列表$',
           fnc: 'listPrompts',
           permission: 'master'
         },
         {
-          reg: '^#(chatgpt|ChatGPT)查看设定',
+          reg: '^>(chatgpt|ChatGPT)查看设定',
           fnc: 'detailPrompt',
           permission: 'master'
         },
         {
-          reg: '^#(chatgpt|ChatGPT)使用设定',
+          reg: '^>(chatgpt|ChatGPT)使用设定',
           fnc: 'usePrompt',
           permission: 'master'
         },
         {
-          reg: '^#(chatgpt|ChatGPT)添加设定',
+          reg: '^>(chatgpt|ChatGPT)添加设定',
           fnc: 'addPrompt',
           permission: 'master'
         },
         {
-          reg: '^#(chatgpt|ChatGPT)(删除|移除)设定',
+          reg: '^>(chatgpt|ChatGPT)(删除|移除)设定',
           fnc: 'removePrompt',
           permission: 'master'
         },
         {
-          reg: '^#(chatgpt|ChatGPT)(上传|分享|共享)设定',
+          reg: '^>(chatgpt|ChatGPT)(上传|分享|共享)设定',
           fnc: 'uploadPrompt',
           permission: 'master'
         },
         {
-          reg: '^#(chatgpt|ChatGPT)(删除|取消|撤销)共享设定',
+          reg: '^>(chatgpt|ChatGPT)(删除|取消|撤销)共享设定',
           fnc: 'removeSharePrompt',
           permission: 'master'
         },
         {
-          reg: '^#(chatgpt|ChatGPT)导入设定',
+          reg: '^>(chatgpt|ChatGPT)导入设定',
           fnc: 'importPrompt',
           permission: 'master'
         },
         {
-          reg: '^#(chatgpt|ChatGPT)(在线)?(浏览|查找)设定',
+          reg: '^>(chatgpt|ChatGPT)(在线)?(浏览|查找)设定',
           fnc: 'browsePrompt'
         },
         {
-          reg: '^#(chatgpt|ChatGPT)(在线)?预览设定详情',
+          reg: '^>(chatgpt|ChatGPT)(在线)?预览设定详情',
           fnc: 'detailCloudPrompt'
         },
         {
-          reg: '^#(chatgpt|ChatGPT)设定帮助$',
+          reg: '^>(chatgpt|ChatGPT)设定帮助$',
           fnc: 'helpPrompt',
           permission: 'master'
         }
         // {
-        //   reg: '^#(chatgpt|ChatGPT)(开启|关闭)洗脑$',
+        //   reg: '^>(chatgpt|ChatGPT)(开启|关闭)洗脑$',
         //   fnc: 'setSydneyBrainWash',
         //   permission: 'master'
         // },
         // {
-        //   reg: '^#(chatgpt|ChatGPT)(设置)?洗脑强度',
+        //   reg: '^>(chatgpt|ChatGPT)(设置)?洗脑强度',
         //   fnc: 'setSydneyBrainWashStrength',
         //   permission: 'master'
         // },
         // {
-        //   reg: '^#(chatgpt|ChatGPT)(设置)?洗脑名称',
+        //   reg: '^>(chatgpt|ChatGPT)(设置)?洗脑名称',
         //   fnc: 'setSydneyBrainWashName',
         //   permission: 'master'
         // }
@@ -101,7 +101,7 @@ export class help extends plugin {
   }
 
   async detailPrompt (e) {
-    let promptName = e.msg.replace(/^#(chatgpt|ChatGPT)查看设定/, '').trim()
+    let promptName = e.msg.replace(/^>(chatgpt|ChatGPT)查看设定/, '').trim()
     let prompt = getPromptByName(promptName)
     if (!prompt) {
       if (promptName === 'API默认') {
@@ -123,7 +123,7 @@ export class help extends plugin {
   }
 
   async usePrompt (e) {
-    let promptName = e.msg.replace(/^#(chatgpt|ChatGPT)使用设定/, '').trim()
+    let promptName = e.msg.replace(/^>(chatgpt|ChatGPT)使用设定/, '').trim()
     let prompt = getPromptByName(promptName)
     if (!prompt) {
       console.log(promptName)
@@ -166,7 +166,7 @@ export class help extends plugin {
   }
 
   async setSydneyBrainWashName (e) {
-    let name = e.msg.replace(/^#(chatgpt|ChatGPT)设置洗脑名称/, '')
+    let name = e.msg.replace(/^>(chatgpt|ChatGPT)设置洗脑名称/, '')
     if (name) {
       Config.sydneyBrainWashName = name
       await e.reply('操作成功', true)
@@ -183,7 +183,7 @@ export class help extends plugin {
   }
 
   async setSydneyBrainWashStrength (e) {
-    let strength = e.msg.replace(/^#(chatgpt|ChatGPT)(设置)?洗脑强度/, '')
+    let strength = e.msg.replace(/^>(chatgpt|ChatGPT)(设置)?洗脑强度/, '')
     if (!strength) {
       return
     }
@@ -195,7 +195,7 @@ export class help extends plugin {
   }
 
   async removePrompt (e) {
-    let promptName = e.msg.replace(/^#(chatgpt|ChatGPT)(删除|移除)设定/, '')
+    let promptName = e.msg.replace(/^>(chatgpt|ChatGPT)(删除|移除)设定/, '')
     if (!promptName) {
       await e.reply('你要删除哪个设定呢？')
       return
@@ -236,7 +236,7 @@ export class help extends plugin {
 
   async removeSharePrompt (e) {
     let master = (await getMasterQQ())[0]
-    let name = e.msg.replace(/^#(chatgpt|ChatGPT)(删除|取消|撤销)共享设定/, '')
+    let name = e.msg.replace(/^>(chatgpt|ChatGPT)(删除|取消|撤销)共享设定/, '')
     let response = await fetch(`https://chatgpt.roki.best/prompt?name=${name}&qq=${master || (Bot.uin + '')}`, {
       method: 'DELETE',
       headers: {
@@ -267,7 +267,7 @@ export class help extends plugin {
         use = 'Custom'
       }
     }
-    let currentUse = e.msg.replace(/^#(chatgpt|ChatGPT)(上传|分享|共享)设定/, '')
+    let currentUse = e.msg.replace(/^>(chatgpt|ChatGPT)(上传|分享|共享)设定/, '')
     if (!currentUse) {
       currentUse = await redis.get(`CHATGPT:PROMPT_USE_${use}`)
     }
@@ -374,7 +374,7 @@ export class help extends plugin {
   }
 
   async detailCloudPrompt (e) {
-    let name = e.msg.replace(/^#(chatgpt|ChatGPT)(在线)?预览设定详情/, '')
+    let name = e.msg.replace(/^>(chatgpt|ChatGPT)(在线)?预览设定详情/, '')
     let response = await fetch('https://chatgpt.roki.best/prompt?name=' + name, {
       method: 'GET',
       headers: {
@@ -395,7 +395,7 @@ export class help extends plugin {
   }
 
   async browsePrompt (e) {
-    let search = e.msg.replace(/^#(chatgpt|ChatGPT)(在线)?(浏览|查找)设定/, '')
+    let search = e.msg.replace(/^>(chatgpt|ChatGPT)(在线)?(浏览|查找)设定/, '')
     let split = search.split('页码')
     let page = 1
     if (split.length > 1) {
@@ -425,7 +425,7 @@ export class help extends plugin {
   }
 
   async importPrompt (e) {
-    let promptName = e.msg.replace(/^#(chatgpt|ChatGPT)导入设定/, '')
+    let promptName = e.msg.replace(/^>(chatgpt|ChatGPT)导入设定/, '')
     if (!promptName) {
       await e.reply('设定名字呢？', true)
       return true

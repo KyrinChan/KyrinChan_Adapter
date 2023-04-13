@@ -82,46 +82,46 @@ export class chatgpt extends plugin {
       rule: [
         {
           /** 命令正则匹配 */
-          reg: '^#chat3[sS]*',
+          reg: '^>chat3[sS]*',
           /** 执行方法 */
           fnc: 'chatgpt3'
         },
         {
           /** 命令正则匹配 */
-          reg: '^#chat1[sS]*',
+          reg: '^>chat1[sS]*',
           /** 执行方法 */
           fnc: 'chatgpt1'
         },
         {
           /** 命令正则匹配 */
-          reg: '^#chatglm[sS]*',
+          reg: '^>chatglm[sS]*',
           /** 执行方法 */
           fnc: 'chatglm'
         },
         {
           /** 命令正则匹配 */
-          reg: '^#bing[sS]*',
+          reg: '^>bing[sS]*',
           /** 执行方法 */
           fnc: 'bing'
         },
         {
           /** 命令正则匹配 */
-          reg: toggleMode === 'at' ? '^[^#][sS]*' : '^#chat[^gpt][sS]*',
+          reg: toggleMode === 'at' ? '^[^>][sS]*' : '^>chat[^gpt][sS]*',
           /** 执行方法 */
           fnc: 'chatgpt',
           log: false
         },
         {
-          reg: '^#(chatgpt)?对话列表$',
+          reg: '^>(chatgpt)?对话列表$',
           fnc: 'getAllConversations',
           permission: 'master'
         },
         {
-          reg: '^#(chatgpt)?结束对话([sS]*)',
+          reg: '^>(chatgpt)?结束对话([sS]*)',
           fnc: 'destroyConversations'
         },
         {
-          reg: '^#(chatgpt)?结束全部对话$',
+          reg: '^>(chatgpt)?结束全部对话$',
           fnc: 'endAllConversations',
           permission: 'master'
         },
@@ -130,28 +130,28 @@ export class chatgpt extends plugin {
         //   fnc: 'help'
         // },
         {
-          reg: '^#chatgpt图片模式$',
+          reg: '^>chatgpt图片模式$',
           fnc: 'switch2Picture'
         },
         {
-          reg: '^#chatgpt文本模式$',
+          reg: '^>chatgpt文本模式$',
           fnc: 'switch2Text'
         },
         {
-          reg: '^#chatgpt语音模式$',
+          reg: '^>chatgpt语音模式$',
           fnc: 'switch2Audio'
         },
         {
-          reg: '^#chatgpt设置(语音角色|角色语音|角色)',
+          reg: '^>chatgpt设置(语音角色|角色语音|角色)',
           fnc: 'setDefaultRole'
         },
         {
-          reg: '^#(chatgpt)?清空(chat)?队列$',
+          reg: '^>(chatgpt)?清空(chat)?队列$',
           fnc: 'emptyQueue',
           permission: 'master'
         },
         {
-          reg: '^#(chatgpt)?移出(chat)?队列首位$',
+          reg: '^>(chatgpt)?移出(chat)?队列首位$',
           fnc: 'removeQueueFirst',
           permission: 'master'
         },
@@ -161,15 +161,15 @@ export class chatgpt extends plugin {
           permission: 'master'
         },
         {
-          reg: '^#chatgpt切换对话',
+          reg: '^>chatgpt切换对话',
           fnc: 'attachConversation'
         },
         {
-          reg: '^#(chatgpt)?加入对话',
+          reg: '^>(chatgpt)?加入对话',
           fnc: 'joinConversation'
         },
         {
-          reg: '^#chatgpt删除对话',
+          reg: '^>chatgpt删除对话',
           fnc: 'deleteConversation',
           permission: 'master'
         }
@@ -504,7 +504,7 @@ export class chatgpt extends plugin {
     } else {
       userSetting = JSON.parse(userSetting)
     }
-    const regex = /^#chatgpt设置(语音角色|角色语音|角色)/
+    const regex = /^>chatgpt设置(语音角色|角色语音|角色)/
     // let speaker = _.trimStart(e.msg, regex) || '随机'
     let speaker = e.msg.replace(regex, '').trim() || '随机'
     userSetting.ttsRole = convertSpeaker(speaker)
