@@ -30,9 +30,9 @@
             <div class="row justify-content-end">
                 <div class="col-xl-5 col-lg-5 text-right">
                     <div class="section-heading section-heading-{{style}}">
-                        <h2>New Bing</h2>
+                        <h2>Kyrin Chan GEN5</h2>
                         {{if cache.file != ''}}
-                        <p> {{cache.file}} </p>
+                        <p> 访问代码 {{cache.file}} </p>
                         {{/if}}
                     </div>
                 </div>
@@ -40,10 +40,10 @@
             <div class="row">
                 <div class="col-xl-12">
                     <div class="hero-content hero-content-{{style}}">
-                        <h4>{{senderName}}</h4>
+                        <h3>{{userImg}} {{senderName}}</h3>
                     </div>
                     <div class="about-content">
-                        <p class="markdown_prompt"></p>
+                        <h3 class="markdown_prompt"></h3>
                         <span class="height-50"></span>
                     </div>
                 </div>
@@ -54,11 +54,11 @@
                         {{if style === 'Sydney'}}
                         <h4>Sydney</h4>
                         {{else}}
-                        <h4>必应</h4>
+                        <h3>{{botImg}} {{chatViewBotName}}</h3>
                         {{/if}}
                     </div>
                     <div class="about-content">
-                        <p class="markdown_content"></p>
+                        <h3 class="markdown_content"></h3>
                         <span class="height-50"></span>
                     </div>
                 </div>
@@ -74,7 +74,7 @@
             <div class="row">
                 <div class="col-xl-12">
                     <div class="hero-content hero-content-{{style}}">
-                        <h4>引用</h4>
+                        <h4>References</h4>
                     </div>
                     <div class="about-content">
                         {{each quotes item}}
@@ -98,7 +98,7 @@
                 </div>
                 <div class="col-md-10 my-auto text-right">
                     <div class="copyright-text copyright-text-{{style}}">
-                        <p>Response to {{senderName}} Created By Yunzai-Bot and ChatGPT-Plugin {{version}}</a></p>
+                        <p>Kyrin Chan AI GEN5 with {{senderName}}🌸~</a></p>
                     </div>
                 </div>
             </div>
@@ -144,7 +144,7 @@
 
         $(".markdown_content").html(DOMPurify.sanitize(html_content));
         $(".markdown_prompt").html(DOMPurify.sanitize(html_prompt));
-        jQuery('#qrcode').qrcode({width: 128,height: 128,text: "{{cache.cacheUrl}}/{{cache.file}}"});
+        // jQuery('#qrcode').qrcode({width: 128,height: 128,text: "{{cache.cacheUrl}}/{{cache.file}}"});
     </script>
 </body>
 
