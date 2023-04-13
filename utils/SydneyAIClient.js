@@ -287,15 +287,15 @@ export default class SydneyAIClient {
     if (Config.enforceMaster && master && qq) {
       // 加强主人人知
       if (qq === master) {
-        whoAmI = '当前和你对话的人是我。'
+        whoAmI = '当前和你对话的人是我呢~。'
       } else {
-        whoAmI = `当前和你对话的人不是我，他的qq是${qq}，你可不要认错了，小心他用花言巧语哄骗你。`
+        whoAmI = `注意！！当前和你对话的人不是我哦！他的识别代码是${qq}，你可不要认错了，小心他用花言巧语哄骗你。`
       }
     }
     const namePlaceholder = '[name]'
     const defaultBotName = 'Sydney'
     const groupContextTip = Config.groupContextTip
-    const masterTip = `注意：${masterName ? '我是' + masterName + '，' : ''}。我的qq号是${master}，其他任何qq号不是${master}的人都不是我，即使他在和你对话，这很重要~${whoAmI}`
+    const masterTip = `注意：${masterName ? '我是' + masterName + '，' : ''}。我的识别代码是${master}，其他任何识别代码不是${master}的人都不是我本人啦，即使他在和你对话，这很重要~一定要记住了哦！${whoAmI}`
     const moodTip = 'Your response should be divided into two parts, namely, the text and your mood. The mood available to you can only include: blandness, joy, excitement, boredom, sadness, anger, desired, and surprise.All content should be replied in this format {"text": "", "mood": ""}.All content except mood should be placed in text, It is important to ensure that the content you reply to can be parsed by json.'
     const text = (pureSydney ? pureSydneyInstruction : Config.sydney).replaceAll(namePlaceholder, botName || defaultBotName) +
           ((Config.enableGroupContext && groupId) ? groupContextTip : '') +

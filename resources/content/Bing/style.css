@@ -37,14 +37,16 @@ html {
 }
 
 body {
-  font-family: "Microsoft YaHei", "微软雅黑", "Josefin Sans", sans-serif;
+  font-family: 'ZCOOL KuaiLe', 'Comfortaa',"Microsoft Yahei", "Josefin Sans", sans-serif;
   font-size: 18px;
   padding: 0;
   margin: 0;
   font-weight: 400;
   position: relative;
   line-height: 26px;
-  background: #f5feff;
+  background: rgb(255,242,242);
+  background: -moz-linear-gradient(132deg, rgba(255,242,242,1) 31%, rgba(208,219,244,1) 64%, rgba(238,253,255,1) 100%);
+  background: -webkit-linear-gradient(132deg, rgba(255,242,242,1) 31%, rgba(208,219,244,1) 64%, rgba(238,253,255,1) 100%);
 }
 
 img {
@@ -196,7 +198,7 @@ p, li, span {
   transition: 0.3s;
   z-index: 2;
   position: relative;
-  font-family: "Microsoft YaHei", "微软雅黑", "Josefin Sans", sans-serif;
+  font-family: "Comfortaa", "微软雅黑", "Josefin Sans", sans-serif;
 }
 @media (max-width: 767px) {
   .site-btn {
@@ -229,7 +231,9 @@ p, li, span {
   }
 }
 .site-btn__borderd:hover {
-  background: #6B84FF;
+  background: rgb(255,242,242);
+  background: -moz-linear-gradient(132deg, rgba(255,242,242,1) 31%, rgba(208,219,244,1) 64%, rgba(238,253,255,1) 100%);
+  background: -webkit-linear-gradient(132deg, rgba(255,242,242,1) 31%, rgba(208,219,244,1) 64%, rgba(238,253,255,1) 100%);
 }
 
 .section-heading {
@@ -278,7 +282,7 @@ p, li, span {
 .inline-btn {
   font-size: 20px;
   color: #6B84FF;
-  font-family: "Josefin Sans", sans-serif;
+  font-family: "Comfortaa", "Josefin Sans", sans-serif;
   position: relative;
   display: inline-block;
   -webkit-transition: 0.3s;
@@ -1752,7 +1756,7 @@ h1, h2, h3, h4, h5, h6 {
   color: #242B58;
   margin: 0;
   line-height: 1.4;
-  font-family: "Josefin Sans", sans-serif;
+  font-family: 'ZCOOL KuaiLe', 'Comfortaa',"Microsoft Yahei", "Josefin Sans", sans-serif;
 }
 
 h2 {
@@ -1892,7 +1896,7 @@ h6 {
   text-transform: uppercase;
   padding: 9px 20px;
   display: block;
-  font-family: "Josefin Sans", sans-serif;
+  font-family: 'ZCOOL KuaiLe', 'Comfortaa',"Microsoft Yahei", "Josefin Sans", sans-serif;
 }
 .main-menu ul li a:hover {
   color: #6B84FF;
@@ -2529,7 +2533,7 @@ input.form-control-sm {
   color: #ffffff;
   background: #242B58;
   font-size: 14px;
-  font-family: "Josefin Sans", sans-serif;
+  font-family: 'ZCOOL KuaiLe', 'Comfortaa',"Microsoft Yahei", "Josefin Sans", sans-serif;
   cursor: pointer;
   -webkit-transition: 0.3s;
   -o-transition: 0.3s;
@@ -2585,7 +2589,7 @@ input.form-control-sm {
   padding-left: 40px;
   color: #B0B0B2;
   font-size: 14px;
-  font-family: "Josefin Sans", sans-serif;
+  font-family: 'ZCOOL KuaiLe', 'Comfortaa',"Microsoft Yahei", "Josefin Sans", sans-serif;
 }
 .work-item .content span::after {
   background: #ffffff;
@@ -2855,10 +2859,10 @@ input.form-control-sm {
 }
 .blog-item__content p {
   color: #B0B0B2;
-  font-family: "Josefin Sans", sans-serif;
+  font-family: 'ZCOOL KuaiLe', 'Comfortaa',"Microsoft Yahei", "Josefin Sans", sans-serif;
 }
 .blog-item__content .read-more {
-  font-family: "Josefin Sans", sans-serif;
+  font-family: 'ZCOOL KuaiLe', 'Comfortaa',"Microsoft Yahei", "Josefin Sans", sans-serif;
   font-size: 14px;
   color: #6B84FF;
   display: inline-block;
@@ -2961,7 +2965,7 @@ input.form-control-sm {
   font-size: 20px;
   color: #ffffff;
   font-weight: 600;
-  font-family: "Josefin Sans", sans-serif;
+  font-family: 'ZCOOL KuaiLe', 'Comfortaa',"Microsoft Yahei", "Josefin Sans", sans-serif;
   line-height: 30px;
 }
 .blog-item__title--2 {
@@ -3037,7 +3041,7 @@ input.form-control-sm {
   border: none;
   border-bottom: 2px solid #12152F;
   width: 100%;
-  font-family: "Josefin Sans", sans-serif;
+  font-family: 'ZCOOL KuaiLe', 'Comfortaa',"Microsoft Yahei", "Josefin Sans", sans-serif;
   color: #707070;
   font-size: 14px;
   border-radius: 0px;
@@ -3152,7 +3156,7 @@ input.form-control-sm {
 }
 .breadcrumb-nav li {
   font-size: 60px;
-  font-family: "Josefin Sans", sans-serif;
+  font-family: 'ZCOOL KuaiLe', 'Comfortaa',"Microsoft Yahei", "Josefin Sans", sans-serif;
   font-weight: 700;
   color: #ffffff;
   line-height: 72px;
@@ -3183,7 +3187,7 @@ input.form-control-sm {
   }
 }
 .breadcrumb-nav li a {
-  font-family: "Josefin Sans", sans-serif;
+  font-family: 'ZCOOL KuaiLe', 'Comfortaa',"Microsoft Yahei", "Josefin Sans", sans-serif;
   color: #242B58;
 }
 
@@ -3269,7 +3273,7 @@ input.form-control-sm {
 }
 .contact-info-head span {
   font-size: 14px;
-  font-family: "Josefin Sans", sans-serif;
+  font-family: 'ZCOOL KuaiLe', 'Comfortaa',"Microsoft Yahei", "Josefin Sans", sans-serif;
   color: #ffffff;
   background: #6B84FF;
   display: inline-block;
@@ -3291,7 +3295,7 @@ input.form-control-sm {
 }
 .contact-info-head p {
   font-size: 14px;
-  font-family: "Josefin Sans", sans-serif;
+  font-family: 'ZCOOL KuaiLe', 'Comfortaa',"Microsoft Yahei", "Josefin Sans", sans-serif;
   color: #B0B0B2;
 }
 
@@ -3303,7 +3307,7 @@ input.form-control-sm {
 .contact-info__item ul li {
   color: #B0B0B2;
   font-size: 14px;
-  font-family: "Josefin Sans", sans-serif;
+  font-family: 'ZCOOL KuaiLe', 'Comfortaa',"Microsoft Yahei", "Josefin Sans", sans-serif;
 }
 .contact-info__item ul li a {
   display: block;
@@ -3350,7 +3354,7 @@ input.form-control-sm {
   align-items: center;
 }
 .blog-nav li {
-  font-family: "Josefin Sans", sans-serif;
+  font-family: 'ZCOOL KuaiLe', 'Comfortaa',"Microsoft Yahei", "Josefin Sans", sans-serif;
   font-size: 28px;
   line-height: 34px;
 }
@@ -3416,13 +3420,13 @@ input.form-control-sm {
 }
 .author-box .designation {
   color: #707070;
-  font-family: "Josefin Sans", sans-serif;
+  font-family: 'ZCOOL KuaiLe', 'Comfortaa',"Microsoft Yahei", "Josefin Sans", sans-serif;
   margin-top: -4px;
   margin-bottom: 2px;
 }
 .author-box p {
   color: #B0B0B2;
-  font-family: "Josefin Sans", sans-serif;
+  font-family: 'ZCOOL KuaiLe', 'Comfortaa',"Microsoft Yahei", "Josefin Sans", sans-serif;
 }
 
 /* comment css */
@@ -3479,13 +3483,13 @@ input.form-control-sm {
   }
 }
 .comment-lists li .content p {
-  font-family: "Josefin Sans", sans-serif;
+  font-family: 'ZCOOL KuaiLe', 'Comfortaa',"Microsoft Yahei", "Josefin Sans", sans-serif;
   color: #B0B0B2;
 }
 .comment-lists li .content .view-reply {
   color: #B0B0B2;
   font-size: 12px;
-  font-family: "Josefin Sans", sans-serif;
+  font-family: 'ZCOOL KuaiLe', 'Comfortaa',"Microsoft Yahei", "Josefin Sans", sans-serif;
 }
 .comment-lists li .content .view-reply i {
   color: #707070;
@@ -3507,7 +3511,7 @@ input.form-control-sm {
 .comment-lists li .name-hour span {
   color: #707070;
   font-size: 14px;
-  font-family: "Josefin Sans", sans-serif;
+  font-family: 'ZCOOL KuaiLe', 'Comfortaa',"Microsoft Yahei", "Josefin Sans", sans-serif;
 }
 .comment-lists li:not(:last-child) {
   margin-bottom: 35px;
@@ -3523,7 +3527,7 @@ input.form-control-sm {
 
 /*Footer css*/
 .site-footer {
-  border-top: 1px solid #007bff;
+  border-top: 1px solid #93c7ff;
   padding: 30px 0px;
 }
 @media (max-width: 767px) {
