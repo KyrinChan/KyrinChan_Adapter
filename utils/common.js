@@ -91,25 +91,12 @@ var preseterrors = [
   "basketball:no gas filled"
 ];
 
-// 定义一个异步函数，使用Promise对象封装
 export async function getRandomErrorMessage() {
-  // 返回一个Promise对象
-  return new Promise(function (resolve, reject) {
-    // 随机获取一个错误信息的索引
-    var index = Math.floor(Math.random() * preseterrors.length);
-    // 随机获取一个错误信息
-    var error_message = preseterrors[index];
-    // 模拟一个异步操作，使用setTimeout函数延迟1秒
-    setTimeout(function () {
-      // 如果错误信息不为空，就调用resolve函数传递结果
-      if (error_message) {
-        resolve(error_message);
-      } else {
-        // 否则，就调用reject函数传递错误
-        reject(new Error("No error message found"));
-      }
-    }, 1000);
-  });
+  // 随机选择一个错误
+  const index = Math.floor(Math.random() * preseterrors.length);
+  const message = preseterrors[index];
+  // 返回一个错误
+  return message;
 }
 
 export async function makeForwardMsg(e, msg = [], dec = '') {
