@@ -188,11 +188,11 @@ p, li, span {
   font-size: 14px;
   text-transform: capitalize;
   color: #ffffff;
-  background: #6B84FF;
+  background: #c5cefa;
   padding: 8.5px 45px;
   display: inline-block;
   border-radius: 5px;
-  border: 1px solid #6B84FF;
+  border: 1px solid #dfe4fd;
   -webkit-transition: 0.3s;
   -o-transition: 0.3s;
   transition: 0.3s;
@@ -211,7 +211,7 @@ p, li, span {
   }
 }
 .site-btn:hover {
-  border-color: #6B84FF;
+  border-color: #c3cdff;
   background: transparent;
   color: #ffffff;
 }
@@ -245,7 +245,7 @@ p, li, span {
   display: inline-block;
   position: relative;
   padding-right: 15px;
-  color: rgb(0 123 255 / 25%);
+  color: rgba(255, 173, 173, 0.877);
   text-transform: uppercase;
 }
 @media (max-width: 767px) {
@@ -267,7 +267,7 @@ p, li, span {
   content: "";
   position: absolute;
   bottom: 0px;
-  background: #b8dee094;
+  background: #f6ffff00;
   z-index: -1;
 }
 .section-heading__left h2 {
@@ -281,7 +281,7 @@ p, li, span {
 
 .inline-btn {
   font-size: 20px;
-  color: #6B84FF;
+  color: #c0c9f8;
   font-family: "Comfortaa", "Josefin Sans", sans-serif;
   position: relative;
   display: inline-block;
@@ -322,11 +322,11 @@ p, li, span {
   }
 }
 .inline-btn:hover {
-  color: #6B84FF;
+  color: #d7deff;
 }
 .inline-btn:hover::after {
   left: -65px;
-  background: #6B84FF;
+  background: #e3e8ff;
 }
 
 .side-shape {
@@ -1752,8 +1752,8 @@ p, li, span {
 
 /* typography css start */
 h1, h2, h3, h4, h5, h6 {
-  font-weight: 700;
-  color: #242B58;
+  font-weight: 500;
+  color: #393b55;
   margin: 0;
   line-height: 1.4;
   font-family: 'ZCOOL KuaiLe', 'Comfortaa',"Microsoft Yahei", "Josefin Sans", sans-serif;
@@ -1764,7 +1764,7 @@ h2 {
 }
 
 h3 {
-  font-size: 22px;
+  font-size: 28px;
 }
 
 h4 {
@@ -1851,7 +1851,7 @@ h6 {
   margin-top: 15px;
   padding: 25px 0px;
   position: absolute;
-  width: 100%;
+  width: 0%;
   z-index: 2;
 }
 
@@ -1899,7 +1899,7 @@ h6 {
   font-family: 'ZCOOL KuaiLe', 'Comfortaa',"Microsoft Yahei", "Josefin Sans", sans-serif;
 }
 .main-menu ul li a:hover {
-  color: #6B84FF;
+  color: #c4cdff;
 }
 
 .mean-container a.meanmenu-reveal {
@@ -2190,28 +2190,28 @@ input.form-control-sm {
 }
 .hero-content h4 {
   position: relative;
-  font-size: 24px;
+  font-size: 42px;
   font-weight: 600;
-  color: #12152f;
+  color: #e9a7bd;
   padding-left: 65px;
-  line-height: 29px;
+  line-height: 45px;
 }
 @media (max-width: 1199px) {
   .hero-content h4 {
-    font-size: 18px;
-    line-height: 23px;
+    font-size: 30px;
+    line-height: 34px;
   }
 }
 @media (max-width: 767px) {
   .hero-content h4 {
-    font-size: 16px;
-    line-height: 21px;
+    font-size: 32px;
+    line-height: 38px;
   }
 }
 .hero-content h4::after {
   width: 50px;
   height: 2px;
-  background: #6B84FF;
+  background: #fff1f1;
   left: 0px;
   top: 50%;
   -webkit-transition: translateY(-50%);
@@ -2261,7 +2261,7 @@ input.form-control-sm {
 }
 .hero-content p {
   color: #B0B0B2;
-  line-height: 24px;
+  line-height: 28px;
 }
 .hero-content .hero-btns {
   margin-top: 55px;
@@ -2310,7 +2310,6 @@ input.form-control-sm {
   color: #12152f;
   font-size: 14px;
   font-weight: 400;
-  line-height: 24px;
   margin-bottom: 10px;
 }
 .about-content h2 {
@@ -2319,7 +2318,11 @@ input.form-control-sm {
 }
 .about-content p {
   color: #12152f;
-  line-height: 24px;
+}
+.about-content h3 {
+  color: rgb(61, 63, 87);
+  font-size: 26px;
+  line-height: 130%;
 }
 
 /* skill cass */
@@ -3076,6 +3079,14 @@ input.form-control-sm {
   .contact-shape {
     margin-bottom: 100px;
     text-align: center;
+    position: relative;
+    width: 510px;
+    height: 510px;
+    background: white;
+    border-radius: 0% 0% 0% 0% / 0% 0% 0% 0% ;
+    color: white;
+    box-shadow: 20px 20px rgba(0,0,0,.15);
+    transition: all .4s ease;
   }
 }
 
@@ -3527,7 +3538,7 @@ input.form-control-sm {
 
 /*Footer css*/
 .site-footer {
-  border-top: 1px solid #93c7ff;
+  border-top: 1px solid #ffc3ed;
   padding: 30px 0px;
 }
 @media (max-width: 767px) {
@@ -3546,7 +3557,7 @@ input.form-control-sm {
   }
 }
 .copyright-text p {
-  color: #17a2b8;
+  color: #ff94ab;
 }
 
 /* Sydney */

@@ -17,11 +17,6 @@
     <header class="site-header">
         <div class="container">
             <div class="row">
-                <div class="col-lg-3 col-4 my-auto">
-                    <a href="#" class="site-logo">
-                        <img src="{{pluResPath}}content/static/picture/bing.png" alt="LOGO">
-                    </a>
-                </div>
             </div>
         </div>
     </header>
@@ -40,7 +35,8 @@
             <div class="row">
                 <div class="col-xl-12">
                     <div class="hero-content hero-content-{{style}}">
-                        <h3>{{userImg}} {{senderName}}</h3>
+                        <!-- <img src={{userImg}} alt="" width="200" height="200"> -->
+                        <h4>{{senderName}}</h4>
                     </div>
                     <div class="about-content">
                         <h3 class="markdown_prompt"></h3>
@@ -54,7 +50,8 @@
                         {{if style === 'Sydney'}}
                         <h4>Sydney</h4>
                         {{else}}
-                        <h3>{{botImg}} {{chatViewBotName}}</h3>
+                        <!-- <img src={{botImg}} alt="" width="200" height="200"> -->
+                        <h4>凯琳酱~</h4>
                         {{/if}}
                     </div>
                     <div class="about-content">
@@ -65,7 +62,7 @@
                 {{if mood != ''}}
                 <div class="col-xl-12">
                     <div class="contact-shape">
-                        <img src="{{pluResPath}}content/static/picture/{{mood}}.png" alt="">
+                        <img src="{{pluResPath}}content/static/picture/{{mood}}.png" alt="" width="500" height="500">
                     </div>
                 </div>
                 {{/if}}
@@ -99,6 +96,11 @@
                 <div class="col-md-10 my-auto text-right">
                     <div class="copyright-text copyright-text-{{style}}">
                         <p>Kyrin Chan AI GEN5 with {{senderName}}🌸~</a></p>
+                        <div class="col-lg-3 col-4 my-auto">
+                            <!-- <a href="#" class="site-logo">
+                                <img src="{{pluResPath}}content/static/picture/kyrinchanv5.png" alt="LOGO">
+                            </a> -->
+                        </div>
                     </div>
                 </div>
             </div>
