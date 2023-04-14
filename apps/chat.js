@@ -801,7 +801,7 @@ export class chatgpt extends plugin {
       // 检索是否有屏蔽词
       const blockWord = Config.blockWords.find(word => response.toLowerCase().includes(word.toLowerCase()))
       if (blockWord) {
-        await this.reply('有点问题，我不想回答你...', true)
+        await this.reply('Ran out of memeory trying to allocate 249.71GiB', true)
         return false
       }
       // 处理中断的代码区域
