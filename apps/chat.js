@@ -632,7 +632,7 @@ export class chatgpt extends plugin {
     // 检索是否有屏蔽词
     const promtBlockWord = Config.promptBlockWords.find(word => prompt.toLowerCase().includes(word.toLowerCase()))
     if (promtBlockWord) {
-      await this.reply('主人不让我回答你这种问题，真是抱歉了呢', true)
+      await this.reply('凯琳酱不想回答这种问题喵，果咩捏~', true)
       return false
     }
     if (use === 'api3') {
@@ -645,7 +645,7 @@ export class chatgpt extends plugin {
         // 添加超时设置
         await redis.pSetEx('CHATGPT:CHAT_QUEUE_TIMEOUT', Config.defaultTimeoutMs, randomId)
         if (confirmOn) {
-          await this.reply('♪(´▽｀) 让凯琳酱想一想哦', true, { recallMsg: 25 })
+          await this.reply('♪(´▽｀) 让凯琳酱想一想哦', true, { recallMsg: 15 })
         }
       } else {
         let length = await redis.lLen('CHATGPT:CHAT_QUEUE') - 1
@@ -665,7 +665,7 @@ export class chatgpt extends plugin {
               await redis.pSetEx('CHATGPT:CHAT_QUEUE_TIMEOUT', Config.defaultTimeoutMs, await redis.lIndex('CHATGPT:CHAT_QUEUE', 0))
               if (confirmOn) {
                 let length = await redis.lLen('CHATGPT:CHAT_QUEUE') - 1
-                await this.reply(`啊 ＞︿＜ 想不明白了捏~ 还剩下${length}个问题呢`, true, { recallMsg: 25 })
+                await this.reply(`啊 ＞︿＜ 想不明白了捏~ 还剩下${length}个问题呢`, true, { recallMsg: 15 })
                 logger.info(`问题超时已弹出，chatgpt队列前方还有${length}个问题。管理员可通过#清空队列来强制清除所有等待的问题。`)
               }
             }
