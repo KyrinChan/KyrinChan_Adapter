@@ -2315,10 +2315,11 @@ input.form-control-sm {
 }
 .about-content h2 {
   color: #12152f;
-  font-size: 28px;
+  font-size: 18px;
+  font-weight: 400;
 }
 .about-content p {
-  color: #12152f;
+  color: #515bb1;
 }
 .about-content h3 {
   color: rgb(61, 63, 87);
