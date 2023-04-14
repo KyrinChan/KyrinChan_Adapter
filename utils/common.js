@@ -91,7 +91,7 @@ var preseterrors = [
   "basketball:no gas filled"
 ];
 
-export async function getRandomErrorMessage() {
+export function getRandomErrorMessage() {
   // 随机选择一个错误
   const index = Math.floor(Math.random() * preseterrors.length);
   const message = preseterrors[index];
