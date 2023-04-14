@@ -862,7 +862,7 @@ export class chatgpt extends plugin {
           await this.renderImage(e, use !== 'bing' ? 'content/ChatGPT/index' : 'content/Bing/index', response, prompt)
         }
         if (Config.enableSuggestedResponses && chatMessage.suggestedResponses) {
-          this.reply(`建议的回复：\n${chatMessage.suggestedResponses}`)
+          this.reply(`猜猜看，你不会是想说：\n${chatMessage.suggestedResponses}`)
         }
       } else {
         await this.reply(await convertFaces(response, Config.enableRobotAt, e), e.isGroup)
@@ -870,7 +870,7 @@ export class chatgpt extends plugin {
           this.reply(await makeForwardMsg(this.e, quotemessage.map(msg => `${msg.text} - ${msg.url}`)))
         }
         if (Config.enableSuggestedResponses && chatMessage.suggestedResponses) {
-          this.reply(`建议的回复：\n${chatMessage.suggestedResponses}`)
+          this.reply(`猜猜看，你不会是想说：\n${chatMessage.suggestedResponses}`)
         }
       }
       if (use === 'api3') {
@@ -1509,7 +1509,7 @@ async function getAvailableBingToken (conversation, throttled = []) {
     })
     bingToken = minElement.Token
   } else {
-    throw new Error('全部Token均已失效，暂时无法使用')
+    throw new Error('这可坏事了！宕机了捏！')
   }
   if (Config.toneStyle != 'Sydney' && Config.toneStyle != 'Custom') {
     // bing 下，需要保证同一对话使用同一账号的token
