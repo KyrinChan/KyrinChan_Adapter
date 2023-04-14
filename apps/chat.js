@@ -801,7 +801,8 @@ export class chatgpt extends plugin {
       // 检索是否有屏蔽词
       const blockWord = Config.blockWords.find(word => response.toLowerCase().includes(word.toLowerCase()))
       if (blockWord) {
-        await this.reply('Ran out of memeory trying to allocate 249.71GiB', true)
+        const errormsg = randomError();
+        await this.reply(errormsg, true)
         return false
       }
       // 处理中断的代码区域
@@ -1552,5 +1553,48 @@ async function getAvailableBingToken (conversation, throttled = []) {
   return {
     bingToken,
     allThrottled
+  }
+
+    // 使用nodejs写一段代码来刻意返回一个随机报错
+  const preseterrors = [
+    "cxk: chicken is not defined",
+    "pytorch: RuntimeError: Expected object of scalar type Double but got scalar type Float for argument #2 'mat1' in call to _th_mm",
+    "vue: TypeError: Cannot read property '114' of undefined",
+    "tensorflow: InvalidArgumentError: indices[514] = 1919810 is not in [0, 1000)",
+    "nodejs: Error: ENOENT: no such file or directory, open 'kyrin.txt'",
+    "httpx: ConnectTimeout: The request timed out while trying to connect to the remote server",
+    "python: SyntaxError: invalid syntax (<string>, line 1)",
+    "basketball: ValueError: The ball is out of bounds",
+    "114: NameError: name '114' is not defined",
+    "514: AttributeError: 'int' object has no attribute 'cxk'",
+    "1919810: IndexError: list index out of range",
+    "cxk: ImportError: No module named 'chicken'",
+    "pytorch: ValueError: Target size (torch.Size([114])) must be the same as input size (torch.Size([514]))",
+    "vue: ReferenceError: kyrin is not defined",
+    "tensorflow: ResourceExhaustedError: OOM when allocating tensor with shape[1919810,1919810] and type float on /job:localhost/replica:0/task:0/device:GPU:0 by allocator GPU_0_bfc",
+    "nodejs: ReferenceError: chicken is not defined",
+    "httpx: TooManyRedirects: Exceeded 30 redirects.",
+    "python: ZeroDivisionError: division by zero",
+    "basketball: TypeError: unsupported operand type(s) for +: 'int' and 'str'",
+    "114: TypeError: 'int' object is not callable",
+    "514: RuntimeError: maximum recursion depth exceeded while calling a Python object",
+    "1919810: OverflowError: Python int too large to convert to C long",
+    "cxk: ValueError: invalid literal for int() with base 10: 'chicken'",
+    "pytorch: NotImplementedError: Cannot convert a symbolic Tensor (lstm_1/strided_slice_8) to a numpy array.",
+    "vue: Error in mounted hook (Promise/async): \"Error\"",
+    "tensorflow: NotFoundError: Failed to create a directory:",
+    "nodejs: UnhandledPromiseRejectionWarning:",
+    "httpx: HTTPStatusError:",
+    "python: ImportError:",
+    "Ran out of memeory trying to allocate 249.71GiB",
+    "basketball:no gas filled"
+  ];
+
+  function randomError() {
+    // 随机选择一个错误
+    const index = Math.floor(Math.random() * preseterrors.length);
+    const message = preseterrors[index];
+    // 返回一个新的错误对象
+    return new Error(message);
   }
 }
