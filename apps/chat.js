@@ -12,6 +12,7 @@ import {
   makeForwardMsg,
   upsertMessage,
   randomString,
+  getRandomErrorMessage,
   completeJSON,
   isImage,
   getDefaultReplySetting, isCN, getMasterQQ
