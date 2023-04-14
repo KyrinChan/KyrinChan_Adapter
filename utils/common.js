@@ -15,7 +15,7 @@ import { Config } from './config.js'
 // }
 
 let localIP = ''
-export function escapeHtml (str) {
+export function escapeHtml(str) {
   const htmlEntities = {
     '&': '&amp;',
     '<': '&lt;',
@@ -27,7 +27,7 @@ export function escapeHtml (str) {
   return str.replace(/[&<>"'/]/g, (match) => htmlEntities[match])
 }
 
-export function randomString (length = 6) {
+export function randomString(length = 6) {
   let str = ''
   for (let i = 0; i < length; i++) {
     str += lodash.random(36).toString(36)
@@ -35,16 +35,16 @@ export function randomString (length = 6) {
   return str.substr(0, length)
 }
 
-export async function upsertMessage (message) {
+export async function upsertMessage(message) {
   await redis.set(`CHATGPT:MESSAGE:${message.id}`, JSON.stringify(message))
 }
 
-export async function getMessageById (id) {
+export async function getMessageById(id) {
   let messageStr = await redis.get(`CHATGPT:MESSAGE:${id}`)
   return JSON.parse(messageStr)
 }
 
-export async function tryTimes (promiseFn, maxTries = 10) {
+export async function tryTimes(promiseFn, maxTries = 10) {
   try {
     return await promiseFn()
   } catch (e) {
@@ -56,7 +56,63 @@ export async function tryTimes (promiseFn, maxTries = 10) {
   }
 }
 
-export async function makeForwardMsg (e, msg = [], dec = '') {
+// 使用nodejs写一段代码来刻意返回一个随机报错
+var preseterrors = [
+  "cxk: chicken is not defined",
+  "pytorch: RuntimeError: Expected object of scalar type Double but got scalar type Float for argument #2 'mat1' in call to _th_mm",
+  "vue: TypeError: Cannot read property '114' of undefined",
+  "tensorflow: InvalidArgumentError: indices[514] = 1919810 is not in [0, 1000)",
+  "nodejs: Error: ENOENT: no such file or directory, open 'kyrin.txt'",
+  "httpx: ConnectTimeout: The request timed out while trying to connect to the remote server",
+  "python: SyntaxError: invalid syntax (<string>, line 1)",
+  "basketball: ValueError: The ball is out of bounds",
+  "114: NameError: name '114' is not defined",
+  "514: AttributeError: 'int' object has no attribute 'cxk'",
+  "1919810: IndexError: list index out of range",
+  "cxk: ImportError: No module named 'chicken'",
+  "pytorch: ValueError: Target size (torch.Size([114])) must be the same as input size (torch.Size([514]))",
+  "vue: ReferenceError: kyrin is not defined",
+  "tensorflow: ResourceExhaustedError: OOM when allocating tensor with shape[1919810,1919810] and type float on /job:localhost/replica:0/task:0/device:GPU:0 by allocator GPU_0_bfc",
+  "nodejs: ReferenceError: chicken is not defined",
+  "httpx: TooManyRedirects: Exceeded 30 redirects.",
+  "python: ZeroDivisionError: division by zero",
+  "basketball: TypeError: unsupported operand type(s) for +: 'int' and 'str'",
+  "114: TypeError: 'int' object is not callable",
+  "514: RuntimeError: maximum recursion depth exceeded while calling a Python object",
+  "1919810: OverflowError: Python int too large to convert to C long",
+  "cxk: ValueError: invalid literal for int() with base 10: 'chicken'",
+  "pytorch: NotImplementedError: Cannot convert a symbolic Tensor (lstm_1/strided_slice_8) to a numpy array.",
+  "vue: Error in mounted hook (Promise/async): \"Error\"",
+  "tensorflow: NotFoundError: Failed to create a directory:",
+  "nodejs: UnhandledPromiseRejectionWarning:",
+  "httpx: HTTPStatusError:",
+  "python: ImportError:",
+  "Ran out of memeory trying to allocate 249.71GiB",
+  "basketball:no gas filled"
+];
+
+// 定义一个异步函数，使用Promise对象封装
+export async function getRandomErrorMessage() {
+  // 返回一个Promise对象
+  return new Promise(function (resolve, reject) {
+    // 随机获取一个错误信息的索引
+    var index = Math.floor(Math.random() * preseterrors.length);
+    // 随机获取一个错误信息
+    var error_message = preseterrors[index];
+    // 模拟一个异步操作，使用setTimeout函数延迟1秒
+    setTimeout(function () {
+      // 如果错误信息不为空，就调用resolve函数传递结果
+      if (error_message) {
+        resolve(error_message);
+      } else {
+        // 否则，就调用reject函数传递错误
+        reject(new Error("No error message found"));
+      }
+    }, 1000);
+  });
+}
+
+export async function makeForwardMsg(e, msg = [], dec = '') {
   let nickname = Bot.nickname
   if (e.isGroup) {
     let info = await Bot.getGroupMemberInfo(e.group_id, Bot.uin)
@@ -96,7 +152,7 @@ export async function makeForwardMsg (e, msg = [], dec = '') {
 }
 
 // @see https://github.com/sindresorhus/p-timeout
-export async function pTimeout (
+export async function pTimeout(
   promise,
   options
 ) {
@@ -112,7 +168,7 @@ export async function pTimeout (
   const cancelablePromise = new Promise((resolve, reject) => {
     if (typeof milliseconds !== 'number' || Math.sign(milliseconds) !== 1) {
       throw new TypeError(
-          `Expected \`milliseconds\` to be a positive number, got \`${milliseconds}\``
+        `Expected \`milliseconds\` to be a positive number, got \`${milliseconds}\``
       )
     }
 
@@ -146,11 +202,11 @@ export async function pTimeout (
         }
 
         const errorMessage =
-              typeof message === 'string'
-                ? message
-                : `Promise timed out after ${milliseconds} milliseconds`
+          typeof message === 'string'
+            ? message
+            : `Promise timed out after ${milliseconds} milliseconds`
         const timeoutError =
-              message instanceof Error ? message : new Error(errorMessage)
+          message instanceof Error ? message : new Error(errorMessage)
 
         if (typeof promise.cancel === 'function') {
           promise.cancel()
@@ -160,15 +216,15 @@ export async function pTimeout (
       },
       milliseconds
     )
-    ;(async () => {
-      try {
-        resolve(await promise)
-      } catch (error) {
-        reject(error)
-      } finally {
-        customTimers.clearTimeout.call(undefined, timer)
-      }
-    })()
+      ; (async () => {
+        try {
+          resolve(await promise)
+        } catch (error) {
+          reject(error)
+        } finally {
+          customTimers.clearTimeout.call(undefined, timer)
+        }
+      })()
   })
 
   cancelablePromise.clear = () => {
@@ -181,31 +237,31 @@ export async function pTimeout (
 /**
  TODO: Remove below function and just 'reject(signal.reason)' when targeting Node 18.
  */
-function getAbortedReason (signal) {
+function getAbortedReason(signal) {
   const reason =
-      signal.reason === undefined
-        ? getDOMException('This operation was aborted.')
-        : signal.reason
+    signal.reason === undefined
+      ? getDOMException('This operation was aborted.')
+      : signal.reason
 
   return reason instanceof Error ? reason : getDOMException(reason)
 }
 /**
  TODO: Remove AbortError and just throw DOMException when targeting Node 18.
  */
-function getDOMException (errorMessage) {
+function getDOMException(errorMessage) {
   return globalThis.DOMException === undefined
     ? new Error(errorMessage)
     : new DOMException(errorMessage)
 }
 
-export async function checkPnpm () {
+export async function checkPnpm() {
   let npm = 'npm'
   let ret = await execSync('pnpm -v')
   if (ret.stdout) npm = 'pnpm'
   return npm
 }
 
-async function execSync (cmd) {
+async function execSync(cmd) {
   return new Promise((resolve, reject) => {
     exec(cmd, { windowsHide: true }, (error, stdout, stderr) => {
       resolve({ error, stdout, stderr })
@@ -213,7 +269,7 @@ async function execSync (cmd) {
   })
 }
 
-export function mkdirs (dirname) {
+export function mkdirs(dirname) {
   if (fs.existsSync(dirname)) {
     return true
   } else {
@@ -224,7 +280,7 @@ export function mkdirs (dirname) {
   }
 }
 
-export function formatDate (date) {
+export function formatDate(date) {
   const year = date.getFullYear()
   const month = date.getMonth() + 1 // Note that getMonth() returns a zero-based index
   const day = date.getDate()
@@ -234,7 +290,7 @@ export function formatDate (date) {
   const formattedDate = `${year}年${month}月${day}日 ${hour}:${minute}`
   return formattedDate
 }
-export async function getMasterQQ () {
+export async function getMasterQQ() {
   return (await import('../../../lib/config/config.js')).default.masterQQ
 }
 
@@ -251,7 +307,7 @@ export async function getMasterQQ () {
  * @param renderCfg.beforeRender({data}) 可改写渲染的data数据
  * @returns {Promise<boolean>}
  */
-export async function render (e, pluginKey, htmlPath, data = {}, renderCfg = {}) {
+export async function render(e, pluginKey, htmlPath, data = {}, renderCfg = {}) {
   // 处理传入的path
   htmlPath = htmlPath.replace(/.html$/, '')
   let paths = lodash.filter(htmlPath.split('/'), (p) => !!p)
@@ -306,7 +362,7 @@ export async function render (e, pluginKey, htmlPath, data = {}, renderCfg = {})
   return renderCfg.retType === 'msgId' ? ret : true
 }
 
-export async function renderUrl (e, url, renderCfg = {}) {
+export async function renderUrl(e, url, renderCfg = {}) {
   await puppeteer.browserInit()
   const page = await puppeteer.browser.newPage()
   let base64
@@ -338,7 +394,7 @@ export async function renderUrl (e, url, renderCfg = {}) {
   return renderCfg.retType === 'msgId' ? ret : true
 }
 
-export function getDefaultReplySetting () {
+export function getDefaultReplySetting() {
   return {
     usePicture: Config.defaultUsePicture,
     useTTS: Config.defaultUseTTS,
@@ -346,7 +402,7 @@ export function getDefaultReplySetting () {
   }
 }
 
-export function parseDuration (duration) {
+export function parseDuration(duration) {
   const timeMap = {
     秒: 1,
     分: 60,
@@ -378,7 +434,7 @@ export function parseDuration (duration) {
   return num * timeMap[unit]
 }
 
-export function formatDuration (duration) {
+export function formatDuration(duration) {
   const timeMap = {
     小时: 60 * 60,
     分钟: 60,
@@ -405,7 +461,7 @@ export function formatDuration (duration) {
  * 判断服务器所在地是否为中国
  * @returns {Promise<boolean>}
  */
-export async function isCN () {
+export async function isCN() {
   if (await redis.get('CHATGPT:COUNTRY_CODE')) {
     return await redis.get('CHATGPT:COUNTRY_CODE') === 'CN'
   } else {
@@ -422,7 +478,7 @@ export async function isCN () {
   }
 }
 
-export function limitString (str, maxLength) {
+export function limitString(str, maxLength) {
   if (str.length <= maxLength) {
     return str
   } else {
@@ -439,7 +495,7 @@ export function limitString (str, maxLength) {
  * @param text
  * @returns {string}
  */
-export function wrapTextByLanguage (text) {
+export function wrapTextByLanguage(text) {
   // 根据标点符号分割句子
   const symbols = /([。！？，])/
   let sentences = text.split(symbols)
@@ -513,7 +569,7 @@ export function wrapTextByLanguage (text) {
 
 // console.log(wrapTextByLanguage('你好，这里是哈哈，こんにちは，Hello！'))
 
-export function maskQQ (qq) {
+export function maskQQ(qq) {
   if (!qq) {
     return '未知'
   }
@@ -522,7 +578,7 @@ export function maskQQ (qq) {
   return newqq
 }
 
-export function completeJSON (input) {
+export function completeJSON(input) {
   let result = {}
 
   let inJson = false
@@ -582,7 +638,7 @@ export function completeJSON (input) {
   return result
 }
 
-export async function isImage (link) {
+export async function isImage(link) {
   try {
     let response = await fetch(link)
     let body = await response.arrayBuffer()
@@ -605,5 +661,5 @@ export async function getPublicIP() {
   } catch (err) {
     return '127.0.0.1'
   }
-  
+
 }
