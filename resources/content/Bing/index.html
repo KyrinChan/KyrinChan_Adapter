@@ -27,7 +27,7 @@
                     <div class="section-heading section-heading-{{style}}">
                         <h2>KyrinChan AI</h2>
                         {{if cache.file != ''}}
-                        <p> 访问代码 {{cache.file}} </p>
+                        <p> 访问代码 Gen5Prv-{{cache.file}} </p>
                         {{/if}}
                     </div>
                 </div>
@@ -75,7 +75,7 @@
                     </div>
                     <div class="about-content">
                         {{each quotes item}}
-                        <p>{{item.text}} - {{item.url}}</p>
+                        <p href={{item.url}}>ℹ️ - {{item.text}}</p>
                         {{/each}}
                         <span class="height-50"></span>
                     </div>
