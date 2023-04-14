@@ -440,7 +440,7 @@ export default class SydneyAIClient {
                     .map(chat => {
                         let sender = chat.sender || {}
                         // if (sender.user_id === Bot.uin && chat.raw_message.startsWith('建议的回复')) {
-                        if (chat.raw_message.startsWith('建议的回复')) {
+                        if (chat.raw_message.startsWith('猜猜看，你不会是想说：')) {
                             // 建议的回复太容易污染设定导致对话太固定跑偏了
                             return ''
                         }
