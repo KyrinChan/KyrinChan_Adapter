@@ -246,7 +246,7 @@ p, li, span {
   position: relative;
   padding-right: 15px;
   color: rgba(255, 149, 149, 0.877);
-  font-family: "Comfortaa", "微软雅黑", "Josefin Sans", sans-serif;
+  /* font-family: "Comfortaa", "微软雅黑", "Josefin Sans", sans-serif; */
   /* text-transform: uppercase; */
 }
 @media (max-width: 767px) {
