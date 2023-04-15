@@ -35,7 +35,9 @@
             <div class="row">
                 <div class="col-xl-12">
                     <div class="hero-content hero-content-{{style}}">
-                        <img src="{{userImg}}" alt="" width="200" height="200">
+                        <div class="avatar_img">
+                            <img src="{{userImg}}" alt="" width="50" height="50">
+                        </div>
                         <h4>{{senderName}}</h4>
                     </div>
                     <div class="about-content">
@@ -50,7 +52,9 @@
                         {{if style === 'Sydney'}}
                         <h4>Sydney</h4>
                         {{else}}
-                        <img src="{{botImg}}" alt="" width="200" height="200">
+                        <div class="avatar_img">
+                            <img src="{{botImg}}" alt="" width="50" height="50">
+                        </div>
                         <h4>凯琳酱~</h4>
                         {{/if}}
                     </div>

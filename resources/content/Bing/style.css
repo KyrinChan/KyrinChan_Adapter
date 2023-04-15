@@ -2197,6 +2197,16 @@ input.form-control-sm {
   padding-left: 65px;
   line-height: 45px;
 }
+.avatar_img {
+  width:100px;height:100px;
+  border: solid 2px #facece;
+  background-color: #eed;
+  box-shadow: 10px 10px  rgba(66, 66, 66, 0.6);
+  -moz-box-shadow: 10px 10px  rgba(66, 66, 66, 0.6);
+  -webkit-box-shadow: 10px 10px  rgba(66, 66, 66, 0.6);
+  -o-box-shadow: 10px 10px  rgba(66, 66, 66, 0.6);
+  border-radius:50px;
+}
 @media (max-width: 1199px) {
   .hero-content h4 {
     font-size: 30px;
