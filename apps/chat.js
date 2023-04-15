@@ -1051,8 +1051,6 @@ export class chatgpt extends plugin {
             prompt: new Buffer.from(prompt).toString('base64'),
             senderName: e.sender.nickname,
             style: Config.toneStyle,
-            userImg: `https://q1.qlogo.cn/g?b=qq&s=0&nk=${e.sender.user_id}`,
-            botImg: `https://q1.qlogo.cn/g?b=qq&s=0&nk=${Bot.uin}`,
             mood,
             quote
           },
@@ -1076,6 +1074,8 @@ export class chatgpt extends plugin {
         quotes: quote,
         cache: cacheData,
         style: Config.toneStyle,
+        userImg: `https://q1.qlogo.cn/g?b=qq&s=0&nk=${e.sender.user_id}`,
+        botImg: `https://q1.qlogo.cn/g?b=qq&s=0&nk=${Bot.uin}`,
         mood,
         version
       }, { retType: Config.quoteReply ? 'base64' : '' }), e.isGroup && Config.quoteReply)
