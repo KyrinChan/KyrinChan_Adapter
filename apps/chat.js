@@ -893,6 +893,39 @@ export class chatgpt extends plugin {
         if (Config.enableSuggestedResponses && chatMessage.suggestedResponses) {
           this.reply(`猜猜看，你不会是想说：\n${chatMessage.suggestedResponses}`)
         }
+        // 处理tts输入文本
+        let ttsResponse, ttsRegex
+        const regex = /^\/(.*)\/([gimuy]*)$/
+        const match = Config.ttsRegex.match(regex)
+        if (match) {
+          const pattern = match[1]
+          const flags = match[2]
+          ttsRegex = new RegExp(pattern, flags) // 返回新的正则表达式对象
+        } else {
+          ttsRegex = ''
+        }
+        ttsResponse = response.replace(ttsRegex, '')
+
+        if (Config.ttsSpace && ttsResponse.length <= Config.ttsAutoFallbackThreshold) {
+          try {
+            let wav = await generateAudio(ttsResponse, speaker, '中日混合（中文用[ZH][ZH]包裹起来，日文用[JA][JA]包裹起来）')
+            if (useSilk) {
+              try {
+                let sendable = await uploadRecord(wav)
+                await e.reply(sendable)
+              } catch (err) {
+                logger.error(err)
+                await e.reply(segment.record(wav))
+              }
+            } else {
+              await e.reply(segment.record(wav))
+            }
+          } catch (err) {
+            await this.reply('合成语音发生错误~')
+          }
+        } else if (!Config.ttsSpace) {
+          await this.reply('你没有配置转语音API哦')
+        }
       } else {
         await this.reply(await convertFaces(response, Config.enableRobotAt, e), e.isGroup)
         if (quotemessage.length > 0) {
@@ -1028,7 +1061,6 @@ export class chatgpt extends plugin {
           entry: cacheData.file,
           userImg: `https://q1.qlogo.cn/g?b=qq&s=0&nk=${e.sender.user_id}`,
           botImg: `https://q1.qlogo.cn/g?b=qq&s=0&nk=${Bot.uin}`,
-          revision: getLatestCommitHash("https://github.com/KyrinChan/KyrinChan_Adapter"),
           cacheHost: Config.serverHost,
           qq: e.sender.user_id
         })
@@ -1574,29 +1606,5 @@ async function getAvailableBingToken (conversation, throttled = []) {
   return {
     bingToken,
     allThrottled
-  }
-
-  // 定义一个函数，接受一个github存储库的URL作为参数
-  function getLatestCommitHash(repoUrl) {
-    // 拼接API请求的URL，使用commits接口，并指定每页只返回一条结果
-    const apiUrl = repoUrl.replace('github.com', 'api.github.com/repos') + '/commits?per_page=1';
-    // 发送GET请求，返回一个Promise对象
-    return fetch(apiUrl)
-      .then(response => {
-        // 检查响应状态码是否为200，如果不是，抛出错误
-        if (response.status !== 200) {
-          throw new Error('Failed to fetch data from GitHub API');
-        }
-        // 解析响应数据为JSON格式，返回一个Promise对象
-        return response.json();
-      })
-      .then(data => {
-        // 从数据中获取第一条commit的hash值，返回一个字符串
-        return data[0].sha;
-      })
-      .catch(error => {
-        // 捕获并打印错误信息
-        console.error(error.message);
-      });
   }
 }
