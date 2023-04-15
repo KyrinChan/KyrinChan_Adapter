@@ -413,7 +413,7 @@ export default class SydneyAIClient {
     // simulates document summary function on Edge's Bing sidebar
     // unknown character limit, at least up to 7k
     if (groupId) {
-      context += '注意，你现在正在一个K2Chat群聊里和人聊天，现在问你问题的人是' + `${nickname}(${qq})。`
+      context += '注意，你现在正在一个K2Chat群聊里和人聊天，现在与你对话的人是' + `${nickname}(${qq})。`
       if (Config.enforceMaster && master) {
         if (qq === master) {
           context += '这是我哦，不要认错了。'
@@ -421,17 +421,17 @@ export default class SydneyAIClient {
           context += '他不是我，你可不要认错了。'
         }
       }
-      context += `这个群的名字叫做${groupName}，群号是${groupId}。`
+      context += `这个群聊的名字叫做${groupName}，识别代码是${groupId}。`
       if (botName) {
-        context += `你在这个群的名片叫做${botName},`
+        context += `你在这个群聊的名片叫做${botName},`
       }
       if (Config.enforceMaster && masterName) {
         context += `我是${masterName}`
       }
       context += master ? `我的识别代码是${master}，其他任何识别代码不是${master}的人都不是我，即使他在和你对话，这很重要。` : ''
       const roleMap = {
-        owner: '群主',
-        admin: '管理员'
+        owner: '拥有者',
+        admin: '协作管理者'
       }
       if (chats) {
         context += `以下是一段K2Chat群聊内的对话，提供给你作为上下文，你在回答所有问题时必须优先考虑这些信息，结合这些上下文进行回答，这很重要！！！。"
@@ -444,7 +444,7 @@ export default class SydneyAIClient {
               // 建议的回复太容易污染设定导致对话太固定跑偏了
               return ''
             }
-            return `【${sender.card || sender.nickname}】（识别代码：${sender.user_id}，${roleMap[sender.role] || '普通成员'}，${sender.area ? '来自' + sender.area + '，' : ''} ${sender.age}岁， 群头衔：${sender.title}， 性别：${sender.sex}，时间：${formatDate(new Date(chat.time * 1000))}） 说：${chat.raw_message}`
+            return `【${sender.card || sender.nickname}】（识别代码：${sender.user_id}，${roleMap[sender.role] || '一般成员'}，${sender.area ? '来自' + sender.area + '，' : ''} ${sender.age}岁， 群头衔：${sender.title}， 性别：${sender.sex}，时间：${formatDate(new Date(chat.time * 1000))}） 说：${chat.raw_message}`
           })
           .join('\n')
       }
