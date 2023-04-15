@@ -100,7 +100,7 @@
                 <div class="col-md-10 my-auto text-right">
                     <div class="copyright-text copyright-text-{{style}}">
                         <p>KyrinChan AI with {{senderName}}🌸~</a></p>
-                        <p>GEN5 revision {{revision}}</a></p>
+                        <p>GEN5 at <span id='date-time'></span></a></p>
                         <div class="col-lg-3 col-4 my-auto">
                             <!-- <a href="#" class="site-logo">
                                 <img src="{{pluResPath}}content/static/picture/kyrinchanv5.png" alt="LOGO">
@@ -148,6 +148,9 @@
         const html_content = marked.parse(Base64.decode(markdown_content));
         const markdown_prompt = '{{@ prompt}}';
         const html_prompt = marked.parse(Base64.decode(markdown_prompt));
+
+        var dt = new Date();
+        document.getElementById('date-time').innerHTML=dt;
 
         $(".markdown_content").html(DOMPurify.sanitize(html_content));
         $(".markdown_prompt").html(DOMPurify.sanitize(html_prompt));
