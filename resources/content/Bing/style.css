@@ -2198,13 +2198,10 @@ input.form-control-sm {
   line-height: 45px;
 }
 .avatar_img {
-  width:100px;height:100px;
+  width:130px;height:130px;
   border: solid 1px #facece;
   background-color: rgb(255, 255, 255);
   box-shadow: 4px 4px 3px rgba(134, 134, 134, 0.253);
-  -moz-box-shadow: 4px 4px 3px rgba(134, 134, 134, 0.253);
-  -webkit-box-shadow: 4px 4px 3px rgba(134, 134, 134, 0.253);
-  -o-box-shadow: 4px 4px 3px rgba(134, 134, 134, 0.253);
   border-radius: 50%;
   margin-bottom: 5px;
 }
