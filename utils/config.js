@@ -87,11 +87,12 @@ const defaultConfig = {
   viewHost: '',
   chatViewWidth: 1280,
   chatViewBotName: '',
+  groupAdminPage: false,
   enablePrivateChat: false,
   groupWhitelist: [],
   groupBlacklist: [],
   ttsRegex: '/匹配规则/匹配模式',
-  version: 'v2.5.1'
+  version: 'v2.5.2'
 }
 const _path = process.cwd()
 let config = {}

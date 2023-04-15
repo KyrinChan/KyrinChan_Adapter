@@ -637,7 +637,7 @@ export async function isImage(link) {
   }
 }
 
-export async function getPublicIP() {
+export async function getPublicIP () {
   try {
     if (localIP === '') {
       const res = await fetch('https://api.ipify.org?format=json')
@@ -648,5 +648,4 @@ export async function getPublicIP() {
   } catch (err) {
     return '127.0.0.1'
   }
-
 }
