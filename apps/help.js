@@ -55,6 +55,11 @@ let helpData = [
         icon: 'confirm',
         title: '>chatgpt(导出)聊天记录',
         desc: '图片形式导出聊天记录，目前仅支持Bing下的Sydney和自定义'
+      },
+      {
+        icon: 'smiley-wink',
+        title: '#claude开启新对话+设定名',
+        desc: '结束之前的对话，并开启一个新的Claude对话，如果设定名不为空的话，会使用这个设定。设定必须是设定列表中有的设定。'
       }
     ]
   },
@@ -303,8 +308,8 @@ let helpData = [
 export class help extends plugin {
   constructor (e) {
     super({
-      name: 'ChatGPT-Plugin帮助',
-      dsc: 'ChatGPT-Plugin帮助',
+      name: 'ChatGPT-Plugin 帮助',
+      dsc: 'ChatGPT-Plugin 帮助面板',
       event: 'message',
       priority: 500,
       rule: [
@@ -321,7 +326,7 @@ export class help extends plugin {
   }
 
   async help (e) {
-    if (Config.preview) { await renderUrl(e, `http://127.0.0.1:${Config.serverPort || 3321}/help/`, { Viewport: { width: 800, height: 600 } }) } else { await render(e, 'chatgpt-plugin', 'help/index', { helpData, version }) }
+    if (!Config.oldview) { await renderUrl(e, `http://127.0.0.1:${Config.serverPort || 3321}/help/`, { Viewport: { width: 800, height: 600 } }) } else { await render(e, 'chatgpt-plugin', 'help/index', { helpData, version }) }
   }
 
   async newHelp (e) {

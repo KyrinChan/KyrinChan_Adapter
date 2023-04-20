@@ -16,6 +16,7 @@ import {
   getRandomErrorMessage,
   completeJSON,
   isImage,
+  getUserData,
   getDefaultReplySetting, isCN, getMasterQQ
 } from '../utils/common.js'
 import { ChatGPTPuppeteer } from '../utils/browser.js'
@@ -27,7 +28,9 @@ import { convertSpeaker, generateAudio, speakers } from '../utils/tts.js'
 import ChatGLMClient from '../utils/chatglm.js'
 import { convertFaces } from '../utils/face.js'
 import uploadRecord from '../utils/uploadRecord.js'
-import {SlackClaudeClient} from "../utils/slack/slackClient.js";
+import { SlackClaudeClient } from '../utils/slack/slackClient.js'
+import { ChatgptManagement } from './management.js'
+import {getPromptByName} from "../utils/prompts.js";
 try {
   await import('keyv')
 } catch (err) {
@@ -76,9 +79,9 @@ export class chatgpt extends plugin {
     let toggleMode = Config.toggleMode
     super({
       /** 功能名称 */
-      name: 'chatgpt',
+      name: 'ChatGpt 对话',
       /** 功能描述 */
-      dsc: 'chatgpt from openai',
+      dsc: '与人工智能对话，畅聊无限可能~',
       event: 'message',
       /** 优先级，数字越小等级越高 */
       priority: 1144,
@@ -175,6 +178,10 @@ export class chatgpt extends plugin {
           reg: '^>chatgpt删除对话',
           fnc: 'deleteConversation',
           permission: 'master'
+        },
+        {
+          reg: '^#claude开启新对话',
+          fnc: 'newClaudeConversation'
         }
       ]
     })
@@ -210,14 +217,16 @@ export class chatgpt extends plugin {
    * @returns {Promise<void>}
    */
   async destroyConversations (e) {
-    let use = await redis.get('CHATGPT:USE')
+    const userData = await getUserData(e.user_id)
+    const use = (userData.mode === 'default' ? null : userData.mode) || await redis.get('CHATGPT:USE')
     if (use === 'claude') {
       // let client = new SlackClaudeClient({
       //   slackUserToken: Config.slackUserToken,
       //   slackChannelId: Config.slackChannelId
       // })
       // await client.endConversation()
-      await e.reply('由于Slack官方限制，结束Claude对话请前往网站或客户端执行/reset。', true)
+      await redis.del(`CHATGPT:SLACK_CONVERSATION:${e.sender.user_id}`)
+      await e.reply('claude对话已结束')
       return
     }
     let ats = e.message.filter(m => m.type === 'at')
@@ -353,12 +362,19 @@ export class chatgpt extends plugin {
 
   async endAllConversations (e) {
     let use = await redis.get('CHATGPT:USE') || 'api'
-    if (use === 'claude') {
-      await e.reply('由于Slack官方限制，结束Claude对话请前往网站或客户端执行/reset。', true)
-      return
-    }
     let deleted = 0
     switch (use) {
+      case 'claude': {
+        let cs = await redis.keys('CHATGPT:SLACK_CONVERSATION:*')
+        for (let i = 0; i < cs.length; i++) {
+          await redis.del(cs[i])
+          if (Config.debug) {
+            logger.info('delete slack conversation of qq: ' + cs[i])
+          }
+          deleted++
+        }
+        break
+      }
       case 'bing': {
         let cs = await redis.keys('CHATGPT:CONVERSATIONS_BING:*')
         for (let i = 0; i < cs.length; i++) {
@@ -537,15 +553,18 @@ export class chatgpt extends plugin {
    */
   async chatgpt (e) {
     if (!e.isMaster && e.isPrivate && !Config.enablePrivateChat) {
-      this.reply('ChatGpt私聊通道已关闭。')
+      await this.reply('ChatGpt私聊通道已关闭。')
       return false
     }
     if (e.isGroup) {
-      const whitelist = Config.groupWhitelist.filter(group => group.trim())
+      let cm = new ChatgptManagement()
+      let [groupWhitelist, groupBlacklist] = await cm.processList(Config.groupWhitelist, Config.groupBlacklist)
+      // logger.info('groupWhitelist:', Config.groupWhitelist, 'groupBlacklist', Config.groupBlacklist)
+      const whitelist = groupWhitelist.filter(group => group.trim())
       if (whitelist.length > 0 && !whitelist.includes(e.group_id.toString())) {
         return false
       }
-      const blacklist = Config.groupBlacklist.filter(group => group.trim())
+      const blacklist = groupBlacklist.filter(group => group.trim())
       if (blacklist.length > 0 && blacklist.includes(e.group_id.toString())) {
         return false
       }
@@ -607,7 +626,11 @@ export class chatgpt extends plugin {
       logger.info('chatgpt闭嘴中，不予理会')
       return false
     }
-    const use = await redis.get('CHATGPT:USE') || 'api'
+    //获取用户配置
+    const userData = await getUserData(e.user_id)
+    const use = (userData.mode === 'default' ? null : userData.mode) || await redis.get('CHATGPT:USE') || 'api'
+    // 自动化插件本月已发送xx条消息更新太快，由于延迟和缓存问题导致不同客户端不一样，at文本和获取的card不一致。因此单独处理一下
+    prompt = prompt.replace(/^｜本月已发送\d+条消息/, '')
     await this.abstractChat(e, prompt, use)
   }
 
@@ -920,11 +943,11 @@ export class chatgpt extends plugin {
       } else if (userSetting.usePicture || (Config.autoUsePicture && response.length > Config.autoUsePictureThreshold)) {
         // todo use next api of chatgpt to complete incomplete respoonse
         try {
-          await this.renderImage(e, use !== 'bing' ? 'content/ChatGPT/index' : 'content/Bing/index', response, prompt, quotemessage, mood, chatMessage.suggestedResponses, imgUrls)
+          await this.renderImage(e, use, response, prompt, quotemessage, mood, chatMessage.suggestedResponses, imgUrls)
         } catch (err) {
           logger.warn('error happened while uploading content to the cache server. QR Code will not be showed in this picture.')
           logger.error(err)
-          await this.renderImage(e, use !== 'bing' ? 'content/ChatGPT/index' : 'content/Bing/index', response, prompt)
+          await this.renderImage(e, use, response, prompt)
         }
         if (Config.enableSuggestedResponses && chatMessage.suggestedResponses) {
           this.reply(`猜猜看，你不会是想说：\n${chatMessage.suggestedResponses}`)
@@ -989,13 +1012,17 @@ export class chatgpt extends plugin {
           await this.reply(`出现错误：${err}`, true, { recallMsg: e.isGroup ? 10 : 0 })
         } else {
           // 这里是否还需要上传到缓存服务器呐？多半是代理服务器的问题，本地也修不了，应该不用吧。
-          await this.renderImage(e, use !== 'bing' ? 'content/ChatGPT/index' : 'content/Bing/index', `通信异常,错误信息如下 ${err?.message || err?.data?.message || (typeof (err) === 'object' ? JSON.stringify(err) : err) || '未能确认错误类型！'}`, prompt)
+          await this.renderImage(e, use, `通信异常,错误信息如下 \n \`\`\`${err?.message || err?.data?.message || (typeof (err) === 'object' ? JSON.stringify(err) : err) || '未能确认错误类型！'}\`\`\``, prompt)
         }
       }
     }
   }
 
   async chatgpt1 (e) {
+    if (!e.isMaster && e.isPrivate && !Config.enablePrivateChat) {
+      await this.reply('ChatGpt私聊通道已关闭。')
+      return false
+    }
     if (!Config.allowOtherMode) {
       return false
     }
@@ -1015,6 +1042,10 @@ export class chatgpt extends plugin {
   }
 
   async chatgpt3 (e) {
+    if (!e.isMaster && e.isPrivate && !Config.enablePrivateChat) {
+      await this.reply('ChatGpt私聊通道已关闭。')
+      return false
+    }
     if (!Config.allowOtherMode) {
       return false
     }
@@ -1053,6 +1084,10 @@ export class chatgpt extends plugin {
   }
 
   async bing (e) {
+    if (!e.isMaster && e.isPrivate && !Config.enablePrivateChat) {
+      await this.reply('ChatGpt私聊通道已关闭。')
+      return false
+    }
     if (!Config.allowOtherMode) {
       return false
     }
@@ -1071,10 +1106,10 @@ export class chatgpt extends plugin {
     return true
   }
 
-  async renderImage (e, template, content, prompt, quote = [], mood = '', suggest = '', imgUrls = []) {
+  async renderImage (e, use, content, prompt, quote = [], mood = '', suggest = '', imgUrls = []) {
     let cacheData = { file: '', cacheUrl: Config.cacheUrl }
-    const use = await redis.get('CHATGPT:USE')
-    if (Config.preview) {
+    const template = use !== 'bing' ? 'content/ChatGPT/index' : 'content/Bing/index'
+    if (!Config.oldview) {
       cacheData.file = randomString()
       const cacheresOption = {
         method: 'POST',
@@ -1093,6 +1128,7 @@ export class chatgpt extends plugin {
             suggest: suggest ? suggest.split('\n').filter(Boolean) : [],
             images: imgUrls
           },
+          model: use,
           bing: use === 'bing',
           entry: cacheData.file,
           userImg: `https://q1.qlogo.cn/g?b=qq&s=0&nk=${e.sender.user_id}`,
@@ -1123,6 +1159,7 @@ export class chatgpt extends plugin {
             mood,
             quote
           },
+          model: use,
           bing: use === 'bing',
           entry: Config.cacheEntry ? cacheData.file : ''
         })
@@ -1160,6 +1197,8 @@ export class chatgpt extends plugin {
     if (Config.debug) {
       logger.mark(`using ${use} mode`)
     }
+    const userData = await getUserData(e.user_id)
+    const useCast = userData.cast || {}
     switch (use) {
       case 'browser': {
         return await this.chatgptBrowserBased(prompt, conversation)
@@ -1214,7 +1253,7 @@ export class chatgpt extends plugin {
             // 如果当前没有开启对话或者当前是Sydney模式、Custom模式，则本次对话携带拓展资料
             let c = await redis.get(`CHATGPT:CONVERSATIONS_BING:${e.sender.user_id}`)
             if (!c || Config.toneStyle === 'Sydney' || Config.toneStyle === 'Custom') {
-              opt.context = Config.sydneyContext
+              opt.context = useCast?.bing_resource || Config.sydneyContext
             }
             // 重新拿存储的token，因为可能之前有过期的被删了
             let abtrs = await getAvailableBingToken(conversation, throttledTokens)
@@ -1426,7 +1465,15 @@ export class chatgpt extends plugin {
           slackUserToken: Config.slackUserToken,
           slackChannelId: Config.slackChannelId
         })
-        let text = await client.sendMessage(prompt)
+        let conversationId = await redis.get(`CHATGPT:SLACK_CONVERSATION:${e.sender.user_id}`)
+        if (!conversationId) {
+          // 如果是新对话
+          if (Config.slackClaudeEnableGlobalPreset && (useCast?.slack || Config.slackClaudeGlobalPreset)) {
+            // 先发送设定
+            await client.sendMessage(useCast?.slack || Config.slackClaudeGlobalPreset, e)
+          }
+        }
+        let text = await client.sendMessage(prompt, e)
         return {
           text
         }
@@ -1437,7 +1484,7 @@ export class chatgpt extends plugin {
           completionParams.model = Config.model
         }
         const currentDate = new Date().toISOString().split('T')[0]
-        let promptPrefix = `You are ${Config.assistantLabel} ${Config.promptPrefixOverride || defaultPropmtPrefix}
+        let promptPrefix = `You are ${Config.assistantLabel} ${useCast?.api || Config.promptPrefixOverride || defaultPropmtPrefix}
         Knowledge cutoff: 2021-09. Current date: ${currentDate}`
         let opts = {
           apiBaseUrl: Config.openAiBaseUrl,
@@ -1481,6 +1528,40 @@ export class chatgpt extends plugin {
           }
         }
         return msg
+      }
+    }
+  }
+
+  async newClaudeConversation (e) {
+    let presetName = e.msg.replace(/^#claude开启新对话/, '').trim()
+    let client = new SlackClaudeClient({
+      slackUserToken: Config.slackUserToken,
+      slackChannelId: Config.slackChannelId
+    })
+    let response
+    if (!presetName || presetName === '空' || presetName === '无设定') {
+      let conversationId = await redis.get(`CHATGPT:SLACK_CONVERSATION:${e.sender.user_id}`)
+      if (conversationId) {
+        // 如果有对话进行中，先删除
+        logger.info('开启Claude新对话，但旧对话未结束，自动结束上一次对话')
+        await redis.del(`CHATGPT:SLACK_CONVERSATION:${e.sender.user_id}`)
+      }
+      response = await client.sendMessage('', e)
+      await e.reply(response, true)
+    } else {
+      let preset = getPromptByName(presetName)
+      if (!preset) {
+        await e.reply('没有这个设定', true)
+      } else {
+        let conversationId = await redis.get(`CHATGPT:SLACK_CONVERSATION:${e.sender.user_id}`)
+        if (conversationId) {
+          // 如果有对话进行中，先删除
+          logger.info('开启Claude新对话，但旧对话未结束，自动结束上一次对话')
+          await redis.del(`CHATGPT:SLACK_CONVERSATION:${e.sender.user_id}`)
+        }
+        logger.info('send preset: ' + preset.content)
+        response = await client.sendMessage(preset.content, e)
+        await e.reply(response, true)
       }
     }
   }
@@ -1647,7 +1728,7 @@ async function getAvailableBingToken (conversation, throttled = []) {
       return current.Usage < min.Usage ? current : min
     })
     bingToken = minElement.Token
-  } else if (restricted.length > 0) {
+  } else if (restricted.length > 0 && restricted.some(x => throttled.includes(x.Token))) {
     allThrottled = true
     const minElement = restricted.reduce((min, current) => {
       return current.Usage < min.Usage ? current : min

@@ -81,12 +81,14 @@ const defaultConfig = {
   maxNumUserMessagesInConversation: 20,
   sydneyApologyIgnored: true,
   enforceMaster: false,
-  preview: false,
+  oldview: false,
   serverPort: 3321,
   serverHost: '',
   viewHost: '',
   chatViewWidth: 1280,
   chatViewBotName: '',
+  live2d: true,
+  live2dModel: 'default',
   groupAdminPage: false,
   enablePrivateChat: false,
   groupWhitelist: [],
@@ -94,9 +96,13 @@ const defaultConfig = {
   ttsRegex: '/匹配规则/匹配模式',
   slackUserToken: '',
   slackBotUserToken: '',
-  slackChannelId: '',
+  // slackChannelId: '',
   slackSigningSecret: '',
-  version: 'v2.5.3'
+  slackClaudeUserId: '',
+  slackClaudeEnableGlobalPreset: true,
+  slackClaudeGlobalPreset: '',
+  slackClaudeSpecifiedChannel: '',
+  version: 'v2.5.6'
 }
 const _path = process.cwd()
 let config = {}

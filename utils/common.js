@@ -5,6 +5,7 @@ import lodash from 'lodash'
 import fs from 'node:fs'
 import path from 'node:path'
 import buffer from 'buffer'
+import yaml from 'yaml'
 import puppeteer from '../../../lib/puppeteer/puppeteer.js'
 import { Config } from './config.js'
 // export function markdownToText (markdown) {
@@ -13,6 +14,24 @@ import { Config } from './config.js'
 //    .processSync(markdown ?? '')
 //    .toString()
 // }
+
+let _puppeteer
+try {
+  const Puppeteer = (await import('../../../renderers/puppeteer/lib/puppeteer.js')).default
+  let puppeteerCfg = {}
+  let configFile = `./renderers/puppeteer/config.yaml`
+  if (fs.existsSync(configFile)) {
+    try {
+      puppeteerCfg = yaml.parse(fs.readFileSync(configFile, 'utf8'))
+    } catch (e) {
+      puppeteerCfg = {}
+    }
+  }
+  _puppeteer = new Puppeteer(puppeteerCfg)
+} catch (e) {
+  logger.warn('未能加载puppeteer，尝试降级到Yunzai的puppeteer尝试')
+  _puppeteer = puppeteer
+}
 
 let localIP = ''
 export function escapeHtml(str) {
@@ -349,9 +368,9 @@ export async function render(e, pluginKey, htmlPath, data = {}, renderCfg = {}) 
   return renderCfg.retType === 'msgId' ? ret : true
 }
 
-export async function renderUrl(e, url, renderCfg = {}) {
-  await puppeteer.browserInit()
-  const page = await puppeteer.browser.newPage()
+export async function renderUrl (e, url, renderCfg = {}) {
+  await _puppeteer.browserInit()
+  const page = await _puppeteer.browser.newPage()
   let base64
   try {
     await page.goto(url, { timeout: 120000 })
@@ -359,16 +378,17 @@ export async function renderUrl(e, url, renderCfg = {}) {
       width: 1280,
       height: 720
     })
+    await page.waitForTimeout(renderCfg.wait || 1000)
     let buff = base64 = await page.screenshot({ fullPage: true })
     base64 = segment.image(buff)
     await page.close().catch((err) => logger.error(err))
   } catch (error) {
     logger.error(`${url}图片生成失败:${error}`)
     /** 关闭浏览器 */
-    if (puppeteer.browser) {
-      await puppeteer.browser.close().catch((err) => logger.error(err))
+    if (_puppeteer.browser) {
+      await _puppeteer.browser.close().catch((err) => logger.error(err))
     }
-    puppeteer.browser = false
+    _puppeteer.browser = false
   }
 
   if (renderCfg.retType === 'base64') {
@@ -465,11 +485,15 @@ export async function isCN() {
   }
 }
 
-export function limitString(str, maxLength) {
+export function limitString (str, maxLength, addDots = true) {
   if (str.length <= maxLength) {
     return str
   } else {
-    return str.slice(0, maxLength) + '...'
+    if (addDots) {
+      return str.slice(0, maxLength) + '...'
+    } else {
+      return str.slice(0, maxLength)
+    }
   }
 }
 
@@ -647,5 +671,28 @@ export async function getPublicIP () {
     return localIP
   } catch (err) {
     return '127.0.0.1'
+  }
+}
+
+export async function getUserData (user) {
+  const dir = 'resources/ChatGPTCache/user'
+  const filename = `${user}.json`
+  const filepath = path.join(dir, filename)
+  try {
+    let data = fs.readFileSync(filepath, 'utf8')
+    return JSON.parse(data)
+  } catch (error) {
+    return {
+      user: user,
+      passwd: '',
+      chat: [],
+      mode: '',
+      cast: {
+        api: '', //API设定
+        bing: '', //必应设定
+        bing_resource: '', //必应扩展资料
+        slack: '', //Slack设定
+      }
+    }
   }
 }
