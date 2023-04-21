@@ -1020,7 +1020,7 @@ export class chatgpt extends plugin {
 
   async chatgpt1 (e) {
     if (!e.isMaster && e.isPrivate && !Config.enablePrivateChat) {
-      await this.reply('ChatGpt私聊通道已关闭。')
+      await this.reply('你说得对！但是凯琳酱不想接受私信')
       return false
     }
     if (!Config.allowOtherMode) {
@@ -1043,7 +1043,7 @@ export class chatgpt extends plugin {
 
   async chatgpt3 (e) {
     if (!e.isMaster && e.isPrivate && !Config.enablePrivateChat) {
-      await this.reply('ChatGpt私聊通道已关闭。')
+      await this.reply('你说得对！但是凯琳酱不想接受私信')
       return false
     }
     if (!Config.allowOtherMode) {
@@ -1085,7 +1085,7 @@ export class chatgpt extends plugin {
 
   async bing (e) {
     if (!e.isMaster && e.isPrivate && !Config.enablePrivateChat) {
-      await this.reply('ChatGpt私聊通道已关闭。')
+      await this.reply('你说得对！但是凯琳酱不想接受私信')
       return false
     }
     if (!Config.allowOtherMode) {
