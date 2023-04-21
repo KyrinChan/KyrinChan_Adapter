@@ -1184,7 +1184,7 @@ export class chatgpt extends plugin {
         quote: quote.length > 0,
         favor,
         // suggest: suggest ? suggest.split('\n').filter(Boolean) : [],
-        suggest: suggest,
+        suggest: suggest.replace(/\r?\n/g, "\r\n"),
         quotes: quote,
         cache: cacheData,
         style: Config.toneStyle,
