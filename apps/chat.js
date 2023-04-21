@@ -1183,7 +1183,7 @@ export class chatgpt extends plugin {
         senderName: e.sender.nickname,
         quote: quote.length > 0,
         favor,
-        suggests: suggest ? suggest.split('\n').filter(Boolean) : [],
+        suggests: suggest.split('\n'),
         suggest: suggest.length > 0,
         quotes: quote,
         cache: cacheData,
