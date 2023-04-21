@@ -1161,6 +1161,7 @@ export class chatgpt extends plugin {
             style: Config.toneStyle,
             mood,
             favor,
+            suggest: suggest ? suggest.split('\n').filter(Boolean) : [],
             quote
           },
           model: use,
