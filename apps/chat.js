@@ -846,7 +846,7 @@ export class chatgpt extends plugin {
       }
       let response = chatMessage?.text
       let mood = 'blandness'
-      let favor = 0
+      let favor = '???'
       if (!response) {
         await e.reply('没有任何回复', true)
         return
@@ -1108,7 +1108,7 @@ export class chatgpt extends plugin {
     return true
   }
 
-  async renderImage (e, use, content, prompt, quote = [], mood = '', favor = 0, suggest = '', imgUrls = []) {
+  async renderImage (e, use, content, prompt, quote = [], mood = '', favor = '', suggest = '', imgUrls = []) {
     let cacheData = { file: '', cacheUrl: Config.cacheUrl }
     const template = use !== 'bing' ? 'content/ChatGPT/index' : 'content/Bing/index'
     if (!Config.oldview) {
