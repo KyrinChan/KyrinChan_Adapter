@@ -25,6 +25,7 @@
     "ws": "^8.13.0"
   },
   "optionalDependencies": {
+    "@node-rs/jieba": "^1.6.2",
     "jimp": "^0.22.7",
     "node-silk": "^0.1.0",
     "puppeteer-extra": "^3.3.6",
