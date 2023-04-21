@@ -86,6 +86,19 @@
                 </div>
             </div>
             {{/if}}
+            {{if suggest}}
+            <div class="row">
+                <div class="col-xl-12">
+                    <div class="hero-content hero-content-{{style}}">
+                        <h4>Suggested Questions</h4>
+                    </div>
+                    <div class="about-content">
+                        <p>{{suggest}}</p>
+                        <span class="height-50"></span>
+                    </div>
+                </div>
+            </div>
+            {{/if}}
             {{if cache.file != ''}}
             <div id="qrcode" class="row justify-content-end"></div>
             {{/if}}

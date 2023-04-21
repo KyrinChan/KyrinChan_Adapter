@@ -846,6 +846,7 @@ export class chatgpt extends plugin {
       }
       let response = chatMessage?.text
       let mood = 'blandness'
+      let favor = 0
       if (!response) {
         await e.reply('没有任何回复', true)
         return
@@ -855,6 +856,7 @@ export class chatgpt extends plugin {
         let tempResponse = completeJSON(response)
         if (tempResponse.text) response = tempResponse.text
         if (tempResponse.mood) mood = tempResponse.mood
+        if (tempResponse.favor) favor = tempResponse.favor
       } else {
         mood = ''
       }
@@ -943,7 +945,7 @@ export class chatgpt extends plugin {
       } else if (userSetting.usePicture || (Config.autoUsePicture && response.length > Config.autoUsePictureThreshold)) {
         // todo use next api of chatgpt to complete incomplete respoonse
         try {
-          await this.renderImage(e, use, response, prompt, quotemessage, mood, chatMessage.suggestedResponses, imgUrls)
+          await this.renderImage(e, use, response, prompt, quotemessage, mood, favor, chatMessage.suggestedResponses, imgUrls)
         } catch (err) {
           logger.warn('error happened while uploading content to the cache server. QR Code will not be showed in this picture.')
           logger.error(err)
@@ -1106,7 +1108,7 @@ export class chatgpt extends plugin {
     return true
   }
 
-  async renderImage (e, use, content, prompt, quote = [], mood = '', suggest = '', imgUrls = []) {
+  async renderImage (e, use, content, prompt, quote = [], mood = '', favor = 0, suggest = '', imgUrls = []) {
     let cacheData = { file: '', cacheUrl: Config.cacheUrl }
     const template = use !== 'bing' ? 'content/ChatGPT/index' : 'content/Bing/index'
     if (!Config.oldview) {
@@ -1123,6 +1125,7 @@ export class chatgpt extends plugin {
             senderName: e.sender.nickname,
             style: Config.toneStyle,
             mood,
+            favor,
             quote,
             group: e.isGroup ? e.group.name : '',
             suggest: suggest ? suggest.split('\n').filter(Boolean) : [],
@@ -1157,6 +1160,7 @@ export class chatgpt extends plugin {
             senderName: e.sender.nickname,
             style: Config.toneStyle,
             mood,
+            favor,
             quote
           },
           model: use,
