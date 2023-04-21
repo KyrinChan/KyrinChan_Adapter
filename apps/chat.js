@@ -1182,6 +1182,8 @@ export class chatgpt extends plugin {
         prompt: new Buffer.from(prompt).toString('base64'),
         senderName: e.sender.nickname,
         quote: quote.length > 0,
+        favor,
+        suggest: suggest ? suggest.split('\n').filter(Boolean) : [],
         quotes: quote,
         cache: cacheData,
         style: Config.toneStyle,
