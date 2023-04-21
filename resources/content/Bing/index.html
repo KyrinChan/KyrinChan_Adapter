@@ -93,8 +93,10 @@
                         <h4>Suggested Questions</h4>
                     </div>
                     <div class="about-content">
+                        {{each suggests item}}
                         <h3>{{suggest}}</h3>
-                        <h2>Favorability Rating {{favor}}/100</h2>
+                        {{/each}}
+                        <h3>Favorability Rating {{favor}}/100</h3>
                         <span class="height-50"></span>
                     </div>
                 </div>
