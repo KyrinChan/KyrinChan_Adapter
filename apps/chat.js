@@ -1122,7 +1122,7 @@ export class chatgpt extends plugin {
           senderName: e.sender.nickname,
           style: Config.toneStyle,
           mood,
-            favor,
+          favor,
           quote,
           group: e.isGroup ? e.group.name : '',
           suggest: suggest ? suggest.split('\n').filter(Boolean) : [],
