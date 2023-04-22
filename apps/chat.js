@@ -893,7 +893,7 @@ export class chatgpt extends plugin {
       }
       if (useTTS) {
         // 缓存数据
-        this.cacheContent(e, use, response, prompt, quotemessage, mood, chatMessage.suggestedResponses, imgUrls)
+        this.cacheContent(e, use, response, prompt, quotemessage, mood, favor, chatMessage.suggestedResponses, imgUrls)
         // 处理tts输入文本
         let ttsResponse, ttsRegex
         const regex = /^\/(.*)\/([gimuy]*)$/
@@ -986,7 +986,7 @@ export class chatgpt extends plugin {
           await this.reply('你没有配置转语音API哦')
         }
       } else {
-        this.cacheContent(e, use, response, prompt, quotemessage, mood, chatMessage.suggestedResponses, imgUrls)
+        this.cacheContent(e, use, response, prompt, quotemessage, mood, favor, chatMessage.suggestedResponses, imgUrls)
         await this.reply(await convertFaces(response, Config.enableRobotAt, e), e.isGroup)
         if (quotemessage.length > 0) {
           this.reply(await makeForwardMsg(this.e, quotemessage.map(msg => `${msg.text} - ${msg.url}`)))
@@ -1148,7 +1148,7 @@ export class chatgpt extends plugin {
   }
 
   async renderImage (e, use, content, prompt, quote = [], mood = '', favor = '', suggest = '', imgUrls = []) {
-    let cacheData = await this.cacheContent(e, use, content, prompt, quote, mood, suggest, imgUrls)
+    let cacheData = await this.cacheContent(e, use, content, prompt, quote, mood, favor, suggest, imgUrls)
     const template = use !== 'bing' ? 'content/ChatGPT/index' : 'content/Bing/index'
     if (!Config.oldview) {
       if (cacheData.error || cacheData.status != 200) { await this.reply(`出现错误：${cacheData.error || 'server error ' + cacheData.status}`, true) } else { await e.reply(await renderUrl(e, viewHost + `page/${cacheData.file}?qr=${Config.showQRCode ? 'true' : 'false'}`, { retType: Config.quoteReply ? 'base64' : '', Viewport: { width: Config.chatViewWidth, height: parseInt(Config.chatViewWidth * 0.56) } }), e.isGroup && Config.quoteReply) }
