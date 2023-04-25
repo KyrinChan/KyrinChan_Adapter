@@ -1,8 +1,10 @@
 import { Config } from '../config.js'
+import fs from 'fs'
 
 let nodejieba
 try {
   nodejieba = (await import('@node-rs/jieba')).default
+  nodejieba.load()
 } catch (err) {
   logger.info('未安装@node-rs/jieba，娱乐功能-词云统计不可用')
 }
@@ -60,21 +62,33 @@ export class Tokenizer {
     }
     let chats = await this.getTodayHistory(groupId)
     logger.mark(`聊天记录拉去完成，获取到今日内${chats.length}条聊天记录，准备分词中`)
-    try {
-      nodejieba.load()
-    } catch (err) {
-      // ignore already load error
-    }
+   
+    const _path = process.cwd()
+    let stopWordsPath = `${_path}/plugins/chatgpt-plugin/utils/wordcloud/cn_stopwords.txt`
+    const data = fs.readFileSync(stopWordsPath)
+    const stopWords = String(data)?.split('\n') || []
     let chatContent = chats
-      .map(c => c.raw_message
-        .replaceAll('[图片]', '')
-        .replaceAll('[表情]', '')
-        .replaceAll('[动画表情]', '')
-        .replaceAll('[语音]', '')
+      .map(c => c.message
+           //只统计文本内容
+           .filter(item => item.type == 'text')
+           .map(textItem => `${textItem.text}`)
+           .join("").trim()
       )
-      .map(c => nodejieba.extract(c, 10))
+      .map(c => {
+        let length = c.length
+        let threshold = 10
+        if (length < 100 && length > 50) {
+          threshold = 6
+        } else if (length <= 50 && length > 25) {
+          threshold = 3
+        } else if (length <= 25) {
+          threshold = 2
+        }
+        return nodejieba.extract(c, threshold)
+      })
       .reduce((acc, curr) => acc.concat(curr), [])
       .map(c => c.keyword)
+      .filter(c => stopWords.indexOf(c) < 0)
     if (Config.debug) {
       logger.info(chatContent)
     }
@@ -101,7 +115,7 @@ export class Tokenizer {
       return 0
     }
     logger.mark('分词统计完成，绘制词云中...')
-    return list.sort(compareByFrequency).slice(0, topK)
+    return list.filter(s => s[1] > 2).sort(compareByFrequency).slice(0, topK)
   }
 }
 

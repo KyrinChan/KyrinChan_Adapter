@@ -7,6 +7,8 @@ import { ChatGPTAPI } from 'chatgpt'
 import { BingAIClient } from '@waylaidwanderer/chatgpt-api'
 import SydneyAIClient from '../utils/SydneyAIClient.js'
 import { PoeClient } from '../utils/poe/index.js'
+import AzureTTS from '../utils/tts/microsoft-azure.js'
+import fs from 'fs'
 import {
   render, renderUrl,
   getMessageById,
@@ -30,7 +32,7 @@ import { convertFaces } from '../utils/face.js'
 import uploadRecord from '../utils/uploadRecord.js'
 import { SlackClaudeClient } from '../utils/slack/slackClient.js'
 import { ChatgptManagement } from './management.js'
-import {getPromptByName} from "../utils/prompts.js";
+import { getPromptByName } from '../utils/prompts.js'
 try {
   await import('keyv')
 } catch (err) {
@@ -118,11 +120,11 @@ export class chatgpt extends plugin {
           permission: 'master'
         },
         {
-          reg: '^>(chatgpt)?结束对话([sS]*)',
+          reg: '^>(chatgpt)?(结束|新开|摧毁|毁灭|完结)对话([sS]*)',
           fnc: 'destroyConversations'
         },
         {
-          reg: '^>(chatgpt)?结束全部对话$',
+          reg: '^>(chatgpt)?(结束|新开|摧毁|毁灭|完结)全部对话$',
           fnc: 'endAllConversations',
           permission: 'master'
         },
@@ -141,6 +143,14 @@ export class chatgpt extends plugin {
         {
           reg: '^>chatgpt语音模式$',
           fnc: 'switch2Audio'
+        },
+        {
+          reg: '^#chatgpt语音换源',
+          fnc: 'switchTTSSource'
+        },
+        {
+          reg: '^>chatgpt语音换源',
+          fnc: 'switchTTSSource'
         },
         {
           reg: '^>chatgpt设置(语音角色|角色语音|角色)',
@@ -520,26 +530,71 @@ export class chatgpt extends plugin {
     await this.reply('ChatGPT回复已转换为语音模式')
   }
 
+  async switchTTSSource (e) {
+    let target = e.msg.replace(/^#chatgpt语音换源/, '')
+    switch (target.trim()) {
+      case '1': {
+        Config.ttsMode = 'vits-uma-genshin-honkai'
+        break
+      }
+      case '2': {
+        Config.ttsMode = 'azure'
+        break
+      }
+      default: {
+        await e.reply('请使用#chatgpt语音换源+数字进行换源。1为vits-uma-genshin-honkai，2为微软Azure')
+        return
+      }
+    }
+    await e.reply('语音转换源已切换为' + Config.ttsMode)
+  }
+
   async setDefaultRole (e) {
-    if (!Config.ttsSpace) {
-      await this.reply('您没有配置VITS API，请前往锅巴面板进行配置')
+    if (Config.ttsMode === 'vits-uma-genshin-honkai' && !Config.ttsSpace) {
+      await this.reply('您没有配置vits-uma-genshin-honkai API，请前往后台管理或锅巴面板进行配置')
       return
     }
-    let userSetting = await redis.get(`CHATGPT:USER:${e.sender.user_id}`)
-    if (!userSetting) {
-      userSetting = getDefaultReplySetting()
-    } else {
-      userSetting = JSON.parse(userSetting)
+    if (Config.ttsMode === 'azure' && !Config.azureTTSKey) {
+      await this.reply('您没有配置azure 密钥，请前往后台管理或锅巴面板进行配置')
+      return
     }
     const regex = /^>chatgpt设置(语音角色|角色语音|角色)/
-    // let speaker = _.trimStart(e.msg, regex) || '随机'
     let speaker = e.msg.replace(regex, '').trim() || '随机'
-    userSetting.ttsRole = convertSpeaker(speaker)
-    if (speakers.indexOf(userSetting.ttsRole) >= 0) {
-      await redis.set(`CHATGPT:USER:${e.sender.user_id}`, JSON.stringify(userSetting))
-      await this.reply(`您的默认语音角色已被设置为”${userSetting.ttsRole}“`)
-    } else {
-      await this.reply(`”抱歉，${userSetting.ttsRole}“我还不认识呢`)
+    switch (Config.ttsMode) {
+      case 'vits-uma-genshin-honkai': {
+        let userSetting = await redis.get(`CHATGPT:USER:${e.sender.user_id}`)
+        if (!userSetting) {
+          userSetting = getDefaultReplySetting()
+        } else {
+          userSetting = JSON.parse(userSetting)
+        }
+        userSetting.ttsRole = convertSpeaker(speaker)
+        if (speakers.indexOf(userSetting.ttsRole) >= 0) {
+          await redis.set(`CHATGPT:USER:${e.sender.user_id}`, JSON.stringify(userSetting))
+          await this.reply(`您的默认语音角色已被设置为”${userSetting.ttsRole}“`)
+        } else {
+          await this.reply(`抱歉，"${userSetting.ttsRole}"我还不认识呢`)
+        }
+        break
+      }
+      case 'azure': {
+        let chosen = AzureTTS.supportConfigurations.filter(s => s.name === speaker)
+        if (chosen.length === 0) {
+          await this.reply(`抱歉，没有"${speaker}"这个角色，目前azure模式下支持的角色有${AzureTTS.supportConfigurations.map(item => item.name).join('、')}`)
+        } else {
+          let userSetting = await redis.get(`CHATGPT:USER:${e.sender.user_id}`)
+          if (!userSetting) {
+            userSetting = getDefaultReplySetting()
+          } else {
+            userSetting = JSON.parse(userSetting)
+          }
+          userSetting.ttsRoleAzure = chosen[0].code
+          await redis.set(`CHATGPT:USER:${e.sender.user_id}`, JSON.stringify(userSetting))
+          // Config.azureTTSSpeaker = chosen[0].code
+          await this.reply(`您的默认语音角色已被设置为”${speaker}-${chosen[0].gender}-${chosen[0].languageDetail}“`)
+        }
+        break
+      }
     }
   }
 
@@ -621,7 +676,7 @@ export class chatgpt extends plugin {
       logger.info('chatgpt闭嘴中，不予理会')
       return false
     }
-    //获取用户配置
+    // 获取用户配置
     const userData = await getUserData(e.user_id)
     const use = (userData.mode === 'default' ? null : userData.mode) || await redis.get('CHATGPT:USE') || 'api'
     // 自动化插件本月已发送xx条消息更新太快，由于延迟和缓存问题导致不同客户端不一样，at文本和获取的card不一致。因此单独处理一下
@@ -640,7 +695,12 @@ export class chatgpt extends plugin {
       userSetting = getDefaultReplySetting()
     }
     let useTTS = !!userSetting.useTTS
-    let speaker = convertSpeaker(userSetting.ttsRole || Config.defaultTTSRole)
+    let speaker
+    if (Config.ttsMode === 'vits-uma-genshin-honkai') {
+      speaker = convertSpeaker(userSetting.ttsRole || Config.defaultTTSRole)
+    } else if (Config.ttsMode === 'azure') {
+      speaker = userSetting.ttsRoleAzure || Config.azureTTSSpeaker
+    }
     // 每个回答可以指定
     let trySplit = prompt.split('回答：')
     if (trySplit.length > 1 && speakers.indexOf(convertSpeaker(trySplit[0])) > -1) {
@@ -908,7 +968,7 @@ export class chatgpt extends plugin {
         ttsResponse = response.replace(ttsRegex, '')
         // 先把文字回复发出去，避免过久等待合成语音
         if (Config.alsoSendText || ttsResponse.length > Config.ttsAutoFallbackThreshold) {
-          if (ttsResponse.length > Config.ttsAutoFallbackThreshold) {
+          if (Config.ttsMode === 'vits-uma-genshin-honkai' && ttsResponse.length > Config.ttsAutoFallbackThreshold) {
             await this.reply('回复的内容过长，已转为文本模式')
           }
           await this.reply(await convertFaces(response, Config.enableRobotAt, e), e.isGroup)
@@ -919,26 +979,45 @@ export class chatgpt extends plugin {
             this.reply(`猜猜你想说什么呢？\n${chatMessage.suggestedResponses}`)
           }
         }
-        if (Config.ttsSpace && ttsResponse.length <= Config.ttsAutoFallbackThreshold) {
+        let wav
+        if (Config.ttsMode === 'vits-uma-genshin-honkai' && Config.ttsSpace) {
           try {
-            let wav = await generateAudio(ttsResponse, speaker, '中日混合（中文用[ZH][ZH]包裹起来，日文用[JA][JA]包裹起来）')
-              try {
-                let sendable = await uploadRecord(wav)
-                if (sendable) {
-                  await e.reply(sendable)
-                } else {
-                  //如果合成失败，尝试使用ffmpeg合成
-                  await e.reply(segment.record(wav))
-                }
-              } catch (err) {
-                logger.error(err)
-                await e.reply(segment.record(wav))
-              }
+            wav = await generateAudio(ttsResponse, speaker, '中日混合（中文用[ZH][ZH]包裹起来，日文用[JA][JA]包裹起来）')
           } catch (err) {
+            logger.error(err)
             await this.reply('合成语音发生错误~')
           }
-        } else if (!Config.ttsSpace) {
+        } else if (Config.ttsMode === 'azure' && Config.azureTTSKey) {
+          wav = await AzureTTS.generateAudio(ttsResponse, {
+            speaker: speaker
+          })
+        } else {
           await this.reply('你没有配置转语音API哦')
+        }
+        try {
+          try {
+            let sendable = await uploadRecord(wav, Config.ttsMode === 'azure')
+            if (sendable) {
+              await e.reply(sendable)
+            } else {
+              // 如果合成失败，尝试使用ffmpeg合成
+              await e.reply(segment.record(wav))
+            }
+          } catch (err) {
+            logger.error(err)
+            await e.reply(segment.record(wav))
+          }
+        } catch (err) {
+          logger.error(err)
+          await this.reply('合成语音发生错误~')
+        }
+        if (Config.ttsMode === 'azure' && Config.azureTTSKey) {
+          // 清理文件
+          try {
+            fs.unlinkSync(wav)
+          } catch (err) {
+            logger.warn(err)
+          }
         }
       } else if (userSetting.usePicture || (Config.autoUsePicture && response.length > Config.autoUsePictureThreshold)) {
         // todo use next api of chatgpt to complete incomplete respoonse
