@@ -120,11 +120,19 @@ export class chatgpt extends plugin {
           permission: 'master'
         },
         {
+<<<<<<< HEAD
           reg: '^>(chatgpt)?(结束|新开|摧毁|毁灭|完结)对话([sS]*)',
           fnc: 'destroyConversations'
         },
         {
           reg: '^>(chatgpt)?(结束|新开|摧毁|毁灭|完结)全部对话$',
+=======
+          reg: '^#(chatgpt)?(结束|新开|摧毁|毁灭|完结)对话([sS]*)',
+          fnc: 'destroyConversations'
+        },
+        {
+          reg: '^#(chatgpt)?(结束|新开|摧毁|毁灭|完结)全部对话$',
+>>>>>>> upstream/v2
           fnc: 'endAllConversations',
           permission: 'master'
         },
@@ -149,11 +157,15 @@ export class chatgpt extends plugin {
           fnc: 'switchTTSSource'
         },
         {
+<<<<<<< HEAD
           reg: '^>chatgpt语音换源',
           fnc: 'switchTTSSource'
         },
         {
           reg: '^>chatgpt设置(语音角色|角色语音|角色)',
+=======
+          reg: '^#chatgpt设置(语音角色|角色语音|角色)',
+>>>>>>> upstream/v2
           fnc: 'setDefaultRole'
         },
         {
@@ -558,7 +570,11 @@ export class chatgpt extends plugin {
       await this.reply('您没有配置azure 密钥，请前往后台管理或锅巴面板进行配置')
       return
     }
+<<<<<<< HEAD
     const regex = /^>chatgpt设置(语音角色|角色语音|角色)/
+=======
+    const regex = /^#chatgpt设置(语音角色|角色语音|角色)/
+>>>>>>> upstream/v2
     let speaker = e.msg.replace(regex, '').trim() || '随机'
     switch (Config.ttsMode) {
       case 'vits-uma-genshin-honkai': {
