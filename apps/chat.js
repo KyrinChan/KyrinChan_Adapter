@@ -282,7 +282,7 @@ export class chatgpt extends plugin {
           await this.reply('当前没有开启对话', true)
         } else {
           await redis.del(`CHATGPT:CONVERSATIONS_BING:${e.sender.user_id}`)
-          await this.reply('已结束当前对话，请@我进行聊天以开启新的对话', true)
+          await this.reply('凯琳酱忘掉啦~重新开始对话吧~', true)
         }
       } else if (use === 'browser') {
         let c = await redis.get(`CHATGPT:CONVERSATIONS_BROWSER:${e.sender.user_id}`)
@@ -550,11 +550,7 @@ export class chatgpt extends plugin {
       await this.reply('您没有配置azure 密钥，请前往后台管理或锅巴面板进行配置')
       return
     }
-<<<<<<< HEAD
     const regex = /^>chatgpt设置(语音角色|角色语音|角色)/
-=======
-    const regex = /^#chatgpt设置(语音角色|角色语音|角色)/
->>>>>>> upstream/v2
     let speaker = e.msg.replace(regex, '').trim() || '随机'
     switch (Config.ttsMode) {
       case 'vits-uma-genshin-honkai': {
