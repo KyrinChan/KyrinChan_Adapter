@@ -120,19 +120,7 @@ export class chatgpt extends plugin {
           permission: 'master'
         },
         {
-<<<<<<< HEAD
-          reg: '^>(chatgpt)?(结束|新开|摧毁|毁灭|完结)对话([sS]*)',
-          fnc: 'destroyConversations'
-        },
-        {
           reg: '^>(chatgpt)?(结束|新开|摧毁|毁灭|完结)全部对话$',
-=======
-          reg: '^#(chatgpt)?(结束|新开|摧毁|毁灭|完结)对话([sS]*)',
-          fnc: 'destroyConversations'
-        },
-        {
-          reg: '^#(chatgpt)?(结束|新开|摧毁|毁灭|完结)全部对话$',
->>>>>>> upstream/v2
           fnc: 'endAllConversations',
           permission: 'master'
         },
@@ -153,19 +141,11 @@ export class chatgpt extends plugin {
           fnc: 'switch2Audio'
         },
         {
-          reg: '^#chatgpt语音换源',
-          fnc: 'switchTTSSource'
-        },
-        {
-<<<<<<< HEAD
           reg: '^>chatgpt语音换源',
           fnc: 'switchTTSSource'
         },
         {
           reg: '^>chatgpt设置(语音角色|角色语音|角色)',
-=======
-          reg: '^#chatgpt设置(语音角色|角色语音|角色)',
->>>>>>> upstream/v2
           fnc: 'setDefaultRole'
         },
         {
@@ -179,7 +159,7 @@ export class chatgpt extends plugin {
           permission: 'master'
         },
         {
-          reg: '#(OpenAI|openai)(剩余)?(余额|额度)',
+          reg: '>(OpenAI|openai)(剩余)?(余额|额度)',
           fnc: 'totalAvailable',
           permission: 'master'
         },
@@ -197,7 +177,7 @@ export class chatgpt extends plugin {
           permission: 'master'
         },
         {
-          reg: '^#claude开启新对话',
+          reg: '^>claude开启新对话',
           fnc: 'newClaudeConversation'
         }
       ]
