@@ -245,7 +245,7 @@ p, li, span {
   display: inline-block;
   position: relative;
   padding-right: 15px;
-  color: rgba(0, 0, 0, 0.877);
+  color: rgba(255, 141, 141, 0.877);
   /* font-family: "Comfortaa", "微软雅黑", "Josefin Sans", sans-serif; */
   /* text-transform: uppercase; */
 }

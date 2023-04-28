@@ -26,7 +26,7 @@ code.hljs {
 
 .hljs {
   background: #f3f3f3;
-  color: #444
+  color: #8b8b8b
 }
 
 .hljs-comment {
@@ -60,12 +60,12 @@ code.hljs {
 .hljs-string,
 .hljs-template-tag,
 .hljs-type {
-  color: #800
+  color: rgb(238, 90, 90)
 }
 
 .hljs-section,
 .hljs-title {
-  color: #800;
+  color: rgb(216, 86, 86);
   font-weight: 700
 }
 
