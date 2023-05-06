@@ -1221,19 +1221,6 @@ export class chatgpt extends plugin {
         ttsResponse = emojiStrip(ttsResponse)
         // 处理多行回复有时候只会读第一行和azure语音会读出一些标点符号的问题
         ttsResponse = ttsResponse.replace(/[-:_；*;\n]/g, '，')
-        // 先把文字回复发出去，避免过久等待合成语音
-        if (Config.alsoSendText || ttsResponse.length > Config.ttsAutoFallbackThreshold) {
-          if (Config.ttsMode === 'vits-uma-genshin-honkai' && ttsResponse.length > Config.ttsAutoFallbackThreshold) {
-            await this.reply('回复的内容过长，已转为文本模式')
-          }
-          await this.reply(await convertFaces(response, Config.enableRobotAt, e), e.isGroup)
-          if (quotemessage.length > 0) {
-            this.reply(await makeForwardMsg(this.e, quotemessage.map(msg => `${msg.text} - ${msg.url}`)))
-          }
-          if (Config.enableSuggestedResponses && chatMessage.suggestedResponses) {
-            this.reply(`猜猜你想说什么呢？\n${chatMessage.suggestedResponses}`)
-          }
-        }
         let wav
         if (Config.ttsMode === 'vits-uma-genshin-honkai' && Config.ttsSpace && ttsResponse.length <= Config.ttsAutoFallbackThreshold) {
           if (Config.autoJapanese && (_.isEmpty(Config.baiduTranslateAppId) || _.isEmpty(Config.baiduTranslateSecret))) {
