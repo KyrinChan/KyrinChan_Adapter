@@ -1245,7 +1245,7 @@ export class chatgpt extends plugin {
             logger.error(err)
             await this.reply('合成语音发生错误~')
           }
-        } else if (Config.ttsMode === 'azure' && Config.azureTTSKey) {
+        } else if (Config.ttsMode === 'azure' && Config.azureTTSKey && ttsResponse.length <= Config.ttsAutoFallbackThreshold) {
           let ssml = AzureTTS.generateSsml(ttsResponse, {
             speaker,
             emotion,
@@ -1254,7 +1254,7 @@ export class chatgpt extends plugin {
           wav = await AzureTTS.generateAudio(ttsResponse, {
             speaker
           }, await ssml)
-        } else if (Config.ttsMode === 'voicevox' && Config.voicevoxSpace) {
+        } else if (Config.ttsMode === 'voicevox' && Config.voicevoxSpace && ttsResponse.length <= Config.ttsAutoFallbackThreshold) {
           wav = await VoiceVoxTTS.generateAudio(ttsResponse, {
             speaker
           })
