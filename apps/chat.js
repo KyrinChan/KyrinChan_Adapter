@@ -1218,26 +1218,86 @@ export class chatgpt extends plugin {
           ttsRegex = ''
         }
         ttsResponse = response.replace(ttsRegex, '')
-
-        if (Config.ttsSpace && ttsResponse.length <= Config.ttsAutoFallbackThreshold) {
+        ttsResponse = emojiStrip(ttsResponse)
+        // 处理多行回复有时候只会读第一行和azure语音会读出一些标点符号的问题
+        ttsResponse = ttsResponse.replace(/[-:_；*;\n]/g, '，')
+        // 先把文字回复发出去，避免过久等待合成语音
+        if (Config.alsoSendText || ttsResponse.length > Config.ttsAutoFallbackThreshold) {
+          if (Config.ttsMode === 'vits-uma-genshin-honkai' && ttsResponse.length > Config.ttsAutoFallbackThreshold) {
+            await this.reply('回复的内容过长，已转为文本模式')
+          }
+          await this.reply(await convertFaces(response, Config.enableRobotAt, e), e.isGroup)
+          if (quotemessage.length > 0) {
+            this.reply(await makeForwardMsg(this.e, quotemessage.map(msg => `${msg.text} - ${msg.url}`)))
+          }
+          if (Config.enableSuggestedResponses && chatMessage.suggestedResponses) {
+            this.reply(`猜猜你想说什么呢？\n${chatMessage.suggestedResponses}`)
+          }
+        }
+        let wav
+        if (Config.ttsMode === 'vits-uma-genshin-honkai' && Config.ttsSpace && ttsResponse.length <= Config.ttsAutoFallbackThreshold) {
+          if (Config.autoJapanese && (_.isEmpty(Config.baiduTranslateAppId) || _.isEmpty(Config.baiduTranslateSecret))) {
+            await this.reply('请检查翻译配置是否正确。')
+            return false
+          }
+          if (Config.autoJapanese) {
+            try {
+              const translate = new Translate({
+                appid: Config.baiduTranslateAppId,
+                secret: Config.baiduTranslateSecret
+              })
+              ttsResponse = await translate(ttsResponse, '日')
+            } catch (err) {
+              logger.error(err)
+              await this.reply(err.message + '\n将使用原始文本合成语音...')
+            }
+          }
           try {
-            let wav = await generateAudio(ttsResponse, speaker, '中日混合（中文用[ZH][ZH]包裹起来，日文用[JA][JA]包裹起来）')
-            if (useSilk) {
-              try {
-                let sendable = await uploadRecord(wav)
-                await e.reply(sendable)
-              } catch (err) {
-                logger.error(err)
-                await e.reply(segment.record(wav))
-              }
+            wav = await generateAudio(ttsResponse, speaker, '中日混合（中文用[ZH][ZH]包裹起来，日文用[JA][JA]包裹起来）')
+          } catch (err) {
+            logger.error(err)
+            await this.reply('合成语音发生错误~')
+          }
+        } else if (Config.ttsMode === 'azure' && Config.azureTTSKey) {
+          let ssml = AzureTTS.generateSsml(ttsResponse, {
+            speaker,
+            emotion,
+            emotionDegree
+          })
+          wav = await AzureTTS.generateAudio(ttsResponse, {
+            speaker
+          }, await ssml)
+        } else if (Config.ttsMode === 'voicevox' && Config.voicevoxSpace) {
+          wav = await VoiceVoxTTS.generateAudio(ttsResponse, {
+            speaker
+          })
+        } else if (!Config.ttsSpace && !Config.azureTTSKey && !Config.voicevoxSpace) {
+          await this.reply('你没有配置转语音API哦')
+        }
+        try {
+          try {
+            let sendable = await uploadRecord(wav, Config.ttsMode)
+            if (sendable) {
+              await e.reply(sendable)
             } else {
+              // 如果合成失败，尝试使用ffmpeg合成
               await e.reply(segment.record(wav))
             }
           } catch (err) {
-            await this.reply('合成语音发生错误~')
+            logger.error(err)
+            await e.reply(segment.record(wav))
           }
-        } else if (!Config.ttsSpace) {
-          await this.reply('你没有配置转语音API哦')
+        } catch (err) {
+          logger.error(err)
+          await this.reply('合成语音发生错误~')
+        }
+        if (Config.ttsMode === 'azure' && Config.azureTTSKey) {
+          // 清理文件
+          try {
+            fs.unlinkSync(wav)
+          } catch (err) {
+            logger.warn(err)
+          }
         }
       } else {
         this.cacheContent(e, use, response, prompt, quotemessage, mood, favor, chatMessage.suggestedResponses, imgUrls)
