@@ -8,7 +8,7 @@ import fetch from 'node-fetch'
 import { mkdirs } from '../utils/common.js'
 import uploadRecord from '../utils/uploadRecord.js'
 import { makeWordcloud } from '../utils/wordcloud/wordcloud.js'
-import Translate, { transMap } from '../utils/baiduTranslate.js'
+// import Translate, { transMap } from '../utils/baiduTranslate.js'
 import _ from 'lodash'
 let useSilk = false
 try {
@@ -42,11 +42,11 @@ export class Entertainment extends plugin {
         {
           reg: '^#?(今日词云|群友在聊什么)$',
           fnc: 'wordcloud'
-        },
-        {
-          reg: '^#((?:寄批踢)?翻.*|chatgpt翻译帮助)',
-          fnc: 'translate'
         }
+        // {
+        //   reg: '^#((?:寄批踢)?翻.*|chatgpt翻译帮助)',
+        //   fnc: 'translate'
+        // }
       ]
     })
     this.task = [
@@ -60,41 +60,41 @@ export class Entertainment extends plugin {
     ]
   }
 
-  async translate (e) {
-    if (e.msg.trim() === '#chatgpt翻译帮助') {
-      await this.reply('支持中、日、文(文言文)、英、俄、韩语言之间的文本翻译功能，"寄批踢"为可选前缀' +
-          '\n示例：1. #寄批踢翻英 你好' +
-          '\t2. #翻中 你好' +
-          '\t3. #寄批踢翻文 hello')
-      return
-    }
-    if (_.isEmpty(Config.baiduTranslateAppId) || _.isEmpty(Config.baiduTranslateSecret)) {
-      this.reply('请检查翻译配置是否正确。')
-      return
-    }
-    const regExp = /(#(?:寄批踢)?翻(.))(.*)/
-    const msg = e.msg.trim()
-    const match = msg.match(regExp)
-    let result = ''
-    if (!(match[2] in transMap)) {
-      e.reply('输入格式有误或暂不支持该语言，' +
-          '\n当前支持：中、日、文(文言文)、英、俄、韩。', e.isGroup
-      )
-      return
-    }
-    const PendingText = match[3]
-    try {
-      const translate = new Translate({
-        appid: Config.baiduTranslateAppId,
-        secret: Config.baiduTranslateSecret
-      })
-      result = await translate(PendingText, match[2])
-    } catch (err) {
-      logger.error(err)
-      result = err.message
-    }
-    await this.reply(result, e.isGroup)
-  }
+  // async translate (e) {
+  //   if (e.msg.trim() === '#chatgpt翻译帮助') {
+  //     await this.reply('支持中、日、文(文言文)、英、俄、韩语言之间的文本翻译功能，"寄批踢"为可选前缀' +
+  //         '\n示例：1. #寄批踢翻英 你好' +
+  //         '\t2. #翻中 你好' +
+  //         '\t3. #寄批踢翻文 hello')
+  //     return
+  //   }
+  //   if (_.isEmpty(Config.baiduTranslateAppId) || _.isEmpty(Config.baiduTranslateSecret)) {
+  //     this.reply('请检查翻译配置是否正确。')
+  //     return
+  //   }
+  //   const regExp = /(#(?:寄批踢)?翻(.))(.*)/
+  //   const msg = e.msg.trim()
+  //   const match = msg.match(regExp)
+  //   let result = ''
+  //   if (!(match[2] in transMap)) {
+  //     e.reply('输入格式有误或暂不支持该语言，' +
+  //         '\n当前支持：中、日、文(文言文)、英、俄、韩。', e.isGroup
+  //     )
+  //     return
+  //   }
+  //   const PendingText = match[3]
+  //   try {
+  //     const translate = new Translate({
+  //       appid: Config.baiduTranslateAppId,
+  //       secret: Config.baiduTranslateSecret
+  //     })
+  //     result = await translate(PendingText, match[2])
+  //   } catch (err) {
+  //     logger.error(err)
+  //     result = err.message
+  //   }
+  //   await this.reply(result, e.isGroup)
+  // }
 
   async wordcloud (e) {
     if (e.isGroup) {
