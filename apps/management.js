@@ -108,6 +108,11 @@ export class ChatgptManagement extends plugin {
           permission: 'master'
         },
         {
+          reg: '^>chatgpt切换星火$',
+          fnc: 'useXinghuoBasedSolution',
+          permission: 'master'
+        },
+        {
           reg: '^>chatgpt切换(Poe|poe)$',
           fnc: 'useClaudeBasedSolution',
           permission: 'master'
@@ -166,6 +171,11 @@ export class ChatgptManagement extends plugin {
         {
           reg: '^>chatgpt设置(API|api)设定',
           fnc: 'setAPIPromptPrefix',
+          permission: 'master'
+        },
+        {
+          reg: '^>chatgpt设置星火token',
+          fnc: 'setXinghuoToken',
           permission: 'master'
         },
         {
@@ -848,6 +858,16 @@ export class ChatgptManagement extends plugin {
     }
   }
 
+  async useXinghuoBasedSolution () {
+    let use = await redis.get('CHATGPT:USE')
+    if (use !== 'xh') {
+      await redis.set('CHATGPT:USE', 'xh')
+      await this.reply('已切换到基于星火的解决方案')
+    } else {
+      await this.reply('当前已经是星火模式了')
+    }
+  }
+
   async changeBingTone (e) {
     let tongStyle = e.msg.replace(/^>chatgpt(必应|Bing)切换/, '')
     if (!tongStyle) {
@@ -1124,6 +1144,21 @@ export class ChatgptManagement extends plugin {
     Config.apiKey = token
     await this.reply('OpenAI API Key设置成功', true)
     this.finish('saveAPIKey')
+  }
+
+  async setXinghuoToken () {
+    this.setContext('saveXinghuoToken')
+    await this.reply('请发送星火的ssoSessionId', true)
+    return false
+  }
+
+  async saveXinghuoToken () {
+    if (!this.e.msg) return
+    let token = this.e.msg
+    // todo
+    Config.xinghuoToken = token
+    await this.reply('星火ssoSessionId设置成功', true)
+    this.finish('saveXinghuoToken')
   }
 
   async setAPIPromptPrefix (e) {

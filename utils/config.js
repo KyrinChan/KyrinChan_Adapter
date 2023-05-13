@@ -40,12 +40,14 @@ const defaultConfig = {
   sydneyBrainWashStrength: 15,
   sydneyBrainWashName: 'Sydney',
   sydneyMood: false,
+  sydneyMoodTip: 'Your response should be divided into two parts, namely, the text and your mood. The mood available to you can only include: blandness, happy, shy, frustrated, disgusted, and frightened.All content should be replied in this format {"text": "", "mood": ""}.All content except mood should be placed in text, It is important to ensure that the content you reply to can be parsed by json.',
   enableSuggestedResponses: false,
   api: defaultChatGPTAPI,
   apiBaseUrl: 'https://pimon.d201.cn/backend-api',
   apiForceUseReverse: false,
   plus: false,
   useGPT4: false,
+  xinghuoToken: '',
   promptPrefixOverride: 'Your answer shouldn\'t be too verbose. Prefer to answer in Chinese.',
   assistantLabel: 'ChatGPT',
   // thinkingTips: true,
@@ -88,8 +90,12 @@ const defaultConfig = {
   viewHost: '',
   chatViewWidth: 1280,
   chatViewBotName: '',
-  live2d: true,
-  live2dModel: 'default',
+  live2d: false,
+  live2dModel: '/live2d/Murasame/Murasame.model3.json',
+  live2dOption_scale: 0.1,
+  live2dOption_positionX: 0,
+  live2dOption_positionY: 0,
+  live2dOption_rotation: 0,
   groupAdminPage: false,
   enablePrivateChat: false,
   groupWhitelist: [],
@@ -106,6 +112,7 @@ const defaultConfig = {
   cloudTranscode: 'https://silk.201666.xyz',
   cloudRender: false,
   cloudMode: 'url',
+  cloudDPR: 1,
   ttsMode: 'vits-uma-genshin-honkai', // or azure
   azureTTSKey: '',
   azureTTSRegion: '',
@@ -117,7 +124,7 @@ const defaultConfig = {
   azureTTSEmotion: false,
   enhanceAzureTTSEmotion: false,
   autoJapanese: false,
-  version: 'v2.5.9'
+  version: 'v2.6.0'
 }
 const _path = process.cwd()
 let config = {}
