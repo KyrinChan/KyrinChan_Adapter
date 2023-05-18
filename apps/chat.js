@@ -1848,7 +1848,8 @@ export class chatgpt extends plugin {
           throw new Error('未绑定Poe Cookie，请使用#chatgpt设置Poe token命令绑定cookie')
         }
         let client = new PoeClient({
-          quora_cookie: cookie
+          quora_cookie: cookie,
+          proxy: Config.proxy
         })
         await client.setCredentials()
         await client.getChatId()
