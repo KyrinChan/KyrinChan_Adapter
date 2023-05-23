@@ -1232,7 +1232,14 @@ export class chatgpt extends plugin {
           ttsRegex = ''
         }
         ttsResponse = response.replace(ttsRegex, '')
-        ttsResponse = emojiStrip(ttsResponse)
+        // 处理azure语音会读出emoji的问题
+        try {
+          let emojiStrip
+          emojiStrip = (await import('emoji-strip')).default
+          ttsResponse = emojiStrip(ttsResponse)
+        } catch (error) {
+          await this.reply('依赖emoji-strip未安装，请执行pnpm install emoji-strip安装依赖', true)
+        }
         // 处理多行回复有时候只会读第一行和azure语音会读出一些标点符号的问题
         ttsResponse = ttsResponse.replace(/[-:_；*;\n]/g, '，')
         let wav
