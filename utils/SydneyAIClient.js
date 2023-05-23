@@ -109,8 +109,8 @@ export default class SydneyAIClient {
     let accessible = !(await isCN()) || this.opts.proxy
     if (accessible && !Config.sydneyForceUseReverse) {
       // 本身能访问bing.com，那就不用反代啦，重置host
-      logger.info('change hosts to https://www.bing.com')
-      this.opts.host = 'https://www.bing.com'
+      logger.info('change hosts to https://edgeservices.bing.com')
+      this.opts.host = 'https://edgeservices.bing.com/edgesvc'
     }
     logger.mark('使用host：' + this.opts.host)
     let response = await fetch(`${this.opts.host}/turing/conversation/create`, fetchOptions)
@@ -347,22 +347,26 @@ export default class SydneyAIClient {
       logger.mark('sydney websocket constructed successful')
     }
     const toneOption = 'h3imaginative'
+    let optionsSets = [
+      'nlu_direct_response_filter',
+      'deepleo',
+      'disable_emoji_spoken_text',
+      'responsible_ai_policy_235',
+      'enablemm',
+      toneOption,
+      'dtappid',
+      'cricinfo',
+      'cricinfov2',
+      'dv3sugg'
+    ]
+    if (Config.enableGenerateContents) {
+      optionsSets.push(...['clgalileo', 'gencontentv3', 'rai267'])
+    }
     const obj = {
       arguments: [
         {
           source: 'cib',
-          optionsSets: [
-            'nlu_direct_response_filter',
-            'deepleo',
-            'disable_emoji_spoken_text',
-            'responsible_ai_policy_235',
-            'enablemm',
-            toneOption,
-            'dtappid',
-            'cricinfo',
-            'cricinfov2',
-            'dv3sugg'
-          ],
+          optionsSets,
           sliceIds: [
             '222dtappid',
             '225cricinfo',
@@ -625,7 +629,11 @@ export default class SydneyAIClient {
                   adaptiveCards: adaptiveCardsSoFar,
                   text: replySoFar.join('')
                 }
-            message.text = messages.filter(m => m.author === 'bot').map(m => m.text).join('')
+            // 获取到图片内容
+            if (message.contentType === 'IMAGE') {
+              message.imageTag = messages.filter(m => m.contentType === 'IMAGE').map(m => m.text).join('')
+            }
+            message.text = messages.filter(m => m.author === 'bot' && m.contentType != 'IMAGE').map(m => m.text).join('')
             if (!message) {
               reject('No message was generated.')
               return

@@ -159,8 +159,7 @@ export function supportGuoba () {
           field: 'autoJapanese',
           label: 'vits模式日语输出',
           bottomHelpMessage: '使用vits语音时，将机器人的文字回复翻译成日文后获取语音。' +
-              '需要填写下方的翻译配置，配置文档：http://api.fanyi.baidu.com/doc/21 ' +
-              '填写配置后另外支持通过本插件使用文字翻译功能，发送"#chatgpt翻译帮助"查看使用方法。',
+              '若想使用插件的翻译功能，发送"#chatgpt翻译帮助"查看使用方法，支持图片翻译，引用翻译...',
           component: 'Switch'
         },
         {
@@ -378,6 +377,12 @@ export function supportGuoba () {
           bottomHelpMessage: '加强主人认知。希望机器人认清主人，避免NTR可开启。开启后可能会与自设定的内容有部分冲突。sydney模式可以放心开启',
           component: 'Switch'
         },
+        {
+          field: 'enableGenerateContents',
+          label: '允许生成图像等内容',
+          bottomHelpMessage: '开启后类似网页版能够发图。但是此选项会占用大量token，自设定等模式下容易爆token',
+          component: 'Switch'
+        },
         // {
         //   field: 'cognitiveReinforcementTip',
         //   label: '加强主人认知的后台prompt',
@@ -574,16 +579,6 @@ export function supportGuoba () {
           label: '验证码平台Token',
           bottomHelpMessage: '可注册2captcha实现跳过验证码，收费服务但很便宜。否则可能会遇到验证码而卡住',
           component: 'InputPassword'
-        },
-        {
-          field: 'baiduTranslateAppId',
-          label: '百度翻译应用ID',
-          component: 'Input'
-        },
-        {
-          field: 'baiduTranslateSecret',
-          label: '百度翻译密钥',
-          component: 'Input'
         },
         {
           field: 'ttsSpace',
