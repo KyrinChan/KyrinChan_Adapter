@@ -641,9 +641,9 @@ export default class SydneyAIClient {
             if (message?.author !== 'bot') {
               if (event.item?.result) {
                 if (event.item?.result?.exception?.indexOf('maximum context length') > -1) {
-                  reject('对话长度太长啦！超出8193token，请结束对话重新开始')
+                  reject('对话太长力~休息一下罢')
                 } else if (event.item?.result.value === 'Throttled') {
-                  reject('该账户的SERP请求已被限流')
+                  reject('流量太大力~休息一下罢')
                   logger.warn('该账户的SERP请求已被限流')
                   logger.warn(JSON.stringify(event.item?.result))
                 } else {
