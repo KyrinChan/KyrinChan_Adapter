@@ -1938,10 +1938,10 @@ export class chatgpt extends plugin {
           timeoutMs: 120000
           // systemMessage: promptPrefix
         }
-        if (Math.floor(Math.random() * 100) < 5) {
-          // 小概率再次发送系统消息
-          option.systemMessage = promptPrefix
-        }
+        // if (Math.floor(Math.random() * 100) < 5) {
+        //   // 小概率再次发送系统消息
+        //   option.systemMessage = promptPrefix
+        // }
         if (conversation) {
           option = Object.assign(option, conversation)
         }
@@ -2207,7 +2207,11 @@ export class chatgpt extends plugin {
 async function getAvailableBingToken (conversation, throttled = []) {
   let allThrottled = false
   if (!await redis.get('CHATGPT:BING_TOKENS')) {
-    throw new Error('未绑定Bing Cookie，请使用#chatgpt设置必应token命令绑定Bing Cookie')
+    return {
+      bingToken: null,
+      allThrottled
+    }
+    // throw new Error('未绑定Bing Cookie，请使用#chatgpt设置必应token命令绑定Bing Cookie')
   }
 
   let bingToken = ''
