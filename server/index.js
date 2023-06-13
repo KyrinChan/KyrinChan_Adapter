@@ -211,6 +211,14 @@ export async function createServer() {
           mood: body.content.mood || 'blandness',
           live2d: Config.live2d,
           live2dModel: Config.live2dModel,
+          live2dOption: {
+            scale: Config.live2dOption_scale,
+            position: {
+              x: Config.live2dOption_positionX,
+              y: Config.live2dOption_positionY
+            },
+            rotation :Config.live2dOption_rotation,
+          },
           time: new Date()
         }
         fs.writeFileSync(filepath, JSON.stringify(data))
@@ -291,6 +299,9 @@ export async function createServer() {
       if (await redis.exists('CHATGPT:CONFIRM') != 0) {
         redisConfig.turnConfirm = await redis.get('CHATGPT:CONFIRM') === 'on'
       }
+      if (await redis.exists('CHATGPT:USE') != 0) {
+        redisConfig.useMode = await redis.get('CHATGPT:USE')
+      }
       reply.send({
         chatConfig: Config,
         redisConfig
@@ -323,7 +334,30 @@ export async function createServer() {
       const chatdata = body.chatConfig || {}
       for (let [keyPath, value] of Object.entries(chatdata)) {
         if (keyPath === 'blockWords' || keyPath === 'promptBlockWords' || keyPath === 'initiativeChatGroups') { value = value.toString().split(/[,，;；\|]/) }
-        if (Config[keyPath] != value) { Config[keyPath] = value }
+        if (Config[keyPath] != value) {
+          //检查云服务api
+          if(keyPath === 'cloudTranscode') {
+            const referer = request.headers.referer;
+            const origin = referer.match(/(https?:\/\/[^/]+)/)[1];
+            const checkCloud = await fetch(`${value}/check`, 
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                url: origin
+              })
+            })
+            if (checkCloud.ok) {
+              const checkCloudData = await checkCloud.json()
+              if (checkCloudData.state != 'ok') {
+                value = ''
+              }
+            } else value = ''
+          }
+          Config[keyPath] = value 
+        }
       }
       const redisConfig = body.redisConfig || {}
       if (redisConfig.bingTokens != null) {
@@ -331,6 +365,9 @@ export async function createServer() {
       }
       if (redisConfig.turnConfirm != null) {
         await redis.set('CHATGPT:CONFIRM', redisConfig.turnConfirm ? 'on' : 'off')
+      }
+      if (redisConfig.useMode != null) {
+        await redis.set('CHATGPT:USE', redisConfig.useMode)
       }
     } else {
       if (body.userSetting) {

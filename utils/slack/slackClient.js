@@ -24,6 +24,7 @@ export class SlackClaudeClient {
       if (Config.proxy) {
         option.agent = proxy(Config.proxy)
       }
+      option.logLevel = Config.debug ? 'debug': 'info'
       this.app = new slack.App(option)
     } else {
       throw new Error('未配置Slack信息')
@@ -115,13 +116,14 @@ export class SlackClaudeClient {
       }
       return response
     } else {
-      await this.app.client.chat.postMessage({
+      let postResponse = await this.app.client.chat.postMessage({
         as_user: true,
         text: `<@${Config.slackClaudeUserId}> ${prompt}`,
         token: this.config.slackUserToken,
         channel: channel.id,
         thread_ts: conversationId
       })
+      let postTs = postResponse.ts
       let response = '_Typing…_'
       let tryTimes = 0
       // 发完先等3喵
@@ -131,8 +133,10 @@ export class SlackClaudeClient {
           token: this.config.slackUserToken,
           channel: channel.id,
           limit: 1000,
-          ts: conversationId
+          ts: conversationId,
+          oldest: postTs
         })
+
         if (replies.messages.length > 0) {
           let formalMessages = replies.messages
             .filter(m => m.metadata?.event_type !== 'claude_moderation')

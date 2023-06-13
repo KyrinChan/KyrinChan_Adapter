@@ -98,7 +98,7 @@ export function supportGuoba () {
         },
         {
           field: 'defaultTTSRole',
-          label: '语音模式默认角色（vits-uma-genshin-honkai）',
+          label: 'vits默认角色',
           bottomHelpMessage: 'vits-uma-genshin-honkai语音模式下，未指定角色时使用的角色。若留空，将使用随机角色回复。若用户通过指令指定了角色，将忽略本设定',
           component: 'Select',
           componentProps: {
@@ -106,21 +106,8 @@ export function supportGuoba () {
           }
         },
         {
-          field: 'voicevoxTTSSpeaker',
-          label: '语音模式默认角色（VoiceVox）',
-          bottomHelpMessage: 'VoiceVox语音模式下，未指定角色时使用的角色。若留空，将使用随机角色回复。若用户通过指令指定了角色，将忽略本设定',
-          component: 'Select',
-          componentProps: {
-            options: VoiceVoxTTS.supportConfigurations.map(item => {
-              return item.styles.map(style => {
-                return `${item.name}-${style.name}`
-              }).concat(item.name)
-            }).flat().concat('随机').map(s => { return { label: s, value: s } })
-          }
-        },
-        {
           field: 'azureTTSSpeaker',
-          label: '语音模式默认角色（微软Azure）',
+          label: 'Azure默认角色',
           bottomHelpMessage: '微软Azure语音模式下，未指定角色时使用的角色。若用户通过指令指定了角色，将忽略本设定',
           component: 'Select',
           componentProps: {
@@ -130,6 +117,19 @@ export function supportGuoba () {
                 value: item.code
               }
             })
+          }
+        },
+        {
+          field: 'voicevoxTTSSpeaker',
+          label: 'VoiceVox默认角色',
+          bottomHelpMessage: 'VoiceVox语音模式下，未指定角色时使用的角色。若留空，将使用随机角色回复。若用户通过指令指定了角色，将忽略本设定',
+          component: 'Select',
+          componentProps: {
+            options: VoiceVoxTTS.supportConfigurations.map(item => {
+              return item.styles.map(style => {
+                return `${item.name}-${style.name}`
+              }).concat(item.name)
+            }).flat().concat('随机').map(s => { return { label: s, value: s } })
           }
         },
         {
@@ -153,6 +153,13 @@ export function supportGuoba () {
           field: 'alsoSendText',
           label: '语音同时发送文字',
           bottomHelpMessage: '语音模式下，同时发送文字版，避免音质较低听不懂',
+          component: 'Switch'
+        },
+        {
+          field: 'autoJapanese',
+          label: 'vits模式日语输出',
+          bottomHelpMessage: '使用vits语音时，将机器人的文字回复翻译成日文后获取语音。' +
+              '若想使用插件的翻译功能，发送"#chatgpt翻译帮助"查看使用方法，支持图片翻译，引用翻译...',
           component: 'Switch'
         },
         {
@@ -295,6 +302,12 @@ export function supportGuoba () {
           component: 'InputPassword'
         },
         {
+          field: 'model',
+          label: 'OpenAI 模型',
+          bottomHelpMessage: 'gpt-4, gpt-4-0314, gpt-4-32k, gpt-4-32k-0314, gpt-3.5-turbo, gpt-3.5-turbo-0301。默认为gpt-3.5-turbo，gpt-4需账户支持',
+          component: 'Input'
+        },
+        {
           field: 'openAiBaseUrl',
           label: 'OpenAI API服务器地址',
           bottomHelpMessage: 'OpenAI的API服务器地址。注意要带上/v1。默认为https://api.openai.com/v1',
@@ -368,6 +381,12 @@ export function supportGuoba () {
           field: 'enforceMaster',
           label: '加强主人认知',
           bottomHelpMessage: '加强主人认知。希望机器人认清主人，避免NTR可开启。开启后可能会与自设定的内容有部分冲突。sydney模式可以放心开启',
+          component: 'Switch'
+        },
+        {
+          field: 'enableGenerateContents',
+          label: '允许生成图像等内容',
+          bottomHelpMessage: '开启后类似网页版能够发图。但是此选项会占用大量token，自设定等模式下容易爆token',
           component: 'Switch'
         },
         // {
@@ -548,6 +567,16 @@ export function supportGuoba () {
           component: 'Input'
         },
         {
+          label: '以下为星火方式的配置',
+          component: 'Divider'
+        },
+        {
+          field: 'xinghuoToken',
+          label: '星火Cookie',
+          bottomHelpMessage: '获取对话页面的ssoSessionId cookie。不要带等号和分号',
+          component: 'Input'
+        },
+        {
           label: '以下为杂七杂八的配置',
           component: 'Divider'
         },
@@ -579,6 +608,18 @@ export function supportGuoba () {
           label: 'Azure语音服务区域',
           bottomHelpMessage: '例如japaneast',
           component: 'Input'
+        },
+        {
+          field: 'azureTTSEmotion',
+          label: 'Azure情绪多样化',
+          bottomHelpMessage: '切换角色后使用"#chatgpt使用设定xxx"重新开始对话以更新不同角色的情绪配置。支持使用不同的说话风格回复，各个角色支持说话风格详情：https://speech.microsoft.com/portal/voicegallery',
+          component: 'Switch'
+        },
+        {
+          field: 'enhanceAzureTTSEmotion',
+          label: 'Azure情绪纠正',
+          bottomHelpMessage: '当机器人未使用或使用了不支持的说话风格时，将在对话中提醒机器人。注意：bing模式开启此项后有概率增大触发抱歉的机率，且不要单独开启此项。',
+          component: 'Switch'
         },
         {
           field: 'huggingFaceReverseProxy',

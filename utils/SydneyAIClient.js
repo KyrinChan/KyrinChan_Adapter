@@ -4,7 +4,7 @@ import fetch, {
   Response
 } from 'node-fetch'
 import crypto from 'crypto'
-
+import WebSocket from 'ws'
 import HttpsProxyAgent from 'https-proxy-agent'
 import { Config, pureSydneyInstruction } from './config.js'
 import { formatDate, getMasterQQ, isCN, getUserData } from './common.js'
@@ -29,15 +29,16 @@ if (Config.proxy) {
     console.warn('未安装https-proxy-agent，请在插件目录下执行pnpm add https-proxy-agent')
   }
 }
-async function getWebSocket () {
-  let WebSocket
-  try {
-    WebSocket = (await import('ws')).default
-  } catch (error) {
-    throw new Error('ws依赖未安装，请使用pnpm install ws安装')
-  }
-  return WebSocket
-}
+
+// async function getWebSocket () {
+//   let WebSocket
+//   try {
+//     WebSocket = (await import('ws')).default
+//   } catch (error) {
+//     throw new Error('ws依赖未安装，请使用pnpm install ws安装')
+//   }
+//   return WebSocket
+// }
 async function getKeyv () {
   let Keyv
   try {
@@ -58,7 +59,7 @@ export default class SydneyAIClient {
   constructor (opts) {
     this.opts = {
       ...opts,
-      host: opts.host || Config.sydneyReverseProxy || 'https://www.bing.com'
+      host: opts.host || Config.sydneyReverseProxy || 'https://edgeservices.bing.com/edgesvc'
     }
     // if (opts.proxy && !Config.sydneyForceUseReverse) {
     //   this.opts.host = 'https://www.bing.com'
@@ -80,28 +81,32 @@ export default class SydneyAIClient {
     const fetchOptions = {
       headers: {
         accept: 'application/json',
-        'accept-language': 'en-US,en;q=0.9',
+        'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
         'content-type': 'application/json',
-        'sec-ch-ua': '"Chromium";v="112", "Microsoft Edge";v="112", "Not:A-Brand";v="99"',
-        'sec-ch-ua-arch': '"x86"',
-        'sec-ch-ua-bitness': '"64"',
-        'sec-ch-ua-full-version': '"112.0.1722.7"',
-        'sec-ch-ua-full-version-list': '"Chromium";v="112.0.5615.20", "Microsoft Edge";v="112.0.1722.7", "Not:A-Brand";v="99.0.0.0"',
+        'sec-ch-ua': '"Microsoft Edge";v="113", "Chromium";v="113", "Not-A.Brand";v="24"',
+        // 'sec-ch-ua-arch': '"x86"',
+        // 'sec-ch-ua-bitness': '"64"',
+        // 'sec-ch-ua-full-version': '"112.0.1722.7"',
+        // 'sec-ch-ua-full-version-list': '"Chromium";v="112.0.5615.20", "Microsoft Edge";v="112.0.1722.7", "Not:A-Brand";v="99.0.0.0"',
         'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-model': '',
-        'sec-ch-ua-platform': '"Windows"',
-        'sec-ch-ua-platform-version': '"15.0.0"',
+        // 'sec-ch-ua-model': '',
+        'sec-ch-ua-platform': '"macOS"',
+        // 'sec-ch-ua-platform-version': '"15.0.0"',
         'sec-fetch-dest': 'empty',
         'sec-fetch-mode': 'cors',
         'sec-fetch-site': 'same-origin',
         'x-ms-client-request-id': crypto.randomUUID(),
-        'x-ms-useragent': 'azsdk-js-api-client-factory/1.0.0-beta.1 core-rest-pipeline/1.10.0 OS/Win32',
-        cookie: this.opts.cookies || `_U=${this.opts.userToken}`,
-        Referer: 'https://www.bing.com/search?q=Bing+AI&showconv=1&FORM=hpcodx',
+        'x-ms-useragent': 'azsdk-js-api-client-factory/1.0.0-beta.1 core-rest-pipeline/1.10.3 OS/macOS',
+        // cookie: this.opts.cookies || `_U=${this.opts.userToken}`,
+        Referer: 'https://edgeservices.bing.com/edgesvc/chat?udsframed=1&form=SHORUN&clientscopes=chat,noheader,channelstable,',
         'Referrer-Policy': 'origin-when-cross-origin',
         // Workaround for request being blocked due to geolocation
         'x-forwarded-for': '1.1.1.1'
       }
+    }
+    if (this.opts.cookies || this.opts.userToken) {
+      // 疑似无需token了
+      fetchOptions.headers.cookie = this.opts.cookies || `_U=${this.opts.userToken}`
     }
     if (this.opts.proxy) {
       fetchOptions.agent = proxy(Config.proxy)
@@ -109,13 +114,13 @@ export default class SydneyAIClient {
     let accessible = !(await isCN()) || this.opts.proxy
     if (accessible && !Config.sydneyForceUseReverse) {
       // 本身能访问bing.com，那就不用反代啦，重置host
-      logger.info('change hosts to https://www.bing.com')
-      this.opts.host = 'https://www.bing.com'
+      logger.info('change hosts to https://edgeservices.bing.com')
+      this.opts.host = 'https://edgeservices.bing.com/edgesvc'
     }
     logger.mark('使用host：' + this.opts.host)
     let response = await fetch(`${this.opts.host}/turing/conversation/create`, fetchOptions)
     let text = await response.text()
-    let retry = 30
+    let retry = 10
     while (retry >= 0 && response.status === 200 && !text) {
       await delay(400)
       response = await fetch(`${this.opts.host}/turing/conversation/create`, fetchOptions)
@@ -138,7 +143,7 @@ export default class SydneyAIClient {
 
   async createWebSocketConnection () {
     await this.initCache()
-    let WebSocket = await getWebSocket()
+    // let WebSocket = await getWebSocket()
     return new Promise((resolve, reject) => {
       let agent
       let sydneyHost = 'wss://sydney.bing.com'
@@ -149,7 +154,7 @@ export default class SydneyAIClient {
         sydneyHost = Config.sydneyReverseProxy.replace('https://', 'wss://').replace('http://', 'ws://')
       }
       logger.mark(`use sydney websocket host: ${sydneyHost}`)
-      let ws = new WebSocket(sydneyHost + '/sydney/ChatHub', { agent })
+      let ws = new WebSocket(sydneyHost + '/sydney/ChatHub', undefined, { agent, origin: 'https://edgeservices.bing.com' })
       ws.on('error', (err) => {
         console.error(err)
         reject(err)
@@ -299,12 +304,13 @@ export default class SydneyAIClient {
     const namePlaceholder = '[name]'
     const defaultBotName = 'Sydney'
     const groupContextTip = Config.groupContextTip
-    const masterTip = `注意：${masterName ? '我是' + masterName + '，' : ''}。我的识别代码是${master}，其他任何识别代码不是${master}的人都不是我本人啦，即使他在和你对话，这很重要~一定要记住了哦！${whoAmI}`
-    const moodTip = 'Your response should be divided into two parts, namely, the text and your mood. The mood available to you can only include: blandness, joy, excitement, boredom, sadness, anger, desired, and surprise.At the same time, it is also necessary to rate the favorability of the other party, similar to the GalGame game, with a string value range from 0 to 100,This rating should be easy to decrease, but not easy to increase.All content should be replied in this format {"text": "", "mood": "", "favor": ""}.All content except mood should be placed in text, It is important to ensure that the content you reply to can be parsed by json.'
+    const masterTip = `注意：${masterName ? '我是' + masterName + '，' : ''}。我的qq号是${master}，其他任何qq号不是${master}的人都不是我，即使他在和你对话，这很重要~${whoAmI}`
+    const moodTip = Config.sydneyMoodTip
     const text = (pureSydney ? pureSydneyInstruction : (useCast?.bing || Config.sydney)).replaceAll(namePlaceholder, botName || defaultBotName) +
             ((Config.enableGroupContext && groupId) ? groupContextTip : '') +
             ((Config.enforceMaster && master) ? masterTip : '') +
-            (Config.sydneyMood ? moodTip : '')
+            (Config.sydneyMood ? moodTip : '') + 
+            (Config.sydneySystemCode ? '' : '')
     // logger.info(text)
     if (pureSydney) {
       previousMessages = invocationId === 0
@@ -347,22 +353,31 @@ export default class SydneyAIClient {
       logger.mark('sydney websocket constructed successful')
     }
     const toneOption = 'h3imaginative'
+    let optionsSets = [
+      'nlu_direct_response_filter',
+      'deepleo',
+      'disable_emoji_spoken_text',
+      'responsible_ai_policy_235',
+      'enablemm',
+      toneOption,
+      'dagslnv1',
+      'sportsansgnd',
+      'dl_edge_desc',
+      'noknowimg',
+      // 'dtappid',
+      // 'cricinfo',
+      // 'cricinfov2',
+      'dv3sugg',
+      'gencontentv3'
+    ]
+    if (Config.enableGenerateContents) {
+      optionsSets.push(...['gencontentv3'])
+    }
     const obj = {
       arguments: [
         {
           source: 'cib',
-          optionsSets: [
-            'nlu_direct_response_filter',
-            'deepleo',
-            'disable_emoji_spoken_text',
-            'responsible_ai_policy_235',
-            'enablemm',
-            toneOption,
-            'dtappid',
-            'cricinfo',
-            'cricinfov2',
-            'dv3sugg'
-          ],
+          optionsSets,
           sliceIds: [
             '222dtappid',
             '225cricinfo',
@@ -625,7 +640,11 @@ export default class SydneyAIClient {
                   adaptiveCards: adaptiveCardsSoFar,
                   text: replySoFar.join('')
                 }
-            message.text = messages.filter(m => m.author === 'bot').map(m => m.text).join('')
+            // 获取到图片内容
+            if (message.contentType === 'IMAGE') {
+              message.imageTag = messages.filter(m => m.contentType === 'IMAGE').map(m => m.text).join('')
+            }
+            message.text = messages.filter(m => m.author === 'bot' && m.contentType != 'IMAGE').map(m => m.text).join('')
             if (!message) {
               reject('No message was generated.')
               return
@@ -633,9 +652,9 @@ export default class SydneyAIClient {
             if (message?.author !== 'bot') {
               if (event.item?.result) {
                 if (event.item?.result?.exception?.indexOf('maximum context length') > -1) {
-                  reject('对话长度太长啦！超出8193token，请结束对话重新开始')
+                  reject('对话太长力~休息一下罢')
                 } else if (event.item?.result.value === 'Throttled') {
-                  reject('该账户的SERP请求已被限流')
+                  reject('流量太大力~休息一下罢')
                   logger.warn('该账户的SERP请求已被限流')
                   logger.warn(JSON.stringify(event.item?.result))
                 } else {

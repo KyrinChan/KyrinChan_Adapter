@@ -8,7 +8,8 @@ import stream from 'stream'
 import crypto from 'crypto'
 import child_process from 'child_process'
 import { Config } from './config.js'
-import {mkdirs} from "./common.js";
+import path from 'path'
+import { mkdirs } from './common.js'
 let module
 try {
   module = await import('oicq')
@@ -61,6 +62,10 @@ async function uploadRecord (recordUrl, ttsMode = 'vits-uma-genshin-honkai') {
         recordUrl = tmpFile
       }
       if (recordType === 'file' || Config.cloudMode === 'file') {
+        if (!recordUrl) {
+          logger.error('云转码错误：recordUrl 异常')
+          return false
+        }
         const formData = new FormData()
         let buffer
         if (!recordUrl.startsWith('http')) {
@@ -82,9 +87,13 @@ async function uploadRecord (recordUrl, ttsMode = 'vits-uma-genshin-honkai') {
           method: 'POST',
           body: formData
         })
-        let t = await resultres.text()
+        let t = await resultres.arrayBuffer()
         try {
-          result = JSON.parse(t)
+          result = {
+            buffer: {
+              data: t
+            }
+          }
         } catch (e) {
           logger.error(t)
           throw e
@@ -168,7 +177,6 @@ async function uploadRecord (recordUrl, ttsMode = 'vits-uma-genshin-honkai') {
     headers,
     body: buf
   })
-  // await axios.post(url, buf, { headers });
 
   const fid = rsp[11].toBuffer()
   const b = core.pb.encode({
@@ -211,8 +219,6 @@ async function getPttBuffer (file, ffmpeg = 'ffmpeg') {
       return audioTrans(tmpfile, ffmpeg)
     }
   } else if (file.startsWith('http://') || file.startsWith('https://')) {
-    // 网络文件
-    // const readable = (await axios.get(file, { responseType: "stream" })).data;
     try {
       const headers = {
         'User-Agent': 'Dalvik/2.1.0 (Linux; U; Android 12; MI 9 Build/SKQ1.211230.001)'
@@ -248,9 +254,14 @@ async function getPttBuffer (file, ffmpeg = 'ffmpeg') {
 }
 
 async function audioTrans (file, ffmpeg = 'ffmpeg') {
+  const tmpfile = path.join(TMP_DIR, uuid())
+  const cmd = IS_WIN
+    ? `${ffmpeg} -i "${file}" -f s16le -ac 1 -ar 24000 "${tmpfile}"`
+    : `exec ${ffmpeg} -i "${file}" -f s16le -ac 1 -ar 24000 "${tmpfile}"`
   return new Promise((resolve, reject) => {
-    const tmpfile = TMP_DIR + '/' + (0, uuid)();
-    (0, child_process.exec)(`${ffmpeg} -i "${file}" -f s16le -ac 1 -ar 24000 "${tmpfile}"`, async (error, stdout, stderr) => {
+    // 隐藏windows下调用ffmpeg的cmd弹窗
+    const options = IS_WIN ? { windowsHide: true, stdio: 'ignore' } : {}
+    child_process.exec(cmd, options, async (error, stdout, stderr) => {
       try {
         resolve(pcm2slk(fs.readFileSync(tmpfile)))
       } catch {

@@ -13,8 +13,8 @@ let helpData = [
       },
       {
         icon: 'chat',
-        title: '>chat1/#chat3/#chatglm/#bing',
-        desc: '分别使用API/API3/ChatGLM/Bing模式与机器人聊天，无论主人设定了何种全局模式'
+        title: '>chat1/>chat3/>chatglm/>bing/>claude/>xh',
+        desc: '分别使用API/API3/ChatGLM/Bing/Claude/星火模式与机器人聊天，无论主人设定了何种全局模式'
       },
       {
         icon: 'chat-private',
@@ -192,6 +192,11 @@ let helpData = [
         desc: '设置APIKey'
       },
       {
+        icon: 'key',
+        title: '#chatgpt设置星火token',
+        desc: '设置星火ssoSessionId（对话页面的ssoSessionId cookie值）'
+      },
+      {
         icon: 'eat',
         title: '>chatgpt设置(API|Sydney)设定',
         desc: '设置AI的默认风格设定'
@@ -200,6 +205,11 @@ let helpData = [
         icon: 'eat',
         title: '>chatgpt查看(API|Sydney)设定',
         desc: '查看AI当前的风格设定，文本形式返回，设定太长可能发不出来'
+      },
+      {
+        icon: 'token',
+        title: '#chatgpt设置后台刷新token',
+        desc: '用于查看API余额。注意和配置的key保持同一账号。'
       }
     ]
   },
@@ -326,7 +336,11 @@ export class help extends plugin {
   }
 
   async help (e) {
-    if (!Config.oldview) { await renderUrl(e, `http://127.0.0.1:${Config.serverPort || 3321}/help/`, { Viewport: { width: 800, height: 600 } }) } else { await render(e, 'chatgpt-plugin', 'help/index', { helpData, version }) }
+    if (Config.newhelp && !Config.oldview) { 
+      await renderUrl(e, `http://127.0.0.1:${Config.serverPort || 3321}/help/`, { Viewport: { width: 800, height: 600 } }) 
+    } else {
+      await render(e, 'chatgpt-plugin', 'help/index', { helpData, version }) 
+    }
   }
 
   async newHelp (e) {
