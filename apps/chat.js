@@ -1209,8 +1209,7 @@ export class chatgpt extends plugin {
         if (Config.enableSuggestedResponses && chatMessage.suggestedResponses) {
           this.reply(`猜猜看，你不会是想说：\n${chatMessage.suggestedResponses}`)
         }
-        if (Config.alsoSendText)
-        {
+        if (Config.alsoSendText){
           // 处理tts输入文本
           let ttsResponse, ttsRegex
           const regex = /^\/(.*)\/([gimuy]*)$/
