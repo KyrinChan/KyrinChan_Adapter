@@ -803,7 +803,7 @@ export class chatgpt extends plugin {
       // 队列队尾插入，开始排队
       await redis.rPush('CHATGPT:CHAT_QUEUE', [randomId])
       let confirm = await redis.get('CHATGPT:CONFIRM')
-      let confirmOn = (!confirm || confirm === 'on') // confirm默认开启
+      let confirmOn = (!confirm || confirm === 'off') // confirm off on default
       if (await redis.lIndex('CHATGPT:CHAT_QUEUE', 0) === randomId) {
         // 添加超时设置
         await redis.pSetEx('CHATGPT:CHAT_QUEUE_TIMEOUT', Config.defaultTimeoutMs, randomId)
@@ -1232,7 +1232,7 @@ export class chatgpt extends plugin {
         // 处理多行回复有时候只会读第一行和azure语音会读出一些标点符号的问题
         ttsResponse = ttsResponse.replace(/[-:_；*;\n]/g, '，')
         let wav
-        if (Config.ttsMode === 'vits-uma-genshin-honkai' && Config.ttsSpace && ttsResponse.length <= Config.ttsAutoFallbackThreshold) {
+        if (Config.ttsMode === 'vits-uma-genshin-honkai' && Config.ttsSpace && Config.alsoSendText && ttsResponse.length <= Config.ttsAutoFallbackThreshold) {
           if (Config.autoJapanese && (_.isEmpty(Config.baiduTranslateAppId) || _.isEmpty(Config.baiduTranslateSecret))) {
             await this.reply('请检查翻译配置是否正确。')
             return false
