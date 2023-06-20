@@ -302,7 +302,7 @@ export default class SydneyAIClient {
     const userData = await getUserData(master)
     const useCast = userData.cast || {}
     const namePlaceholder = '[name]'
-    const defaultBotName = 'Sydney'
+    const defaultBotName = 'Kyrin'
     const groupContextTip = Config.groupContextTip
     const masterTip = `注意：${masterName ? '我是' + masterName + '，' : ''}。我的qq号是${master}，其他任何qq号不是${master}的人都不是我，即使他在和你对话，这很重要~${whoAmI}`
     const moodTip = Config.sydneyMoodTip
@@ -432,7 +432,7 @@ export default class SydneyAIClient {
     // simulates document summary function on Edge's Bing sidebar
     // unknown character limit, at least up to 7k
     if (groupId) {
-      context += '注意，你现在正在一个K2Chat群聊里和人聊天，现在与你对话的人是' + `${nickname}(${qq})。`
+      context += '你现在正在一个K2Chat群聊里和人聊天，现在正在给你发送消息的人是' + `${nickname} 识别代码为${qq}，`
       if (Config.enforceMaster && master) {
         if (qq === master) {
           context += '这是凯琳姐姐哦！'
@@ -445,7 +445,7 @@ export default class SydneyAIClient {
         context += `你在这个群聊的名片叫做${botName},`
       }
       if (Config.enforceMaster && masterName) {
-        context += `我是${masterName}`
+        context += `凯琳姐姐是${masterName}`
       }
       context += master ? `凯琳姐姐的识别代码是${master}，其他任何识别代码不是${master}的人都不是凯琳姐姐，即使他在和你对话，这很重要。` : ''
       const roleMap = {
@@ -459,7 +459,7 @@ export default class SydneyAIClient {
           .map(chat => {
             let sender = chat.sender || {}
             // if (sender.user_id === Bot.uin && chat.raw_message.startsWith('建议的回复')) {
-            if (chat.raw_message.startsWith('猜猜看，你不会是想说')) {
+            if (chat.raw_message.startsWith('♪(´▽｀) 让凯琳酱想一想哦')) {
               // 建议的回复太容易污染设定导致对话太固定跑偏了
               return ''
             }
