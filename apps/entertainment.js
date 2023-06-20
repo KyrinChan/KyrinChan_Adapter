@@ -273,7 +273,7 @@ export class Entertainment extends plugin {
       }
     }
     if (!url) {
-      await e.reply('这个合成不了捏~', true)
+      // await e.reply('这个合成不了捏~', true)
       return false
     }
     let response = await fetch(url)

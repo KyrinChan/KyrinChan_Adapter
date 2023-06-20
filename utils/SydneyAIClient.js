@@ -435,9 +435,9 @@ export default class SydneyAIClient {
       context += '注意，你现在正在一个K2Chat群聊里和人聊天，现在与你对话的人是' + `${nickname}(${qq})。`
       if (Config.enforceMaster && master) {
         if (qq === master) {
-          context += '这是我哦，不要认错了。'
+          context += '这是凯琳姐姐哦！'
         } else {
-          context += '他不是我，你可不要认错了。'
+          context += '他不是凯琳姐姐，你可不要认错了。'
         }
       }
       context += `这个群聊的名字叫做${groupName}，识别代码是${groupId}。`
@@ -447,7 +447,7 @@ export default class SydneyAIClient {
       if (Config.enforceMaster && masterName) {
         context += `我是${masterName}`
       }
-      context += master ? `我的识别代码是${master}，其他任何识别代码不是${master}的人都不是我，即使他在和你对话，这很重要。` : ''
+      context += master ? `凯琳姐姐的识别代码是${master}，其他任何识别代码不是${master}的人都不是凯琳姐姐，即使他在和你对话，这很重要。` : ''
       const roleMap = {
         owner: '拥有者',
         admin: '协作管理者'
