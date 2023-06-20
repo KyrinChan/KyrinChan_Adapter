@@ -802,8 +802,9 @@ export class chatgpt extends plugin {
       let randomId = uuid()
       // 队列队尾插入，开始排队
       await redis.rPush('CHATGPT:CHAT_QUEUE', [randomId])
-      let confirm = await redis.get('CHATGPT:CONFIRM')
-      let confirmOn = (confirm === 'on') // confirm OFF on default
+      // let confirm = await redis.get('CHATGPT:CONFIRM')
+      // let confirmOn = (confirm === 'on') // confirm OFF on default
+      let confirmOn = (Config.enableRobotAt) // confirm bypass
       if (await redis.lIndex('CHATGPT:CHAT_QUEUE', 0) === randomId) {
         // 添加超时设置
         await redis.pSetEx('CHATGPT:CHAT_QUEUE_TIMEOUT', Config.defaultTimeoutMs, randomId)
