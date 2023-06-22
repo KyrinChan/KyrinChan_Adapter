@@ -10,7 +10,7 @@
     "@waylaidwanderer/chatgpt-api": "^1.33.2",
     "asn1.js": "^5.0.0",
     "chatgpt": "^5.1.1",
-    "delay": "^5.0.0",
+    "delay": "^6.0.0",
     "diff": "^5.1.0",
     "eventsource": "^2.0.2",
     "eventsource-parser": "^1.0.0",
