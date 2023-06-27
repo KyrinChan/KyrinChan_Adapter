@@ -453,8 +453,7 @@ export default class SydneyAIClient {
         admin: '协作管理者'
       }
       if (chats) {
-        context += `以下是一段K2Chat群聊内的对话，提供给你作为上下文，你在回答所有问题时必须优先考虑这些信息，结合这些上下文进行回答，这很重要！！！。"
-      `
+        context += `以下是一段K2Chat群聊内的对话，你可以根据这些聊天记录来更好的适应聊天内容哦！`
         context += chats
           .map(chat => {
             let sender = chat.sender || {}
