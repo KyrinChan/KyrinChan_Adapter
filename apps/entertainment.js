@@ -54,14 +54,14 @@ export class Entertainment extends plugin {
         //   reg: '^#((寄批踢|gpt|GPT)?翻.*|chatgpt翻译帮助)',
         //   fnc: 'translate'
         // },
-        {
-          reg: '^#ocr',
-          fnc: 'ocr'
-        },
-        {
-          reg: '^#url(：|:)',
-          fnc: 'screenshotUrl'
-        }
+        // {
+        //   reg: '^#ocr',
+        //   fnc: 'ocr'
+        // },
+        // {
+        //   reg: '^#url(：|:)',
+        //   fnc: 'screenshotUrl'
+        // }
         // {
         //   reg: '^#((?:寄批踢)?翻.*|chatgpt翻译帮助)',
         //   fnc: 'translate'

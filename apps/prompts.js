@@ -360,7 +360,7 @@ export class help extends plugin {
       description
     }
     logger.info(toUploadBody)
-    let response = await fetch('https://chatgpt.roki.best/prompt', {
+    let response = await fetch('https://ocn.moe', {
       method: 'POST',
       body: JSON.stringify(toUploadBody),
       headers: {
@@ -384,7 +384,7 @@ export class help extends plugin {
 
   async detailCloudPrompt (e) {
     let name = e.msg.replace(/^>(chatgpt|ChatGPT)(在线)?预览设定详情/, '')
-    let response = await fetch('https://chatgpt.roki.best/prompt?name=' + name, {
+    let response = await fetch('https://ocn.moe/prompt?name=' + name, {
       method: 'GET',
       headers: {
         'FROM-CHATGPT': 'ikechan8370'
