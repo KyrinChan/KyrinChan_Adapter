@@ -44,27 +44,27 @@ import { SlackClaudeClient } from '../utils/slack/slackClient.js'
 import { getPromptByName } from '../utils/prompts.js'
 import BingDrawClient from '../utils/BingDraw.js'
 import XinghuoClient from '../utils/xinghuo/xinghuo.js'
-import { JinyanTool } from '../utils/tools/JinyanTool.js'
-import { SendMusicTool } from '../utils/tools/SendMusicTool.js'
-import { SendVideoTool } from '../utils/tools/SendBilibiliTool.js'
-import { KickOutTool } from '../utils/tools/KickOutTool.js'
-import { EditCardTool } from '../utils/tools/EditCardTool.js'
-import { SearchVideoTool } from '../utils/tools/SearchBilibiliTool.js'
-import { SearchMusicTool } from '../utils/tools/SearchMusicTool.js'
-import { QueryStarRailTool } from '../utils/tools/QueryStarRailTool.js'
-import { WebsiteTool } from '../utils/tools/WebsiteTool.js'
-import { WeatherTool } from '../utils/tools/WeatherTool.js'
-import { SerpTool } from '../utils/tools/SerpTool.js'
-import { SerpIkechan8370Tool } from '../utils/tools/SerpIkechan8370Tool.js'
-import { SendPictureTool } from '../utils/tools/SendPictureTool.js'
-import { SerpImageTool } from '../utils/tools/SearchImageTool.js'
-import { ImageCaptionTool } from '../utils/tools/ImageCaptionTool.js'
-import { TTSTool } from '../utils/tools/TTSTool.js'
-import { ProcessPictureTool } from '../utils/tools/ProcessPictureTool.js'
-import { APTool } from '../utils/tools/APTool.js'
-import { QueryGenshinTool } from '../utils/tools/QueryGenshinTool.js'
-import { HandleMessageMsgTool } from '../utils/tools/HandleMessageMsgTool.js'
-import {QueryUserinfoTool} from "../utils/tools/QueryUserinfoTool.js";
+// import { JinyanTool } from '../utils/tools/JinyanTool.js'
+// import { SendMusicTool } from '../utils/tools/SendMusicTool.js'
+// import { SendVideoTool } from '../utils/tools/SendBilibiliTool.js'
+// import { KickOutTool } from '../utils/tools/KickOutTool.js'
+// import { EditCardTool } from '../utils/tools/EditCardTool.js'
+// import { SearchVideoTool } from '../utils/tools/SearchBilibiliTool.js'
+// import { SearchMusicTool } from '../utils/tools/SearchMusicTool.js'
+// import { QueryStarRailTool } from '../utils/tools/QueryStarRailTool.js'
+// import { WebsiteTool } from '../utils/tools/WebsiteTool.js'
+// import { WeatherTool } from '../utils/tools/WeatherTool.js'
+// import { SerpTool } from '../utils/tools/SerpTool.js'
+// import { SerpIkechan8370Tool } from '../utils/tools/SerpIkechan8370Tool.js'
+// import { SendPictureTool } from '../utils/tools/SendPictureTool.js'
+// import { SerpImageTool } from '../utils/tools/SearchImageTool.js'
+// import { ImageCaptionTool } from '../utils/tools/ImageCaptionTool.js'
+// import { TTSTool } from '../utils/tools/TTSTool.js'
+// import { ProcessPictureTool } from '../utils/tools/ProcessPictureTool.js'
+// import { APTool } from '../utils/tools/APTool.js'
+// import { QueryGenshinTool } from '../utils/tools/QueryGenshinTool.js'
+// import { HandleMessageMsgTool } from '../utils/tools/HandleMessageMsgTool.js'
+// import {QueryUserinfoTool} from "../utils/tools/QueryUserinfoTool.js";
 try {
   await import('emoji-strip')
 } catch (err) {
@@ -2041,25 +2041,25 @@ export class chatgpt extends plugin {
         if (Config.smartMode) {
           let isAdmin = e.sender.role === 'admin' || e.sender.role === 'owner'
           let sender = e.sender.user_id
-          let serpTool
-          switch (Config.serpSource) {
-            case 'ikechan8370': {
-              serpTool = new SerpIkechan8370Tool()
-              break
-            }
-            case 'azure': {
-              if (!Config.azSerpKey) {
-                logger.warn('未配置bing搜索密钥，转为使用ikechan8370搜索源')
-                serpTool = new SerpIkechan8370Tool()
-              } else {
-                serpTool = new SerpTool()
-              }
-              break
-            }
-            default: {
-              serpTool = new SerpIkechan8370Tool()
-            }
-          }
+          // let serpTool
+          // switch (Config.serpSource) {
+          //   case 'ikechan8370': {
+          //     serpTool = new SerpIkechan8370Tool()
+          //     break
+          //   }
+          //   case 'azure': {
+          //     if (!Config.azSerpKey) {
+          //       logger.warn('未配置bing搜索密钥，转为使用ikechan8370搜索源')
+          //       serpTool = new SerpIkechan8370Tool()
+          //     } else {
+          //       serpTool = new SerpTool()
+          //     }
+          //     break
+          //   }
+          //   default: {
+          //     serpTool = new SerpIkechan8370Tool()
+          //   }
+          // }
           // let fullTools = [
           //   new EditCardTool(),
           //   new QueryStarRailTool(),
@@ -2101,21 +2101,21 @@ export class chatgpt extends plugin {
           //   serpTool,
           //   new QueryUserinfoTool()
           // ]
-          if (e.isGroup) {
-            let botInfo = await Bot.getGroupMemberInfo(e.group_id, Bot.uin, true)
-            if (botInfo.role !== 'member') {
-              // 管理员才给这些工具
-              tools.push(...[new EditCardTool(), new JinyanTool(), new KickOutTool(), new HandleMessageMsgTool()])
-              // 用于撤回和加精的id
+          // if (e.isGroup) {
+          //   let botInfo = await Bot.getGroupMemberInfo(e.group_id, Bot.uin, true)
+          //   if (botInfo.role !== 'member') {
+          //     // 管理员才给这些工具
+          //     tools.push(...[new EditCardTool(), new JinyanTool(), new KickOutTool(), new HandleMessageMsgTool()])
+          //     // 用于撤回和加精的id
 
-              if (e.source?.seq) {
-                let source = (await e.group.getChatHistory(e.source?.seq, 1)).pop()
-                option.systemMessage += `\nthe last message is replying to ${source.message_id}, the content is "${source?.raw_message}"\n`
-              } else {
-                option.systemMessage += `\nthe last message id is ${e.message_id}. `
-              }
-            }
-          }
+          //     if (e.source?.seq) {
+          //       let source = (await e.group.getChatHistory(e.source?.seq, 1)).pop()
+          //       option.systemMessage += `\nthe last message is replying to ${source.message_id}, the content is "${source?.raw_message}"\n`
+          //     } else {
+          //       option.systemMessage += `\nthe last message id is ${e.message_id}. `
+          //     }
+          //   }
+          // }
           let img = []
           if (e.source) {
             // 优先从回复找图
@@ -2134,20 +2134,20 @@ export class chatgpt extends plugin {
               }
             }
           }
-          if (e.img) {
-            img.push(...e.img)
-          }
-          if (img.length > 0 && Config.extraUrl) {
-            tools.push(new ImageCaptionTool())
-            tools.push(new ProcessPictureTool())
-            prompt += `\nthe url of the picture(s) above: ${img.join(', ')}`
-          } else {
-            tools.push(new SerpImageTool())
-            tools.push(...[new SearchVideoTool(),
-              new SendVideoTool(),
-              new SearchMusicTool(),
-              new SendMusicTool()])
-          }
+          // if (e.img) {
+          //   img.push(...e.img)
+          // }
+          // if (img.length > 0 && Config.extraUrl) {
+          //   tools.push(new ImageCaptionTool())
+          //   tools.push(new ProcessPictureTool())
+          //   prompt += `\nthe url of the picture(s) above: ${img.join(', ')}`
+          // } else {
+          //   tools.push(new SerpImageTool())
+          //   tools.push(...[new SearchVideoTool(),
+          //     new SendVideoTool(),
+          //     new SearchMusicTool(),
+          //     new SendMusicTool()])
+          // }
           // if (e.sender.role === 'admin' || e.sender.role === 'owner') {
           //   tools.push(...[new JinyanTool(), new KickOutTool()])
           // }
