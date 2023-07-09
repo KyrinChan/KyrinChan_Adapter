@@ -124,8 +124,12 @@ export function getRandomErrorMessage() {
 export async function makeForwardMsg(e, msg = [], dec = '') {
   let nickname = Bot.nickname
   if (e.isGroup) {
-    let info = await Bot.getGroupMemberInfo(e.group_id, Bot.uin)
-    nickname = info.card || info.nickname
+    try {
+      let info = await Bot.getGroupMemberInfo(e.group_id, Bot.uin)
+      nickname = info.card || info.nickname
+    } catch (err) {
+      console.error(`Failed to get group member info: ${err}`)
+    }
   }
   let userInfo = {
     user_id: Bot.uin,
@@ -828,4 +832,20 @@ export function processList (whitelist, blacklist) {
   whitelist = Array.from(new Set(whitelist)).filter(value => /^\^?[1-9]\d{5,9}$/.test(value))
   blacklist = Array.from(new Set(blacklist)).filter(value => /^\^?[1-9]\d{5,9}$/.test(value))
   return [whitelist, blacklist]
+}
+
+export function getMaxModelTokens (model = 'gpt-3.5-turbo') {
+  if (model.startsWith('gpt-3.5-turbo')) {
+    if (model.includes('16k')) {
+      return 16000
+    } else {
+      return 4000
+    }
+  } else {
+    if (model.includes('32k')) {
+      return 32000
+    } else {
+      return 16000
+    }
+  }
 }

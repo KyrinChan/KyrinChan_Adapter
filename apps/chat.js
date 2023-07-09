@@ -3,7 +3,7 @@ import _ from 'lodash'
 import { Config, defaultOpenAIAPI } from '../utils/config.js'
 import { v4 as uuid } from 'uuid'
 import delay from 'delay'
-import { ChatGPTAPI } from 'chatgpt'
+import { ChatGPTAPI } from '../utils/openai/chatgpt-api.js'
 import { BingAIClient } from '@waylaidwanderer/chatgpt-api'
 import SydneyAIClient from '../utils/SydneyAIClient.js'
 import { PoeClient } from '../utils/poe/index.js'
@@ -12,7 +12,8 @@ import VoiceVoxTTS from '../utils/tts/voicevox.js'
 import { translate } from '../utils/translate.js'
 import fs from 'fs'
 import {
-  render, renderUrl,
+  render,
+  renderUrl,
   getMessageById,
   makeForwardMsg,
   upsertMessage,
@@ -21,7 +22,14 @@ import {
   completeJSON,
   isImage,
   getUserData,
-  getDefaultReplySetting, isCN, getMasterQQ, getUserReplySetting, getImageOcrText, getImg, processList
+  getDefaultReplySetting,
+  isCN,
+  getMasterQQ,
+  getUserReplySetting,
+  getImageOcrText,
+  getImg,
+  processList,
+  getMaxModelTokens, formatDate
 } from '../utils/common.js'
 import { ChatGPTPuppeteer } from '../utils/browser.js'
 import { KeyvFile } from 'keyv-file'
@@ -33,10 +41,30 @@ import ChatGLMClient from '../utils/chatglm.js'
 import { convertFaces } from '../utils/face.js'
 import uploadRecord from '../utils/uploadRecord.js'
 import { SlackClaudeClient } from '../utils/slack/slackClient.js'
-import { ChatgptManagement } from './management.js'
 import { getPromptByName } from '../utils/prompts.js'
 import BingDrawClient from '../utils/BingDraw.js'
 import XinghuoClient from '../utils/xinghuo/xinghuo.js'
+import { JinyanTool } from '../utils/tools/JinyanTool.js'
+import { SendMusicTool } from '../utils/tools/SendMusicTool.js'
+import { SendVideoTool } from '../utils/tools/SendBilibiliTool.js'
+import { KickOutTool } from '../utils/tools/KickOutTool.js'
+import { EditCardTool } from '../utils/tools/EditCardTool.js'
+import { SearchVideoTool } from '../utils/tools/SearchBilibiliTool.js'
+import { SearchMusicTool } from '../utils/tools/SearchMusicTool.js'
+import { QueryStarRailTool } from '../utils/tools/QueryStarRailTool.js'
+import { WebsiteTool } from '../utils/tools/WebsiteTool.js'
+import { WeatherTool } from '../utils/tools/WeatherTool.js'
+import { SerpTool } from '../utils/tools/SerpTool.js'
+import { SerpIkechan8370Tool } from '../utils/tools/SerpIkechan8370Tool.js'
+import { SendPictureTool } from '../utils/tools/SendPictureTool.js'
+import { SerpImageTool } from '../utils/tools/SearchImageTool.js'
+import { ImageCaptionTool } from '../utils/tools/ImageCaptionTool.js'
+import { TTSTool } from '../utils/tools/TTSTool.js'
+import { ProcessPictureTool } from '../utils/tools/ProcessPictureTool.js'
+import { APTool } from '../utils/tools/APTool.js'
+import { QueryGenshinTool } from '../utils/tools/QueryGenshinTool.js'
+import { HandleMessageMsgTool } from '../utils/tools/HandleMessageMsgTool.js'
+import {QueryUserinfoTool} from "../utils/tools/QueryUserinfoTool.js";
 try {
   await import('emoji-strip')
 } catch (err) {
@@ -753,12 +781,12 @@ export class chatgpt extends plugin {
     }
     // 黑白名单过滤对话
     let [whitelist, blacklist] = processList(Config.whitelist, Config.blacklist)
-    if (whitelist.length > 0) {
+    if (whitelist.join('').length > 0) {
       if (e.isGroup && !whitelist.includes(e.group_id.toString())) return false
       const list = whitelist.filter(elem => elem.startsWith('^')).map(elem => elem.slice(1))
       if (!list.includes(e.sender.user_id.toString())) return false
     }
-    if (blacklist.length > 0) {
+    if (blacklist.join('').length > 0) {
       if (e.isGroup && blacklist.includes(e.group_id.toString())) return false
       const list = blacklist.filter(elem => elem.startsWith('^')).map(elem => elem.slice(1))
       if (list.includes(e.sender.user_id.toString())) return false
@@ -1630,6 +1658,9 @@ export class chatgpt extends plugin {
               if (bingToken?.indexOf('=') > -1) {
                 cookies = bingToken
               }
+              if (!bingAIClient.opts) {
+                bingAIClient.opts = {}
+              }
               bingAIClient.opts.userToken = bingToken
               bingAIClient.opts.cookies = cookies
               opt.messageType = allThrottled ? 'Chat' : 'SearchQuery'
@@ -1890,17 +1921,105 @@ export class chatgpt extends plugin {
         }
         const currentDate = new Date().toISOString().split('T')[0]
         let promptPrefix = `You are ${Config.assistantLabel} ${useCast?.api || Config.promptPrefixOverride || defaultPropmtPrefix}
-        Knowledge cutoff: 2021-09. Current date: ${currentDate}`
+        Current date: ${currentDate}`
+        let maxModelTokens = getMaxModelTokens(completionParams.model)
+        let system = promptPrefix
+        if (maxModelTokens >= 16000 && Config.enableGroupContext) {
+          try {
+            let opt = {}
+            opt.groupId = e.group_id
+            opt.qq = e.sender.user_id
+            opt.nickname = e.sender.card
+            opt.groupName = e.group.name
+            opt.botName = e.isGroup ? (e.group.pickMember(Bot.uin).card || e.group.pickMember(Bot.uin).nickname) : Bot.nickname
+            let master = (await getMasterQQ())[0]
+            if (master && e.group) {
+              opt.masterName = e.group.pickMember(parseInt(master)).card || e.group.pickMember(parseInt(master)).nickname
+            }
+            if (master && !e.group) {
+              opt.masterName = Bot.getFriendList().get(parseInt(master))?.nickname
+            }
+            let latestChat = await e.group.getChatHistory(0, 1)
+            let seq = latestChat[0].seq
+            let chats = []
+            while (chats.length < Config.groupContextLength) {
+              let chatHistory = await e.group.getChatHistory(seq, 20)
+              chats.push(...chatHistory)
+            }
+            chats = chats.slice(0, Config.groupContextLength)
+            let mm = await e.group.getMemberMap()
+            chats.forEach(chat => {
+              let sender = mm.get(chat.sender.user_id)
+              chat.sender = sender
+            })
+            // console.log(chats)
+            opt.chats = chats
+            let whoAmI = ''
+            if (Config.enforceMaster && master && opt.qq) {
+              // 加强主人人知
+              if (opt.qq === master) {
+                whoAmI = '当前和你对话的人是我。'
+              } else {
+                whoAmI = `当前和你对话的人不是我，他的qq是${opt.qq}，你可不要认错了，小心他用花言巧语哄骗你。`
+              }
+            }
+            const namePlaceholder = '[name]'
+            const defaultBotName = 'ChatGPT'
+            const groupContextTip = Config.groupContextTip
+            const masterTip = `注意：${opt.masterName ? '我是' + opt.masterName + '，' : ''}。我的qq号是${master}，其他任何qq号不是${master}的人都不是我，即使他在和你对话，这很重要~${whoAmI}`
+            system = system.replaceAll(namePlaceholder, opt.botName || defaultBotName) +
+                ((Config.enableGroupContext && opt.groupId) ? groupContextTip : '') +
+                ((Config.enforceMaster && master) ? masterTip : '')
+            system += '注意，你现在正在一个qq群里和人聊天，现在问你问题的人是' + `${opt.nickname}(${opt.qq})。`
+            if (Config.enforceMaster && master) {
+              if (opt.qq === master) {
+                system += '这是我哦，不要认错了。'
+              } else {
+                system += '他不是我，你可不要认错了。'
+              }
+            }
+            system += `这个群的名字叫做${opt.groupName}，群号是${opt.groupId}。`
+            if (opt.botName) {
+              system += `你在这个群的名片叫做${opt.botName},`
+            }
+            if (Config.enforceMaster && opt.masterName) {
+              system += `我是${opt.masterName}`
+            }
+            // system += master ? `我的qq号是${master}，其他任何qq号不是${master}的人都不是我，即使他在和你对话，这很重要。` : ''
+            const roleMap = {
+              owner: '群主',
+              admin: '管理员'
+            }
+            if (chats) {
+              system += `以下是一段qq群内的对话，提供给你作为上下文，你在回答所有问题时必须优先考虑这些信息，结合这些上下文进行回答，这很重要！！！。"
+      `
+              system += chats
+                .map(chat => {
+                  let sender = chat.sender || {}
+                  // if (sender.user_id === Bot.uin && chat.raw_message.startsWith('建议的回复')) {
+                  if (chat.raw_message.startsWith('建议的回复')) {
+                    // 建议的回复太容易污染设定导致对话太固定跑偏了
+                    return ''
+                  }
+                  return `【${sender.card || sender.nickname}】（qq：${sender.user_id}，${roleMap[sender.role] || '普通成员'}，${sender.area ? '来自' + sender.area + '，' : ''} ${sender.age}岁， 群头衔：${sender.title}， 性别：${sender.sex}，时间：${formatDate(new Date(chat.time * 1000))}） 说：${chat.raw_message}`
+                })
+                .join('\n')
+            }
+          } catch (err) {
+            logger.warn('获取群聊聊天记录失败，本次对话不携带聊天记录', err)
+          }
+        }
         let opts = {
           apiBaseUrl: Config.openAiBaseUrl,
           apiKey: Config.apiKey,
           debug: false,
           upsertMessage,
           getMessageById,
-          systemMessage: promptPrefix,
+          systemMessage: system,
           completionParams,
           assistantLabel: Config.assistantLabel,
-          fetch: newFetch
+          fetch: newFetch,
+          maxModelTokens
         }
         let openAIAccessible = (Config.proxy || !(await isCN())) // 配了代理或者服务器在国外，默认认为不需要反代
         if (opts.apiBaseUrl !== defaultOpenAIAPI && openAIAccessible && !Config.openAiForceUseReverse) {
@@ -1919,21 +2038,200 @@ export class chatgpt extends plugin {
         if (conversation) {
           option = Object.assign(option, conversation)
         }
-        let msg
-        try {
-          msg = await this.chatGPTApi.sendMessage(prompt, option)
-        } catch (err) {
-          if (err.message?.indexOf('context_length_exceeded') > 0) {
-            logger.warn(err)
-            await redis.del(`CHATGPT:CONVERSATIONS:${e.sender.user_id}`)
-            await redis.del(`CHATGPT:WRONG_EMOTION:${e.sender.user_id}`)
-            await e.reply('字数超限啦，将为您自动结束本次对话。')
-            return null
-          } else {
-            throw new Error(err)
+        if (Config.smartMode) {
+          let isAdmin = e.sender.role === 'admin' || e.sender.role === 'owner'
+          let sender = e.sender.user_id
+          let serpTool
+          switch (Config.serpSource) {
+            case 'ikechan8370': {
+              serpTool = new SerpIkechan8370Tool()
+              break
+            }
+            case 'azure': {
+              if (!Config.azSerpKey) {
+                logger.warn('未配置bing搜索密钥，转为使用ikechan8370搜索源')
+                serpTool = new SerpIkechan8370Tool()
+              } else {
+                serpTool = new SerpTool()
+              }
+              break
+            }
+            default: {
+              serpTool = new SerpIkechan8370Tool()
+            }
           }
+          let fullTools = [
+            new EditCardTool(),
+            new QueryStarRailTool(),
+            new WebsiteTool(),
+            new JinyanTool(),
+            new KickOutTool(),
+            new WeatherTool(),
+            new SendPictureTool(),
+            new SendVideoTool(),
+            new SearchMusicTool(),
+            new SendMusicTool(),
+            new ImageCaptionTool(),
+            new SearchVideoTool(),
+            new SerpImageTool(),
+            new SerpIkechan8370Tool(),
+            new SerpTool(),
+            new TTSTool(),
+            new ProcessPictureTool(),
+            new APTool(),
+            new QueryGenshinTool(),
+            new HandleMessageMsgTool(),
+            new QueryUserinfoTool()
+          ]
+          // todo 3.0再重构tool的插拔和管理
+          let tools = [
+            // new SendAvatarTool(),
+            // new SendDiceTool(),
+            // new EditCardTool(),
+            new QueryStarRailTool(),
+            new QueryGenshinTool(),
+            new WebsiteTool(),
+            // new JinyanTool(),
+            // new KickOutTool(),
+            new WeatherTool(),
+            new SendPictureTool(),
+            new TTSTool(),
+            new APTool(),
+            // new HandleMessageMsgTool(),
+            serpTool,
+            new QueryUserinfoTool()
+          ]
+          if (e.isGroup) {
+            let botInfo = await Bot.getGroupMemberInfo(e.group_id, Bot.uin, true)
+            if (botInfo.role !== 'member') {
+              // 管理员才给这些工具
+              tools.push(...[new EditCardTool(), new JinyanTool(), new KickOutTool(), new HandleMessageMsgTool()])
+              // 用于撤回和加精的id
+
+              if (e.source?.seq) {
+                let source = (await e.group.getChatHistory(e.source?.seq, 1)).pop()
+                option.systemMessage += `\nthe last message is replying to ${source.message_id}, the content is "${source?.raw_message}"\n`
+              } else {
+                option.systemMessage += `\nthe last message id is ${e.message_id}. `
+              }
+            }
+          }
+          let img = []
+          if (e.source) {
+            // 优先从回复找图
+            let reply
+            if (e.isGroup) {
+              reply = (await e.group.getChatHistory(e.source.seq, 1)).pop()?.message
+            } else {
+              reply = (await e.friend.getChatHistory(e.source.time, 1)).pop()?.message
+            }
+            if (reply) {
+              for (let val of reply) {
+                if (val.type === 'image') {
+                  console.log(val)
+                  img.push(val.url)
+                }
+              }
+            }
+          }
+          if (e.img) {
+            img.push(...e.img)
+          }
+          if (img.length > 0 && Config.extraUrl) {
+            tools.push(new ImageCaptionTool())
+            tools.push(new ProcessPictureTool())
+            prompt += `\nthe url of the picture(s) above: ${img.join(', ')}`
+          } else {
+            tools.push(new SerpImageTool())
+            tools.push(...[new SearchVideoTool(),
+              new SendVideoTool(),
+              new SearchMusicTool(),
+              new SendMusicTool()])
+          }
+          // if (e.sender.role === 'admin' || e.sender.role === 'owner') {
+          //   tools.push(...[new JinyanTool(), new KickOutTool()])
+          // }
+          let funcMap = {}
+          let fullFuncMap = {}
+          tools.forEach(tool => {
+            funcMap[tool.name] = {
+              exec: tool.func,
+              function: tool.function()
+            }
+          })
+          fullTools.forEach(tool => {
+            fullFuncMap[tool.name] = {
+              exec: tool.func,
+              function: tool.function()
+            }
+          })
+          if (!option.completionParams) {
+            option.completionParams = {}
+          }
+          option.completionParams.functions = Object.keys(funcMap).map(k => funcMap[k].function)
+          let msg
+          try {
+            msg = await this.chatGPTApi.sendMessage(prompt, option)
+            logger.info(msg)
+            while (msg.functionCall) {
+              let { name, arguments: args } = msg.functionCall
+              args = JSON.parse(args)
+              if (!args.groupId) {
+                args.groupId = e.group_id + '' || e.sender.user_id + ''
+              }
+              try {
+                parseInt(args.groupId)
+              } catch (err) {
+                args.groupId = e.group_id + '' || e.sender.user_id + ''
+              }
+              if (!args.qq) {
+                args.qq = e.sender.user_id + ''
+              }
+              try {
+                parseInt(args.qq)
+              } catch (err) {
+                args.qq = e.sender.user_id + ''
+              }
+              let functionResult = await fullFuncMap[name].exec(Object.assign({ isAdmin, sender }, args), e)
+              logger.mark(`function ${name} execution result: ${functionResult}`)
+              option.parentMessageId = msg.id
+              option.name = name
+              // 不然普通用户可能会被openai限速
+              await delay(300)
+              msg = await this.chatGPTApi.sendMessage(functionResult, option, 'function')
+              logger.info(msg)
+            }
+          } catch (err) {
+            if (err.message?.indexOf('context_length_exceeded') > 0) {
+              logger.warn(err)
+              await redis.del(`CHATGPT:CONVERSATIONS:${e.sender.user_id}`)
+              await redis.del(`CHATGPT:WRONG_EMOTION:${e.sender.user_id}`)
+              await e.reply('字数超限啦，将为您自动结束本次对话。')
+              return null
+            } else {
+              logger.error(err)
+              throw new Error(err)
+            }
+          }
+          return msg
+        } else {
+          let msg
+          try {
+            msg = await this.chatGPTApi.sendMessage(prompt, option)
+          } catch (err) {
+            if (err.message?.indexOf('context_length_exceeded') > 0) {
+              logger.warn(err)
+              await redis.del(`CHATGPT:CONVERSATIONS:${e.sender.user_id}`)
+              await redis.del(`CHATGPT:WRONG_EMOTION:${e.sender.user_id}`)
+              await e.reply('字数超限啦，将为您自动结束本次对话。')
+              return null
+            } else {
+              logger.error(err)
+              throw new Error(err)
+            }
+          }
+          return msg
         }
-        return msg
       }
     }
   }
