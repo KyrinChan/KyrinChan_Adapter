@@ -2060,47 +2060,47 @@ export class chatgpt extends plugin {
               serpTool = new SerpIkechan8370Tool()
             }
           }
-          let fullTools = [
-            new EditCardTool(),
-            new QueryStarRailTool(),
-            new WebsiteTool(),
-            new JinyanTool(),
-            new KickOutTool(),
-            new WeatherTool(),
-            new SendPictureTool(),
-            new SendVideoTool(),
-            new SearchMusicTool(),
-            new SendMusicTool(),
-            new ImageCaptionTool(),
-            new SearchVideoTool(),
-            new SerpImageTool(),
-            new SerpIkechan8370Tool(),
-            new SerpTool(),
-            new TTSTool(),
-            new ProcessPictureTool(),
-            new APTool(),
-            new QueryGenshinTool(),
-            new HandleMessageMsgTool(),
-            new QueryUserinfoTool()
-          ]
-          // todo 3.0再重构tool的插拔和管理
-          let tools = [
-            // new SendAvatarTool(),
-            // new SendDiceTool(),
-            // new EditCardTool(),
-            new QueryStarRailTool(),
-            new QueryGenshinTool(),
-            new WebsiteTool(),
-            // new JinyanTool(),
-            // new KickOutTool(),
-            new WeatherTool(),
-            new SendPictureTool(),
-            new TTSTool(),
-            new APTool(),
-            // new HandleMessageMsgTool(),
-            serpTool,
-            new QueryUserinfoTool()
-          ]
+          // let fullTools = [
+          //   new EditCardTool(),
+          //   new QueryStarRailTool(),
+          //   new WebsiteTool(),
+          //   new JinyanTool(),
+          //   new KickOutTool(),
+          //   new WeatherTool(),
+          //   new SendPictureTool(),
+          //   new SendVideoTool(),
+          //   new SearchMusicTool(),
+          //   new SendMusicTool(),
+          //   new ImageCaptionTool(),
+          //   new SearchVideoTool(),
+          //   new SerpImageTool(),
+          //   new SerpIkechan8370Tool(),
+          //   new SerpTool(),
+          //   new TTSTool(),
+          //   new ProcessPictureTool(),
+          //   new APTool(),
+          //   new QueryGenshinTool(),
+          //   new HandleMessageMsgTool(),
+          //   new QueryUserinfoTool()
+          // ]
+          // // todo 3.0再重构tool的插拔和管理
+          // let tools = [
+          //   // new SendAvatarTool(),
+          //   // new SendDiceTool(),
+          //   // new EditCardTool(),
+          //   new QueryStarRailTool(),
+          //   new QueryGenshinTool(),
+          //   new WebsiteTool(),
+          //   // new JinyanTool(),
+          //   // new KickOutTool(),
+          //   new WeatherTool(),
+          //   new SendPictureTool(),
+          //   new TTSTool(),
+          //   new APTool(),
+          //   // new HandleMessageMsgTool(),
+          //   serpTool,
+          //   new QueryUserinfoTool()
+          // ]
           if (e.isGroup) {
             let botInfo = await Bot.getGroupMemberInfo(e.group_id, Bot.uin, true)
             if (botInfo.role !== 'member') {
