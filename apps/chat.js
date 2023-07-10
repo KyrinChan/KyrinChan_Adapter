@@ -1200,7 +1200,7 @@ export class chatgpt extends plugin {
         if (Config.enableSuggestedResponses && chatMessage.suggestedResponses) {
           this.reply(`猜猜看，你不会是想说：\n${chatMessage.suggestedResponses}`)
         }
-        if (Config.alsoSendText){
+        if (Config.alsoSendText || ttsResponse.length < Config.ttsAutoFallbackThreshold){
         // 处理tts输入文本
         let ttsResponse, ttsRegex
         const regex = /^\/(.*)\/([gimuy]*)$/
@@ -1223,25 +1223,12 @@ export class chatgpt extends plugin {
         }
         // 处理多行回复有时候只会读第一行和azure语音会读出一些标点符号的问题
         ttsResponse = ttsResponse.replace(/[-:_；*;\n]/g, '，')
-        // 先把文字回复发出去，避免过久等待合成语音
-        if (Config.alsoSendText || ttsResponse.length > Config.ttsAutoFallbackThreshold) {
-          if (Config.ttsMode === 'vits-uma-genshin-honkai' && ttsResponse.length > Config.ttsAutoFallbackThreshold) {
-            await this.reply('回复的内容过长，已转为文本模式')
-          }
-          await this.reply(await convertFaces(response, Config.enableRobotAt, e), e.isGroup)
-          if (quotemessage.length > 0) {
-            this.reply(await makeForwardMsg(this.e, quotemessage.map(msg => `${msg.text} - ${msg.url}`)))
-          }
-          if (Config.enableSuggestedResponses && chatMessage.suggestedResponses) {
-            this.reply(`建议的回复：\n${chatMessage.suggestedResponses}`)
-          }
-        }
         const sendable = await generateAudio(this.e, ttsResponse, emotion, emotionDegree)
         if (sendable) {
-          await this.reply(sendable)
-        } else {
-          await this.reply('合成语音发生错误~')
-        }
+            await this.reply(sendable)
+          } else {
+            await this.reply('合成语音发生错误~')
+          }
         }
       } else {
         this.cacheContent(e, use, response, prompt, quotemessage, mood, favor, chatMessage.suggestedResponses, imgUrls)
