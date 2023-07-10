@@ -1201,35 +1201,35 @@ export class chatgpt extends plugin {
           this.reply(`猜猜看，你不会是想说：\n${chatMessage.suggestedResponses}`)
         }
         if (Config.alsoSendText && ttsResponse.length < Config.ttsAutoFallbackThreshold){
-        // 处理tts输入文本
-        let ttsResponse, ttsRegex
-        const regex = /^\/(.*)\/([gimuy]*)$/
-        const match = Config.ttsRegex.match(regex)
-        if (match) {
-          const pattern = match[1]
-          const flags = match[2]
-          ttsRegex = new RegExp(pattern, flags) // 返回新的正则表达式对象
-        } else {
-          ttsRegex = ''
-        }
-        ttsResponse = response.replace(ttsRegex, '')
-        // 处理azure语音会读出emoji的问题
-        try {
-          let emojiStrip
-          emojiStrip = (await import('emoji-strip')).default
-          ttsResponse = emojiStrip(ttsResponse)
-        } catch (error) {
-          await this.reply('依赖emoji-strip未安装，请执行pnpm install emoji-strip安装依赖', true)
-        }
-        // 处理多行回复有时候只会读第一行和azure语音会读出一些标点符号的问题
-        ttsResponse = ttsResponse.replace(/[-:_；*;\n]/g, '，')
-        const sendable = await generateAudio(this.e, ttsResponse, emotion, emotionDegree)
-        if (sendable) {
+          // 处理tts输入文本
+          let ttsResponse, ttsRegex
+          const regex = /^\/(.*)\/([gimuy]*)$/
+          const match = Config.ttsRegex.match(regex)
+          if (match) {
+            const pattern = match[1]
+            const flags = match[2]
+            ttsRegex = new RegExp(pattern, flags) // 返回新的正则表达式对象
+          } else {
+            ttsRegex = ''
+          }
+          ttsResponse = response.replace(ttsRegex, '')
+          // 处理azure语音会读出emoji的问题
+          try {
+            let emojiStrip
+            emojiStrip = (await import('emoji-strip')).default
+            ttsResponse = emojiStrip(ttsResponse)
+          } catch (error) {
+            await this.reply('依赖emoji-strip未安装，请执行pnpm install emoji-strip安装依赖', true)
+          }
+          // 处理多行回复有时候只会读第一行和azure语音会读出一些标点符号的问题
+          ttsResponse = ttsResponse.replace(/[-:_；*;\n]/g, '，')
+          const sendable = await generateAudio(this.e, ttsResponse, emotion, emotionDegree)
+          if (sendable) {
             await this.reply(sendable)
           } else {
             await this.reply('合成语音发生错误~')
           }
-        }
+          }
       } else {
         this.cacheContent(e, use, response, prompt, quotemessage, mood, favor, chatMessage.suggestedResponses, imgUrls)
         if (response === 'Thanks for this conversation! I\'ve reached my limit, will you hit “New topic,” please?') {
