@@ -54,7 +54,7 @@ import XinghuoClient from '../utils/xinghuo/xinghuo.js'
 // import { SendPictureTool } from '../utils/tools/SendPictureTool.js'
 // import { SerpImageTool } from '../utils/tools/SearchImageTool.js'
 // import { ImageCaptionTool } from '../utils/tools/ImageCaptionTool.js'
-// import { SendAudioMessageTool } from '../utils/tools/SendAudioMessageTool.js'
+import { SendAudioMessageTool } from '../utils/tools/SendAudioMessageTool.js'
 // import { ProcessPictureTool } from '../utils/tools/ProcessPictureTool.js'
 // import { APTool } from '../utils/tools/APTool.js'
 // import { QueryGenshinTool } from '../utils/tools/QueryGenshinTool.js'
@@ -1179,7 +1179,7 @@ export class chatgpt extends plugin {
             this.reply(await makeForwardMsg(this.e, quotemessage.map(msg => `${msg.text} - ${msg.url}`)))
           }
           if (Config.enableSuggestedResponses && chatMessage.suggestedResponses) {
-            this.reply(`猜猜你想说什么呢？\n${chatMessage.suggestedResponses}`)
+            this.reply(`建议的回复：\n${chatMessage.suggestedResponses}`)
           }
         }
         const sendable = await generateAudio(this.e, ttsResponse, emotion, emotionDegree)
@@ -1201,12 +1201,47 @@ export class chatgpt extends plugin {
           this.reply(`猜猜看，你不会是想说：\n${chatMessage.suggestedResponses}`)
         }
         if (Config.alsoSendText){
-          const sendable = await generateAudio(this.e, ttsResponse, emotion, emotionDegree)
-          if (sendable) {
-            await this.reply(sendable)
-          } else {
-            await this.reply('合成语音发生错误~')
+        // 处理tts输入文本
+        let ttsResponse, ttsRegex
+        const regex = /^\/(.*)\/([gimuy]*)$/
+        const match = Config.ttsRegex.match(regex)
+        if (match) {
+          const pattern = match[1]
+          const flags = match[2]
+          ttsRegex = new RegExp(pattern, flags) // 返回新的正则表达式对象
+        } else {
+          ttsRegex = ''
+        }
+        ttsResponse = response.replace(ttsRegex, '')
+        // 处理azure语音会读出emoji的问题
+        try {
+          let emojiStrip
+          emojiStrip = (await import('emoji-strip')).default
+          ttsResponse = emojiStrip(ttsResponse)
+        } catch (error) {
+          await this.reply('依赖emoji-strip未安装，请执行pnpm install emoji-strip安装依赖', true)
+        }
+        // 处理多行回复有时候只会读第一行和azure语音会读出一些标点符号的问题
+        ttsResponse = ttsResponse.replace(/[-:_；*;\n]/g, '，')
+        // 先把文字回复发出去，避免过久等待合成语音
+        if (Config.alsoSendText || ttsResponse.length > Config.ttsAutoFallbackThreshold) {
+          if (Config.ttsMode === 'vits-uma-genshin-honkai' && ttsResponse.length > Config.ttsAutoFallbackThreshold) {
+            await this.reply('回复的内容过长，已转为文本模式')
           }
+          await this.reply(await convertFaces(response, Config.enableRobotAt, e), e.isGroup)
+          if (quotemessage.length > 0) {
+            this.reply(await makeForwardMsg(this.e, quotemessage.map(msg => `${msg.text} - ${msg.url}`)))
+          }
+          if (Config.enableSuggestedResponses && chatMessage.suggestedResponses) {
+            this.reply(`建议的回复：\n${chatMessage.suggestedResponses}`)
+          }
+        }
+        const sendable = await generateAudio(this.e, ttsResponse, emotion, emotionDegree)
+        if (sendable) {
+          await this.reply(sendable)
+        } else {
+          await this.reply('合成语音发生错误~')
+        }
         }
       } else {
         this.cacheContent(e, use, response, prompt, quotemessage, mood, favor, chatMessage.suggestedResponses, imgUrls)
