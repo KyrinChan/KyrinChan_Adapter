@@ -1229,7 +1229,7 @@ export class chatgpt extends plugin {
           } else {
             await this.reply('合成语音发生错误~')
           }
-          }
+        }
       } else {
         this.cacheContent(e, use, response, prompt, quotemessage, mood, favor, chatMessage.suggestedResponses, imgUrls)
         if (response === 'Thanks for this conversation! I\'ve reached my limit, will you hit “New topic,” please?') {
