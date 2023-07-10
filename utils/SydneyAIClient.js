@@ -418,8 +418,8 @@ export default class SydneyAIClient {
             text: message,
             messageType,
             userIpAddress: await generateRandomIP(),
-            timestamp: currentDate
-            // messageType: 'SearchQuery'
+            timestamp: currentDate,
+            messageType: 'SearchQuery'
           },
           tone: 'Creative',
           conversationSignature,
@@ -448,7 +448,7 @@ export default class SydneyAIClient {
       }
       context += `这个群聊的名字叫做${groupName}，识别代码是${groupId}。`
       if (botName) {
-        context += `你在这个群聊的名片叫做${botName},`
+        context += `凯琳酱你在这个群聊的名片叫做${botName},`
       }
       if (Config.enforceMaster && masterName) {
         context += `凯琳姐姐的用户名是${masterName}`
