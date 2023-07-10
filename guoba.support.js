@@ -1,7 +1,7 @@
 import { Config } from './utils/config.js'
 import { speakers } from './utils/tts.js'
-import AzureTTS from './utils/tts/microsoft-azure.js'
-import VoiceVoxTTS from './utils/tts/voicevox.js'
+import { supportConfigurations as azureRoleList } from './utils/tts/microsoft-azure.js'
+import { supportConfigurations as voxRoleList } from './utils/tts/voicevox.js'
 // 支持锅巴
 export function supportGuoba () {
   return {
@@ -40,15 +40,19 @@ export function supportGuoba () {
           component: 'InputTextArea'
         },
         {
-          field: 'groupWhitelist',
-          label: '群聊白名单',
-          bottomHelpMessage: '设置后只有白名单内的群可以使用本插件。用英文逗号隔开',
+          field: 'whitelist',
+          label: '对话白名单',
+          bottomHelpMessage: '默认设置为添加群号。优先级高于黑名单。\n' +
+              '注意：需要添加QQ号时在前面添加^(例如：^123456)，此全局添加白名单，即除白名单以外的所有人都不能使用插件对话。\n' +
+              '如果需要在某个群里独享moment，即群聊中只有白名单上的qq号能用，则使用（群号^qq）的格式(例如：123456^123456)。\n' +
+              '白名单优先级：混合制 > qq > 群号。\n' +
+              '黑名单优先级: 群号 > qq > 混合制。',
           component: 'Input'
         },
         {
-          field: 'groupBlacklist',
-          label: '群聊黑名单',
-          bottomHelpMessage: '设置后名单内的群禁止使用本插件。用英文逗号隔开',
+          field: 'blacklist',
+          label: '对话黑名单',
+          bottomHelpMessage: '参考白名单设置规则。',
           component: 'Input'
         },
         {
@@ -102,7 +106,10 @@ export function supportGuoba () {
           bottomHelpMessage: 'vits-uma-genshin-honkai语音模式下，未指定角色时使用的角色。若留空，将使用随机角色回复。若用户通过指令指定了角色，将忽略本设定',
           component: 'Select',
           componentProps: {
-            options: speakers.concat('随机').map(s => { return { label: s, value: s } })
+            options: [{
+              label: '随机',
+              value: '随机'
+            }].concat(speakers.map(s => { return { label: s, value: s } }))
           }
         },
         {
@@ -111,12 +118,16 @@ export function supportGuoba () {
           bottomHelpMessage: '微软Azure语音模式下，未指定角色时使用的角色。若用户通过指令指定了角色，将忽略本设定',
           component: 'Select',
           componentProps: {
-            options: AzureTTS.supportConfigurations.map(item => {
-              return {
-                label: `${item.name}-${item.gender}-${item.languageDetail}`,
-                value: item.code
-              }
-            })
+            options: [{
+              label: '随机',
+              value: '随机'
+            },
+            ...azureRoleList.flatMap(item => [
+              item.roleInfo
+            ]).map(s => ({
+              label: s,
+              value: s
+            }))]
           }
         },
         {
@@ -125,11 +136,17 @@ export function supportGuoba () {
           bottomHelpMessage: 'VoiceVox语音模式下，未指定角色时使用的角色。若留空，将使用随机角色回复。若用户通过指令指定了角色，将忽略本设定',
           component: 'Select',
           componentProps: {
-            options: VoiceVoxTTS.supportConfigurations.map(item => {
-              return item.styles.map(style => {
-                return `${item.name}-${style.name}`
-              }).concat(item.name)
-            }).flat().concat('随机').map(s => { return { label: s, value: s } })
+            options: [{
+              label: '随机',
+              value: '随机'
+            },
+            ...voxRoleList.flatMap(item => [
+              ...item.styles.map(style => `${item.name}-${style.name}`),
+              item.name
+            ]).map(s => ({
+              label: s,
+              value: s
+            }))]
           }
         },
         {
@@ -304,8 +321,14 @@ export function supportGuoba () {
         {
           field: 'model',
           label: 'OpenAI 模型',
-          bottomHelpMessage: 'gpt-4, gpt-4-0314, gpt-4-32k, gpt-4-32k-0314, gpt-3.5-turbo, gpt-3.5-turbo-0301。默认为gpt-3.5-turbo，gpt-4需账户支持',
+          bottomHelpMessage: 'gpt-4, gpt-4-0613, gpt-4-32k, gpt-4-32k-0613, gpt-3.5-turbo, gpt-3.5-turbo-0613, gpt-3.5-turbo-16k-0613。默认为gpt-3.5-turbo，gpt-4需账户支持',
           component: 'Input'
+        },
+        {
+          field: 'smartMode',
+          label: '智能模式',
+          bottomHelpMessage: '仅建议gpt-4-32k和gpt-3.5-turbo-16k-0613开启，gpt-4-0613也可。开启后机器人可以群管、收发图片、发视频发音乐、联网搜索等。注意较费token。配合开启读取群聊上下文效果更佳',
+          component: 'Switch'
         },
         {
           field: 'openAiBaseUrl',
@@ -775,6 +798,36 @@ export function supportGuoba () {
           label: 'Live2D模型',
           bottomHelpMessage: '选择Live2D使用的模型',
           component: 'Input'
+        },
+        {
+          field: 'amapKey',
+          label: '高德APIKey',
+          bottomHelpMessage: '用于查询天气',
+          component: 'Input'
+        },
+        {
+          field: 'azSerpKey',
+          label: 'Azure search key',
+          bottomHelpMessage: 'https://www.microsoft.com/en-us/bing/apis/bing-web-search-api',
+          component: 'Input'
+        },
+        {
+          field: 'serpSource',
+          label: '搜索来源，azure需填写key，ikechan8370为作者自备源',
+          component: 'Select',
+          componentProps: {
+            options: [
+              { label: 'Azure', value: 'azure' },
+              { label: 'ikechan8370', value: 'ikechan8370' }
+              // { label: '数据', value: 'buffer' }
+            ]
+          }
+        },
+        {
+          field: 'extraUrl',
+          label: '额外工具url',
+          bottomHelpMessage: '（测试期间提供一个公益接口，一段时间后撤掉）参考搭建：https://github.com/ikechan8370/chatgpt-plugin-extras',
+          component: 'Input'
         }
       ],
       // 获取配置数据方法（用于前端填充显示数据）
@@ -786,7 +839,34 @@ export function supportGuoba () {
         for (let [keyPath, value] of Object.entries(data)) {
           // 处理黑名单
           if (keyPath === 'blockWords' || keyPath === 'promptBlockWords' || keyPath === 'initiativeChatGroups') { value = value.toString().split(/[,，;；\|]/) }
-          if (Config[keyPath] != value) { Config[keyPath] = value }
+          if (keyPath === 'blacklist' || keyPath === 'whitelist') {
+            // 6-10位数的群号或qq
+            const regex = /^\^?[1-9]\d{5,9}(\^[1-9]\d{5,9})?$/
+            const inputSet = new Set()
+            value = value.toString().split(/[,，;；|\s]/).reduce((acc, item) => {
+              item = item.trim()
+              if (!inputSet.has(item) && regex.test(item)) {
+                if (item.length <= 11 || (item.length <= 21 && item.length > 11 && !item.startsWith('^'))) {
+                  inputSet.add(item)
+                  acc.push(item)
+                }
+              }
+              return acc
+            }, [])
+          }
+          if (Config[keyPath] !== value) { Config[keyPath] = value }
+        }
+        // 正确储存azureRoleSelect结果
+        const azureSpeaker = azureRoleList.find(config => {
+          let i = config.roleInfo || config.code
+          if (i === data.azureTTSSpeaker) {
+            return config
+          } else {
+            return false
+          }
+        })
+        if (typeof azureSpeaker === 'object' && azureSpeaker !== null) {
+          Config.azureTTSSpeaker = azureSpeaker.code
         }
         return Result.ok({}, '保存成功~')
       }

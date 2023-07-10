@@ -34,4 +34,5 @@ logger.info('**************************************')
 logger.info('chatgpt-plugin(KyrinChan version)加载成功')
 logger.info(`当前版本${Config.version}`)
 logger.info('**************************************')
+
 export { apps }

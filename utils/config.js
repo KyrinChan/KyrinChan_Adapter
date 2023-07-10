@@ -97,10 +97,11 @@ const defaultConfig = {
   live2dOption_positionX: 0,
   live2dOption_positionY: 0,
   live2dOption_rotation: 0,
+  live2dOption_alpha: 1,
   groupAdminPage: false,
   enablePrivateChat: false,
-  groupWhitelist: [],
-  groupBlacklist: [],
+  whitelist: [],
+  blacklist: [],
   ttsRegex: '/匹配规则/匹配模式',
   slackUserToken: '',
   slackBotUserToken: '',
@@ -124,7 +125,12 @@ const defaultConfig = {
   enhanceAzureTTSEmotion: false,
   autoJapanese: false,
   enableGenerateContents: false,
-  version: 'v2.6.2'
+  amapKey: '',
+  azSerpKey: '',
+  serpSource: 'ikechan8370',
+  extraUrl: 'https://cpe.ikechan8370.com',
+  smartMode: false,
+  version: 'v2.7.2'
 }
 const _path = process.cwd()
 let config = {}
