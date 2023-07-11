@@ -1200,7 +1200,7 @@ export class chatgpt extends plugin {
         if (Config.enableSuggestedResponses && chatMessage.suggestedResponses) {
           this.reply(`猜猜看，你不会是想说：\n${chatMessage.suggestedResponses}`)
         }
-        if (Config.alsoSendText){
+        if (Config.ttsMode === 'azure' && Config.azureTTSKey && Config.alsoSendText){
           // 处理tts输入文本
           let ttsResponse, ttsRegex
           const regex = /^\/(.*)\/([gimuy]*)$/
@@ -1223,69 +1223,12 @@ export class chatgpt extends plugin {
           }
           // 处理多行回复有时候只会读第一行和azure语音会读出一些标点符号的问题
           ttsResponse = ttsResponse.replace(/[-:_；*;\n]/g, '，')
-          let wav
-          if (Config.ttsMode === 'vits-uma-genshin-honkai' && Config.ttsSpace && Config.alsoSendText && ttsResponse.length <= Config.ttsAutoFallbackThreshold) {
-            if (Config.autoJapanese && (_.isEmpty(Config.baiduTranslateAppId) || _.isEmpty(Config.baiduTranslateSecret))) {
-              await this.reply('请检查翻译配置是否正确。')
-              return false
-            }
-            if (Config.autoJapanese) {
-              try {
-                const translate = new Translate({
-                  appid: Config.baiduTranslateAppId,
-                  secret: Config.baiduTranslateSecret
-                })
-                ttsResponse = await translate(ttsResponse, '日')
-              } catch (err) {
-                logger.error(err)
-                await this.reply(err.message + '\n将使用原始文本合成语音...')
-              }
-            }
-            try {
-              wav = await generateAudio(ttsResponse, speaker, '中日混合（中文用[ZH][ZH]包裹起来，日文用[JA][JA]包裹起来）')
-            } catch (err) {
-              logger.error(err)
+          if (ttsResponse.length <= Config.ttsAutoFallbackThreshold){
+            const sendable = await generateAudio(this.e, ttsResponse, emotion, emotionDegree)
+            if (sendable) {
+              await this.reply(sendable)
+            } else {
               await this.reply('合成语音发生错误~')
-            }
-          } else if (Config.ttsMode === 'azure' && Config.azureTTSKey && Config.alsoSendText && ttsResponse.length <= Config.ttsAutoFallbackThreshold) {
-            let ssml = AzureTTS.generateSsml(ttsResponse, {
-              speaker,
-              emotion,
-              emotionDegree
-            })
-            wav = await AzureTTS.generateAudio(ttsResponse, {
-              speaker
-            }, await ssml)
-          } else if (Config.ttsMode === 'voicevox' && Config.voicevoxSpace && Config.alsoSendText && ttsResponse.length <= Config.ttsAutoFallbackThreshold) {
-            wav = await VoiceVoxTTS.generateAudio(ttsResponse, {
-              speaker
-            })
-          } else if (!Config.ttsSpace && !Config.azureTTSKey && !Config.voicevoxSpace) {
-            await this.reply('你没有配置转语音API哦')
-          }
-          try {
-            try {
-              let sendable = await uploadRecord(wav, Config.ttsMode)
-              if (sendable) {
-                await e.reply(sendable)
-              } else {
-                // 如果合成失败，尝试使用ffmpeg合成
-                await e.reply(segment.record(wav))
-              }
-            } catch (err) {
-              logger.error(err)
-              await e.reply(segment.record(wav))
-            }
-          } catch (err) {
-            logger.error(err)
-            await this.reply('合成语音发生错误~')
-          }
-          if (Config.ttsMode === 'azure' && Config.azureTTSKey) {
-            // 清理文件
-            try {
-              fs.unlinkSync(wav)
-            } catch (err) {
-              logger.warn(err)
             }
           }
         }
