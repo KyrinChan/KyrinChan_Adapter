@@ -17,6 +17,7 @@ import {
   upsertMessage,
   randomString,
   getRandomErrorMessage,
+  removeUrl,
   completeJSON,
   isImage,
   getUserData,
