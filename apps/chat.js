@@ -1103,8 +1103,8 @@ export class chatgpt extends plugin {
         await this.reply(errormsg, true)
         return false
       }
-      // 移除所有出现在实际回复中的引用网址
-      response = response.this.removeUrl
+      // 移除所有出现在实际回复中引用的网址
+      response = removeUrl(response)
       // 处理中断的代码区域
       const codeBlockCount = (response.match(/```/g) || []).length
       const shouldAddClosingBlock = codeBlockCount % 2 === 1 && !response.endsWith('```')
@@ -2128,17 +2128,6 @@ export class chatgpt extends plugin {
       }
     }
   }
-
-    // 定义一个函数，接受一个字符串作为参数
-  async removeUrl(str) {
-    // 使用正则表达式匹配"[一个数字] 一段网址"的模式
-    var regex = /\[\d+\] https?:\/\/\S+/g;
-    // 使用replace方法替换匹配到的部分为空字符串
-    var result = str.replace(regex, "");
-    // 返回结果
-    return result;
-  }
-
   async newClaudeConversation (e) {
     let presetName = e.msg.replace(/^#claude开启新对话/, '').trim()
     let client = new SlackClaudeClient({
