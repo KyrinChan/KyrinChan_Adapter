@@ -646,6 +646,15 @@ export function maskQQ(qq) {
   return newqq
 }
 
+export function removeUrl(str) {
+  // 使用正则表达式匹配"[一个数字] 一段网址"的模式
+  var regex = /\[\d+\] https?:\/\/\S+/g;
+  // 使用replace方法替换匹配到的部分为空字符串
+  var result = str.replace(regex, "");
+  // 返回结果
+  return result;
+}
+
 export function completeJSON(input) {
   let result = {}
 
