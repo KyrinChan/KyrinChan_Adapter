@@ -1301,13 +1301,14 @@ export class chatgpt extends plugin {
       }
       if (err === 'Error: {"detail":"Conversation not found"}') {
         await this.destroyConversations(err)
-        await this.reply('当前对话异常，已经清除，请重试', true, { recallMsg: e.isGroup ? 10 : 0 })
+        await this.reply('这个对话坏掉了，让我们重新试试看', true, { recallMsg: e.isGroup ? 10 : 0 })
       } else {
         if (err.length < 200) {
-          await this.reply(`出现错误：${err}`, true, { recallMsg: e.isGroup ? 10 : 0 })
+          await this.reply(`出现错误力！`, true, { recallMsg: e.isGroup ? 10 : 0 })
         } else {
           // 这里是否还需要上传到缓存服务器呐？多半是代理服务器的问题，本地也修不了，应该不用吧。
-          await this.renderImage(e, use, `捏捏捏，凯琳云组网似乎出什么问题了 Errlog: \n \`\`\`${err?.message || err?.data?.message || (typeof (err) === 'object' ? JSON.stringify(err) : err) || '未能确认错误类型！'}\`\`\``, prompt)
+          // await this.renderImage(e, use, `捏捏捏，凯琳云组网似乎出什么问题了 Errlog: \n \`\`\`${err?.message || err?.data?.message || (typeof (err) === 'object' ? JSON.stringify(err) : err) || '未能确认错误类型！'}\`\`\``, prompt)
+          await this.renderImage(e, use, `捏捏捏，凯琳云组网似乎出什么问题了，请稍后再试试看！`, prompt)
         }
       }
     }
