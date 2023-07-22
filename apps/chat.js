@@ -1732,7 +1732,7 @@ export class chatgpt extends plugin {
                 clientId
               }
               return {
-                text: '请崽60秒内输入下面图片以通过必应人机验证',
+                text: '快速滴输入以下文字来PassCaptcha！',
                 image,
                 error: true,
                 token: bingToken
