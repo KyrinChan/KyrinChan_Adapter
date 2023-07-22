@@ -2390,12 +2390,12 @@ export class chatgpt extends plugin {
       })
       let response = await bingAIClient.sendMessage('hello', e.bingConversation)
       if (response.response) {
-        await e.reply('验证码已通过')
+        await e.reply('Successfully Passed Captcha~')
       } else {
-        await e.reply('验证码正确，但账户未解决验证码')
+        await e.reply('Captcha correct but not solved!')
       }
     } else {
-      await e.reply('验证码失败：' + JSON.stringify(solveResult.detail))
+      await e.reply('PassCaptcha Failed:' + JSON.stringify(solveResult.detail))
     }
     this.finish('solveBingCaptcha')
   }
