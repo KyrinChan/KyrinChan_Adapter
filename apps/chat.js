@@ -233,7 +233,7 @@ export class chatgpt extends plugin {
           permission: 'master'
         },
         {
-          reg: '^#chatgpt必应验证码',
+          reg: '^#PassCaptcha',
           fnc: 'bingCaptcha'
         }
       ]
@@ -244,13 +244,13 @@ export class chatgpt extends plugin {
   async bingCaptcha (e) {
     let bingTokens = JSON.parse(await redis.get('CHATGPT:BING_TOKENS'))
     if (!bingTokens) {
-      await e.reply('尚未绑定必应token:必应过码必须绑定token')
+      await e.reply('没有绑定令牌捏，先绑定一个')
       return
     }
     bingTokens = bingTokens.map(token => token.Token)
-    let index = e.msg.replace(/^#chatgpt必应验证码/, '')
+    let index = e.msg.replace(/^#PassCaptcha/, '')
     if (!index) {
-      await e.reply('指令不完整：请输入#chatgpt必应验证码+token序号（从1开始），如#chatgpt必应验证码1')
+      await e.reply('这个不行，请输入#PassCaptcha+token序号，如#PassCaptcha1')
       return
     }
     index = parseInt(index) - 1
@@ -258,7 +258,7 @@ export class chatgpt extends plugin {
     let { id, image } = await createCaptcha(e, bingToken)
     e.bingCaptchaId = id
     e.token = bingToken
-    await e.reply(['请崽60秒内输入下面图片以通过必应人机验证', segment.image(`base64://${image}`)])
+    await e.reply(['快速滴输入以下文字来PassCaptcha！', segment.image(`base64://${image}`)])
     this.setContext('solveBingCaptcha', false, 60)
     return false
   }
