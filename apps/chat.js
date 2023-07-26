@@ -1778,7 +1778,7 @@ export class chatgpt extends plugin {
               retry = retry - 0.1
             } else {
               retry--
-              errorMessage = message === 'Timed out waiting for response. Try enabling debug mode to see more information.' ? (reply ? `${reply}\n不行了，我的大脑过载了，处理不过来了!` : '必应的小脑瓜不好使了，不知道怎么回答！') : message
+              errorMessage = message === 'Timed out waiting for response. Try enabling debug mode to see more information.' ? (reply ? `${reply}\n不行了，我的大脑过载了，处理不过来了!` : '凯琳酱的小脑瓜不好使了，不知道怎么回答！') : message
             }
           }
         } while (retry > 0)
@@ -1786,9 +1786,9 @@ export class chatgpt extends plugin {
           response = response || {}
           if (errorMessage.includes('CaptchaChallenge')) {
             if (bingToken) {
-              errorMessage = '出现验证码，请使用当前账户前往https://www.bing.com/chat或Edge侧边栏手动解除验证码'
+              errorMessage = 'PassCaptcha失效，凯琳酱暂时先罢工辣~'
             } else {
-              errorMessage = '出现验证码，且未配置必应账户，请尝试更换代理/反代或绑定必应账户以解除验证码'
+              errorMessage = '寄，PassCaptcha失效，而且没有更多解决方案，凯琳酱躺平！'
             }
           }
           return {
