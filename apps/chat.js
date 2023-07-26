@@ -232,15 +232,20 @@ export class chatgpt extends plugin {
           fnc: 'deleteConversation',
           permission: 'master'
         },
-        {
-          reg: '^#PassCaptcha',
-          fnc: 'bingCaptcha'
-        }
+        // {
+        //   reg: '^#PassCaptcha',
+        //   fnc: 'bingCaptcha'
+        // }
       ]
     })
     this.toggleMode = toggleMode
   }
 
+  /**
+   * deprecated
+   * @param e
+   * @returns {Promise<boolean>}
+   */
   async bingCaptcha (e) {
     let bingTokens = JSON.parse(await redis.get('CHATGPT:BING_TOKENS'))
     if (!bingTokens) {
@@ -255,8 +260,9 @@ export class chatgpt extends plugin {
     }
     index = parseInt(index) - 1
     let bingToken = bingTokens[index]
-    let { id, image } = await createCaptcha(e, bingToken)
+    let { id, regionId, image } = await createCaptcha(e, bingToken)
     e.bingCaptchaId = id
+    e.regionId = regionId
     e.token = bingToken
     await e.reply(['快速滴输入以下文字来PassCaptcha！', segment.image(`base64://${image}`)])
     this.setContext('solveBingCaptcha', false, 60)
@@ -1717,27 +1723,31 @@ export class chatgpt extends plugin {
           } catch (error) {
             logger.error(error)
             const message = error?.message || error?.data?.message || error || '出错了'
-            if (message && typeof message === 'string' && message.indexOf('CaptchaChallenge') > -1) {
-              let { id, image } = await createCaptcha(e, bingToken)
-              e.bingCaptchaId = id
-              e.token = bingToken
-              const {
-                conversationSignature,
-                conversationId,
-                clientId
-              } = error?.data
-              e.bingConversation = {
-                conversationSignature,
-                conversationId,
-                clientId
-              }
-              return {
-                text: '快速滴输入以下文字来PassCaptcha！',
-                image,
-                error: true,
-                token: bingToken
-              }
-            } else if (message && typeof message === 'string' && message.indexOf('限流') > -1) {
+            // if (message && typeof message === 'string' && message.indexOf('CaptchaChallenge') > -1) {
+            //   if (bingToken) {
+            //     // let { id, regionId, image } = await createCaptcha(e, bingToken)
+            //     // e.bingCaptchaId = id
+            //     // e.token = bingToken
+            //     // e.regionId = regionId
+            //     // const {
+            //     //   conversationSignature,
+            //     //   conversationId,
+            //     //   clientId
+            //     // } = error?.conversation
+            //     // e.bingConversation = {
+            //     //   conversationSignature,
+            //     //   conversationId,
+            //     //   clientId
+            //     // }
+            //     return {
+            //       text: '快速滴输入以下文字来PassCaptcha！',
+            //       image,
+            //       error: true,
+            //       token: bingToken
+            //     }
+            //   }
+            // } else
+            if (message && typeof message === 'string' && message.indexOf('限流') > -1) {
               throttledTokens.push(bingToken)
               let bingTokens = JSON.parse(await redis.get('CHATGPT:BING_TOKENS'))
               const badBingToken = bingTokens.findIndex(element => element.Token === bingToken)
@@ -1774,6 +1784,13 @@ export class chatgpt extends plugin {
         } while (retry > 0)
         if (errorMessage) {
           response = response || {}
+          if (errorMessage.includes('CaptchaChallenge')) {
+            if (bingToken) {
+              errorMessage = '出现验证码，请使用当前账户前往https://www.bing.com/chat或Edge侧边栏手动解除验证码'
+            } else {
+              errorMessage = '出现验证码，且未配置必应账户，请尝试更换代理/反代或绑定必应账户以解除验证码'
+            }
+          }
           return {
             text: errorMessage,
             error: true
@@ -2374,29 +2391,41 @@ export class chatgpt extends plugin {
   }
 
   async solveBingCaptcha (e) {
-    let id = e.bingCaptchaId
-    let text = this.e.msg
-    let solveResult = await solveCaptcha(id, text, e.token)
-    if (solveResult.result) {
-      const cacheOptions = {
-        namespace: Config.toneStyle,
-        store: new KeyvFile({ filename: 'chatgpt:bing:temp.json' })
-      }
-      const bingAIClient = new SydneyAIClient({
-        userToken: e.token, // "_U" cookie from bing.com
-        debug: false,
-        cache: cacheOptions,
-        user: e.sender.user_id,
-        proxy: Config.proxy
-      })
-      let response = await bingAIClient.sendMessage('hello', e.bingConversation)
-      if (response.response) {
-        await e.reply('Successfully Passed Captcha~')
+    try {
+      let id = e.bingCaptchaId
+      let regionId = e.regionId
+      let text = this.e.msg
+      let solveResult = await solveCaptcha(id, regionId, text, e.token)
+      if (solveResult.result) {
+        logger.mark('验证码正确：' + JSON.stringify(solveResult.detail))
+        const cacheOptions = {
+          namespace: Config.toneStyle,
+          store: new KeyvFile({ filename: 'cache.json' })
+        }
+        const bingAIClient = new SydneyAIClient({
+          userToken: e.token, // "_U" cookie from bing.com
+          debug: Config.debug,
+          cache: cacheOptions,
+          user: e.sender.user_id,
+          proxy: Config.proxy
+        })
+        try {
+          let response = await bingAIClient.sendMessage('hello', Object.assign({ invocationId: '1' }, e.bingConversation))
+          if (response.response) {
+            await e.reply('Successfully Passed Captcha~')
+          } else {
+            await e.reply('Captcha correct but not solved!')
+          }
+        } catch (err) {
+          logger.error(err)
+          await e.reply('PassCaptcha Failed!')
+        }
       } else {
-        await e.reply('Captcha correct but not solved!')
+        await e.reply('PassCaptcha Failed with ERROR.')
+        // await e.reply('PassCaptcha Failed:' + JSON.stringify(solveResult.detail))
       }
-    } else {
-      await e.reply('PassCaptcha Failed:' + JSON.stringify(solveResult.detail))
+    } catch (err) {
+      this.finish('solveBingCaptcha')
     }
     this.finish('solveBingCaptcha')
   }
