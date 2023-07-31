@@ -494,7 +494,7 @@ export class Entertainment extends plugin {
               width: Config.chatViewWidth,
               height: parseInt(Config.chatViewWidth * 0.56)
             },
-            deviceScaleFactor: Config.cloudDPR
+            deviceScaleFactor: parseFloat(Config.cloudDPR)
           }
         ),
         e.isGroup && Config.quoteReply)
