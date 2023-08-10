@@ -89,7 +89,7 @@ export default class BingDrawClient {
       fetchOptions.origin = 'https://cn.bing.com'
       response = await fetch(url, Object.assign(fetchOptions, { body, redirect: 'manual', method: 'POST', credentials: 'include' }))
       if (response.status !== 302) {
-        throw new Error('绘图失败，请检查Bing token和代理/反代配置')
+        throw new Error('出了点问题，稍后再试试吧喵')
       }
     }
     let redirectUrl = response.headers.get('Location').replace('&nfy=1', '')
@@ -127,18 +127,18 @@ export default class BingDrawClient {
         ]
         for (let imageLink of imageLinks) {
           if (badImages.indexOf(imageLink) > -1) {
-            await e.reply('绘图失败：Bad images', true)
+            await e.reply('不行，这是不好的！', true)
             logger.error(rText)
           }
         }
         logger.info(imageLinks)
         let images = imageLinks.map(link => segment.image(link))
-        let msg = await makeForwardMsg(e, images, `bing绘图结果：${prompt}`)
+        let msg = await makeForwardMsg(e, images, `绘图技能 - ${prompt}`)
         await e.reply(msg)
         clearInterval(timer)
       } else {
         if (timeoutTimes === 0) {
-          await e.reply('绘图超时', true)
+          await e.reply('绘图时间太长了', true)
           clearInterval(timer)
           timer = null
         } else {
