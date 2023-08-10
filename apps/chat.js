@@ -148,24 +148,24 @@ export class chatgpt extends plugin {
           fnc: 'bing'
         },
         {
-          reg: '^#claude开启新对话',
+          reg: '^>claude开启新对话',
           fnc: 'newClaudeConversation'
         },
         {
           /** 命令正则匹配 */
-          reg: '^#claude[sS]*',
+          reg: '^>claude[sS]*',
           /** 执行方法 */
           fnc: 'claude'
         },
         {
           /** 命令正则匹配 */
-          reg: '^#xh[sS]*',
+          reg: '^>xh[sS]*',
           /** 执行方法 */
           fnc: 'xh'
         },
         {
           /** 命令正则匹配 */
-          reg: toggleMode === 'at' ? '^[^#][sS]*' : '^#chat[^gpt][sS]*',
+          reg: toggleMode === 'at' ? '^[^>][sS]*' : '^>chat[^gpt][sS]*',
           /** 执行方法 */
           fnc: 'chatgpt',
           log: false
@@ -233,7 +233,7 @@ export class chatgpt extends plugin {
           permission: 'master'
         }
         // {
-        //   reg: '^#PassCaptcha',
+        //   reg: '^>PassCaptcha',
         //   fnc: 'bingCaptcha'
         // }
       ]
@@ -253,7 +253,7 @@ export class chatgpt extends plugin {
       return
     }
     bingTokens = bingTokens.map(token => token.Token)
-    let index = e.msg.replace(/^#PassCaptcha/, '')
+    let index = e.msg.replace(/^>PassCaptcha/, '')
     if (!index) {
       await e.reply('这个不行，请输入#PassCaptcha+token序号，如#PassCaptcha1')
       return
@@ -641,7 +641,7 @@ export class chatgpt extends plugin {
   }
 
   async switchTTSSource(e) {
-    let target = e.msg.replace(/^#chatgpt语音换源/, '')
+    let target = e.msg.replace(/^>chatgpt语音换源/, '')
     switch (target.trim()) {
       case '1': {
         Config.ttsMode = 'vits-uma-genshin-honkai'
@@ -2209,7 +2209,7 @@ export class chatgpt extends plugin {
     }
   }
   async newClaudeConversation(e) {
-    let presetName = e.msg.replace(/^#claude开启新对话/, '').trim()
+    let presetName = e.msg.replace(/^>claude开启新对话/, '').trim()
     let client = new SlackClaudeClient({
       slackUserToken: Config.slackUserToken,
       slackChannelId: Config.slackChannelId
