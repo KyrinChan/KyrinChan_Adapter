@@ -34,7 +34,7 @@
   },
   "optionalDependencies": {
     "@node-rs/jieba": "^1.6.2",
-    "jimp": "^0.22.7",
+    "jimp": "^0.22.10",
     "node-silk": "^0.1.0",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-recaptcha": "^3.6.8",
