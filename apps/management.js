@@ -114,6 +114,26 @@ export class ChatgptManagement extends plugin {
           permission: 'master'
         },
         {
+          reg: '^>chatgpt切换azure$',
+          fnc: 'useAzureBasedSolution',
+          permission: 'master'
+        },
+        {
+          reg: '^>chatgpt切换(Bard|bard)$',
+          fnc: 'useBardBasedSolution',
+          permission: 'master'
+        },
+        {
+          reg: '^>chatgpt切换azure$',
+          fnc: 'useAzureBasedSolution',
+          permission: 'master'
+        },
+        {
+          reg: '^>chatgpt切换(Bard|bard)$',
+          fnc: 'useBardBasedSolution',
+          permission: 'master'
+        },
+        {
           reg: '^>chatgpt切换(Poe|poe)$',
           fnc: 'useClaudeBasedSolution',
           permission: 'master'
@@ -308,7 +328,7 @@ ${userSetting.useTTS === true ? '当前语音模式为' + Config.ttsMode : ''}`
   }
 
   async getTTSRoleList (e) {
-    const matchCommand = e.msg.match(/^#(chatgpt)?(vits|azure|vox)?语音(服务|角色列表)/)
+    const matchCommand = e.msg.match(/^>(chatgpt)?(vits|azure|vox)?语音(服务|角色列表)/)
     if (matchCommand[3] === '服务') {
       await this.reply(`当前支持vox、vits、azure语音服务，可使用'#(vox|azure|vits)语音角色列表'查看支持的语音角色。
       
@@ -386,7 +406,7 @@ azure语音：Azure 语音是微软 Azure 平台提供的一项语音服务，�
   }
 
   async commandHelp (e) {
-    if (/^#(chatgpt)?指令表帮助$/.exec(e.msg.trim())) {
+    if (/^>(chatgpt)?指令表帮助$/.exec(e.msg.trim())) {
       await this.reply('>chatgpt指令表: 查看本插件的所有指令\n' +
         '>chatgpt(对话|管理|娱乐|绘图|人物设定|聊天记录)指令表: 查看对应功能分类的指令表\n' +
         '>chatgpt指令表搜索xxx: 查看包含对应关键词的指令')
@@ -419,7 +439,7 @@ azure语音：Azure 语音是微软 Azure 平台提供的一项语音服务，�
         commandSet.push({ name, dsc: plugin.dsc, rule })
       }
     }
-    if (/^#(chatgpt)?指令表搜索(.+)/.test(e.msg.trim())) {
+    if (/^>(chatgpt)?指令表搜索(.+)/.test(e.msg.trim())) {
       let cmd = e.msg.trim().match(/#(chatgpt)?指令表搜索(.+)/)[2]
       if (!cmd) {
         await this.reply('(⊙ˍ⊙)')
@@ -876,6 +896,25 @@ azure语音：Azure 语音是微软 Azure 平台提供的一项语音服务，�
       await this.reply('当前已经是星火模式了')
     }
   }
+  async useAzureBasedSolution () {
+    let use = await redis.get('CHATGPT:USE')
+    if (use !== 'azure') {
+      await redis.set('CHATGPT:USE', 'azure')
+      await this.reply('已切换到基于Azure的解决方案')
+    } else {
+      await this.reply('当前已经是Azure模式了')
+    }
+  }
+
+  async useBardBasedSolution () {
+    let use = await redis.get('CHATGPT:USE')
+    if (use !== 'bard') {
+      await redis.set('CHATGPT:USE', 'bard')
+      await this.reply('已切换到基于Bard的解决方案')
+    } else {
+      await this.reply('当前已经是Bard模式了')
+    }
+  }
 
   async changeBingTone (e) {
     let tongStyle = e.msg.replace(/^>chatgpt(必应|Bing)切换/, '')
@@ -922,6 +961,7 @@ azure语音：Azure 语音是微软 Azure 平台提供的一项语音服务，�
     let mode = await redis.get('CHATGPT:USE')
     const modeMap = {
       browser: '浏览器',
+      azure: 'Azure',
       // apiReverse: 'API2',
       api: 'API',
       bing: '必应',
