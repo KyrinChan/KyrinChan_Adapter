@@ -2642,7 +2642,7 @@ export class chatgpt extends plugin {
           proxy: Config.proxy
         })
         try {
-          let response = await bingAIClient.sendMessage('hello', Object.assign({ invocationId: '1' }, e.bingConversation))
+          let response = await bingAIClient.sendMessage('hello~', Object.assign({ invocationId: '1' }, e.bingConversation))
           if (response.response) {
             await e.reply('Successfully Passed Captcha~')
           } else {

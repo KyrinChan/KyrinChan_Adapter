@@ -516,7 +516,7 @@ export default class SydneyAIClient {
       const firstTimeout = setTimeout(() => {
         if (!replySoFar[0]) {
           this.cleanupWebSocketConnection(ws)
-          reject(new Error('等待必应服务器响应超时。请尝试调整超时时间配置或减少设定量以避免此问题。'))
+          reject(new Error('Timeout~ Try enabling debug mode to see more information.'))
         }
       }, firstMessageTimeout)
 
