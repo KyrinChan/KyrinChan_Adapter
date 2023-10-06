@@ -1524,13 +1524,13 @@ export class chatgpt extends plugin {
         qq: e.sender.user_id
       })
     }
-    const cacheres = await fetch(Config.viewHost ? `${Config.viewHost}/` : `http://127.0.0.1:${Config.serverPort || 3321}/` + 'cache', cacheresOption)
-    if (cacheres.ok) {
-      cacheData = Object.assign({}, cacheData, await cacheres.json())
-    } else {
-      cacheData.error = '渲染服务器出错！'
-    }
-    cacheData.status = cacheres.status
+    // const cacheres = await fetch(Config.viewHost ? `${Config.viewHost}/` : `http://127.0.0.1:${Config.serverPort || 3321}/` + 'cache', cacheresOption)
+    // if (cacheres.ok) {
+    //   cacheData = Object.assign({}, cacheData, await cacheres.json())
+    // } else {
+    //   cacheData.error = '渲染服务器出错！'
+    // }
+    cacheData.status = 200
     return cacheData
   }
 
