@@ -1562,14 +1562,14 @@ export class chatgpt extends plugin {
           entry: Config.cacheEntry ? cacheData.file : ''
         })
       }
-      if (Config.cacheEntry) {
-        fetch(`${Config.cacheUrl}/cache`, cacheresOption)
-      } else {
-        const cacheres = await fetch(`${Config.cacheUrl}/cache`, cacheresOption)
-        if (cacheres.ok) {
-          cacheData = Object.assign({}, cacheData, await cacheres.json())
-        }
-      }
+      // if (Config.cacheEntry) {
+      //   fetch(`${Config.cacheUrl}/cache`, cacheresOption)
+      // } else {
+      //   const cacheres = await fetch(`${Config.cacheUrl}/cache`, cacheresOption)
+      //   if (cacheres.ok) {
+      //     cacheData = Object.assign({}, cacheData, await cacheres.json())
+      //   }
+      // }
       await e.reply(await render(e, 'chatgpt-plugin', template, {
         content: new Buffer.from(content).toString('base64'),
         prompt: new Buffer.from(prompt).toString('base64'),
