@@ -300,7 +300,7 @@ export class Entertainment extends plugin {
     let groupId = e.msg.replace(/^>chatgpt打招呼/, '')
     logger.info(groupId)
     groupId = parseInt(groupId)
-    if (groupId && !Bot.getGroupList().get(groupId)) {
+    if (groupId && !e.bot.getGroupList().get(groupId)) {
       await e.reply('机器人不在这个群里！')
       return
     }
@@ -314,7 +314,7 @@ export class Entertainment extends plugin {
     if (!groupId) {
       await e.reply(sendable)
     } else {
-      await Bot.sendGroupMsg(groupId, sendable)
+      await e.bot.sendGroupMsg(groupId, sendable)
       await e.reply('发送成功！')
     }
   }
@@ -329,7 +329,7 @@ export class Entertainment extends plugin {
         continue
       }
       let groupId = parseInt(element)
-      if (Bot.getGroupList().get(groupId)) {
+      if (this.e.bot.getGroupList().get(groupId)) {
         // 打招呼概率
         if (Math.floor(Math.random() * 100) < Config.helloProbability) {
           let message = await generateHello()
@@ -385,12 +385,12 @@ export class Entertainment extends plugin {
               }
             }
             if (useSilk) {
-              await Bot.sendGroupMsg(groupId, await uploadRecord(audio))
+              await this.e.bot.sendGroupMsg(groupId, await uploadRecord(audio))
             } else {
-              await Bot.sendGroupMsg(groupId, segment.record(audio))
+              await this.e.bot.sendGroupMsg(groupId, segment.record(audio))
             }
           } else {
-            await Bot.sendGroupMsg(groupId, message)
+            await this.e.bot.sendGroupMsg(groupId, message)
           }
         } else {
           logger.info(`时机未到，这次就不打招呼给群聊${groupId}了`)
