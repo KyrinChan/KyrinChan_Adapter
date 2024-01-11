@@ -12,6 +12,7 @@ import { makeWordcloud } from '../utils/wordcloud/wordcloud.js'
 import AzureTTS from '../utils/tts/microsoft-azure.js'
 import VoiceVoxTTS from '../utils/tts/voicevox.js'
 import { URL } from 'node:url'
+import { getBots } from '../utils/bot.js'
 
 let useSilk = false
 try {
@@ -34,7 +35,7 @@ export class Entertainment extends plugin {
           permission: 'master'
         },
         {
-          reg: '^#chatgpt(查看|设置|删除)打招呼',
+          reg: '^>chatgpt(查看|设置|删除)打招呼',
           fnc: 'handleSentMessage',
           permission: 'master'
         },
@@ -43,29 +44,29 @@ export class Entertainment extends plugin {
           fnc: 'combineEmoj'
         },
         {
-          reg: '^#?(今日词云|群友在聊什么)$',
+          reg: '^>?(今日词云|群友在聊什么)$',
           fnc: 'wordcloud'
         },
         {
-          reg: '^#(|最新)词云(\\d{1,2}h{0,1}|)$',
+          reg: '^>(|最新)词云(\\d{1,2}h{0,1}|)$',
           fnc: 'wordcloud_latest'
         },
-        // {
-        //   reg: '^#((寄批踢|gpt|GPT)?翻.*|chatgpt翻译帮助)',
-        //   fnc: 'translate'
-        // },
-        // {
-        //   reg: '^#ocr',
-        //   fnc: 'ocr'
-        // },
-        // {
-        //   reg: '^#url(：|:)',
-        //   fnc: 'screenshotUrl'
-        // }
-        // {
-        //   reg: '^#((?:寄批踢)?翻.*|chatgpt翻译帮助)',
-        //   fnc: 'translate'
-        // }
+        {
+          reg: '^>(我的)?(本月|本周|今日)?词云$',
+          fnc: 'wordcloud_new'
+        },
+        {
+          reg: '^>((寄批踢|gpt|GPT)?翻.*|chatgpt翻译帮助)',
+          fnc: 'translate'
+        },
+        {
+          reg: '^>ocr',
+          fnc: 'ocr'
+        },
+        {
+          reg: '^>url(：|:)',
+          fnc: 'screenshotUrl'
+        }
       ]
     })
     this.task = [
@@ -219,10 +220,10 @@ export class Entertainment extends plugin {
 
       const regExp = /词云(\d{0,2})(|h)/
       const match = e.msg.trim().match(regExp)
-      const duration = !match[1] ? 12 : parseInt(match[1])  // default 12h
+      const duration = !match[1] ? 12 : parseInt(match[1]) // default 12h
 
       if (duration > 24) {
-        await e.reply('最多只能统计24小时内的记录哦')
+        await e.reply('最多只能统计24小时内的记录哦，你可以使用#本周词云和#本月词云获取更长时间的统计~')
         return false
       }
       await e.reply('在统计啦，请稍等...')
@@ -235,6 +236,56 @@ export class Entertainment extends plugin {
         await e.reply(err)
       }
       await redis.del(`CHATGPT:WORDCLOUD:${groupId}`)
+    } else {
+      await e.reply('请在群里发送此命令')
+    }
+  }
+
+  async wordcloud_new (e) {
+    if (e.isGroup) {
+      let groupId = e.group_id
+      let userId
+      if (e.msg.includes('我的')) {
+        userId = e.sender.user_id
+      }
+      let at = e.message.find(m => m.type === 'at')
+      if (at) {
+        userId = at.qq
+      }
+      let lock = await redis.get(`CHATGPT:WORDCLOUD_NEW:${groupId}_${userId}`)
+      if (lock) {
+        await e.reply('别着急，上次统计还没完呢')
+        return true
+      }
+      await e.reply('在统计啦，请稍等...')
+      let duration = 24
+      if (e.msg.includes('本周')) {
+        const now = new Date() // Get the current date and time
+        let day = now.getDay()
+        let diff = now.getDate() - day + (day === 0 ? -6 : 1)
+        const startOfWeek = new Date(new Date().setDate(diff))
+        startOfWeek.setHours(0, 0, 0, 0) // Set the time to midnight (start of the day)
+        duration = (now - startOfWeek) / 1000 / 60 / 60
+      } else if (e.msg.includes('本月')) {
+        const now = new Date() // Get the current date and time
+        const startOfMonth = new Date(new Date().setDate(0))
+        startOfMonth.setHours(0, 0, 0, 0) // Set the time to midnight (start of the day)
+        duration = (now - startOfMonth) / 1000 / 60 / 60
+      } else {
+        // 默认今天
+        const now = new Date()
+        const startOfToday = new Date() // Get the current date and time
+        startOfToday.setHours(0, 0, 0, 0) // Set the time to midnight (start of the day)
+        duration = (now - startOfToday) / 1000 / 60 / 60
+      }
+      await redis.set(`CHATGPT:WORDCLOUD_NEW:${groupId}_${userId}`, '1', { EX: 600 })
+      try {
+        await makeWordcloud(e, e.group_id, duration, userId)
+      } catch (err) {
+        logger.error(err)
+        await e.reply(err)
+      }
+      await redis.del(`CHATGPT:WORDCLOUD_NEW:${groupId}_${userId}`)
     } else {
       await e.reply('请在群里发送此命令')
     }
@@ -300,7 +351,7 @@ export class Entertainment extends plugin {
     let groupId = e.msg.replace(/^>chatgpt打招呼/, '')
     logger.info(groupId)
     groupId = parseInt(groupId)
-    if (groupId && !e.bot.getGroupList().get(groupId)) {
+    if (groupId && !e.bot.gl.get(groupId)) {
       await e.reply('机器人不在这个群里！')
       return
     }
@@ -329,74 +380,77 @@ export class Entertainment extends plugin {
         continue
       }
       let groupId = parseInt(element)
-      if (this.e.bot.getGroupList().get(groupId)) {
-        // 打招呼概率
-        if (Math.floor(Math.random() * 100) < Config.helloProbability) {
-          let message = await generateHello()
-          logger.info(`打招呼给群聊${groupId}：` + message)
-          if (Config.defaultUseTTS) {
-            let audio
-            const [defaultVitsTTSRole, defaultAzureTTSRole, defaultVoxTTSRole] = [Config.defaultTTSRole, Config.azureTTSSpeaker, Config.voicevoxTTSSpeaker]
-            let ttsSupportKinds = []
-            if (Config.azureTTSKey) ttsSupportKinds.push(1)
-            if (Config.ttsSpace) ttsSupportKinds.push(2)
-            if (Config.voicevoxSpace) ttsSupportKinds.push(3)
-            if (!ttsSupportKinds.length) {
-              logger.warn('没有配置任何语音服务！')
-              return false
-            }
-            const randomIndex = Math.floor(Math.random() * ttsSupportKinds.length)
-            switch (ttsSupportKinds[randomIndex]) {
-              case 1 : {
-                const isEn = AzureTTS.supportConfigurations.find(config => config.code === defaultAzureTTSRole)?.language.includes('en')
-                if (isEn) {
-                  message = (await translate(message, '英')).replace('\n', '')
-                }
-                audio = await AzureTTS.generateAudio(message, {
-                  defaultAzureTTSRole
-                })
-                break
+      let bots = this.e ? [this.e.bot] : getBots()
+      for (let bot of bots) {
+        if (bot.gl?.get(groupId)) {
+          // 打招呼概率
+          if (Math.floor(Math.random() * 100) < Config.helloProbability) {
+            let message = await generateHello()
+            logger.info(`打招呼给群聊${groupId}：` + message)
+            if (Config.defaultUseTTS) {
+              let audio
+              const [defaultVitsTTSRole, defaultAzureTTSRole, defaultVoxTTSRole] = [Config.defaultTTSRole, Config.azureTTSSpeaker, Config.voicevoxTTSSpeaker]
+              let ttsSupportKinds = []
+              if (Config.azureTTSKey) ttsSupportKinds.push(1)
+              if (Config.ttsSpace) ttsSupportKinds.push(2)
+              if (Config.voicevoxSpace) ttsSupportKinds.push(3)
+              if (!ttsSupportKinds.length) {
+                logger.warn('没有配置任何语音服务！')
+                return false
               }
-              case 2 : {
-                if (Config.autoJapanese) {
+              const randomIndex = Math.floor(Math.random() * ttsSupportKinds.length)
+              switch (ttsSupportKinds[randomIndex]) {
+                case 1 : {
+                  const isEn = AzureTTS.supportConfigurations.find(config => config.code === defaultAzureTTSRole)?.language.includes('en')
+                  if (isEn) {
+                    message = (await translate(message, '英')).replace('\n', '')
+                  }
+                  audio = await AzureTTS.generateAudio(message, {
+                    defaultAzureTTSRole
+                  })
+                  break
+                }
+                case 2 : {
+                  if (Config.autoJapanese) {
+                    try {
+                      message = await translate(message, '日')
+                    } catch (err) {
+                      logger.error(err)
+                    }
+                  }
                   try {
-                    message = await translate(message, '日')
+                    audio = await generateVitsAudio(message, defaultVitsTTSRole, '中日混合（中文用[ZH][ZH]包裹起来，日文用[JA][JA]包裹起来）')
                   } catch (err) {
                     logger.error(err)
                   }
+                  break
                 }
-                try {
-                  audio = await generateVitsAudio(message, defaultVitsTTSRole, '中日混合（中文用[ZH][ZH]包裹起来，日文用[JA][JA]包裹起来）')
-                } catch (err) {
-                  logger.error(err)
+                case 3 : {
+                  message = (await translate(message, '日')).replace('\n', '')
+                  try {
+                    audio = await VoiceVoxTTS.generateAudio(message, {
+                      speaker: defaultVoxTTSRole
+                    })
+                  } catch (err) {
+                    logger.error(err)
+                  }
+                  break
                 }
-                break
               }
-              case 3 : {
-                message = (await translate(message, '日')).replace('\n', '')
-                try {
-                  audio = await VoiceVoxTTS.generateAudio(message, {
-                    speaker: defaultVoxTTSRole
-                  })
-                } catch (err) {
-                  logger.error(err)
-                }
-                break
+              if (useSilk) {
+                await this.e.bot.sendGroupMsg(groupId, await uploadRecord(audio))
+              } else {
+                await this.e.bot.sendGroupMsg(groupId, segment.record(audio))
               }
-            }
-            if (useSilk) {
-              await this.e.bot.sendGroupMsg(groupId, await uploadRecord(audio))
             } else {
-              await this.e.bot.sendGroupMsg(groupId, segment.record(audio))
+              await this.e.bot.sendGroupMsg(groupId, message)
             }
           } else {
-            await this.e.bot.sendGroupMsg(groupId, message)
+            logger.info(`时机未到，这次就不打招呼给群聊${groupId}了`)
           }
         } else {
-          logger.info(`时机未到，这次就不打招呼给群聊${groupId}了`)
+          logger.warn('机器人不在要发送的群组里，忽略群。同时建议检查配置文件修改要打招呼的群号。' + groupId)
         }
-      } else {
-        logger.warn('机器人不在要发送的群组里，忽略群。同时建议检查配置文件修改要打招呼的群号。' + groupId)
       }
     }
   }
