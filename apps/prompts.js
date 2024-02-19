@@ -157,7 +157,9 @@ export class help extends plugin {
     const keyMap = {
       api: 'promptPrefixOverride',
       Custom: 'sydney',
-      claude: 'slackClaudeGlobalPreset'
+      claude: 'slackClaudeGlobalPreset',
+      qwen: 'promptPrefixOverride',
+      gemini: 'geminiPrompt'
     }
 
     if (keyMap[use]) {
@@ -170,7 +172,7 @@ export class help extends plugin {
       await redis.set(`CHATGPT:PROMPT_USE_${use}`, promptName)
       await e.reply(`你当前正在使用${use}模式，已将该模式设定应用为"${promptName}"。更该设定后建议结束对话以使设定更好生效`, true)
     } else {
-      await e.reply(`你当前正在使用${use}模式，该模式不支持设定。支持设定的模式有：API、自定义、Claude`, true)
+      await e.reply(`你当前正在使用${use}模式，该模式不支持设定。支持设定的模式有：API、自定义、Claude、通义千问和Gemini`, true)
     }
   }
 
