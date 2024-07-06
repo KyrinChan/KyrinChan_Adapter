@@ -385,7 +385,7 @@ export default class SydneyAIClient {
     }
     let maxConv = Config.maxNumUserMessagesInConversation
     const currentDate = moment().format('YYYY-MM-DDTHH:mm:ssZ')
-    const imageDate = await this.kblobImage(opts.imageUrl)
+    const imageDate = await this.kblobImage(opts.imageUrl, conversationId)
     let argument0 = {
       source: 'cib',
       optionsSets,
@@ -857,20 +857,34 @@ export default class SydneyAIClient {
     }
   }
 
-  async kblobImage (url) {
+  async kblobImage (url, conversationId) {
     if (!url) return false
+    if (!conversationId) return false
+    // 获取并转换图片为base64
+    let imgBase64
+    try {
+      const response = await fetch(url)
+      if (!response.ok) {
+        throw new Error(`图片${url}获取失败：${response.status}`)
+      }
+      const arrayBuffer = await response.arrayBuffer()
+      const buffer = Buffer.from(arrayBuffer)
+      imgBase64 = buffer.toString('base64')
+    } catch (error) {
+      console.error(error)
+      return false
+    }
     const formData = new FormData()
     formData.append('knowledgeRequest', JSON.stringify({
-      imageInfo: {
-        url
-      },
+      imageInfo: {},
       knowledgeRequest: {
         invokedSkills: ['ImageById'],
         subscriptionId: 'Bing.Chat.Multimodal',
         invokedSkillsRequestData: { enableFaceBlur: true },
-        convoData: { convoid: '', convotone: 'Creative' }
+        convoData: { convoid: conversationId, convotone: 'Creative' }
       }
     }))
+    formData.append('imageBase64', imgBase64)
     const fetchOptions = {
       headers: {
         Referer: 'https://www.bing.com/search?q=Bing+AI&showconv=1&FORM=hpcodx'
