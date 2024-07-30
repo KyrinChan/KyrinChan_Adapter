@@ -1744,7 +1744,7 @@ export class chatgpt extends plugin {
               })
               const response = await fetch(img[0])
               const base64Image = Buffer.from(await response.arrayBuffer())
-              let msg = 'Please describe this image in Simplified Chinese and try to highlight interesting details.'
+              let msg = 'Please describe this image in English. The more detailed the better and try to highlight interesting details.'
               try {
                 let res = await client.sendMessage(msg, {
                   image: base64Image.toString('base64')
