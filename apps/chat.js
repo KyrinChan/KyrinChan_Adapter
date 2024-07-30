@@ -1726,8 +1726,34 @@ export class chatgpt extends plugin {
           opt.toSummaryFileContent = toSummaryFileContent
           // 写入图片数据
           if (Config.sydneyImageRecognition) {
-            const image = await getImg(e)
-            opt.imageUrl = image ? image[0] : undefined
+            // const image = await getImg(e)
+            // opt.imageUrl = image ? image[0] : undefined
+            let img = await getImg(e)
+            if (img?.[0]) {
+              if (!Config.geminiKey) {
+                e.reply('Gemini API Key不见了喵~ 识图不能用哦')
+                return
+              }
+              let client = new CustomGoogleGeminiClient({
+                e,
+                userId: e.sender.user_id,
+                key: Config.geminiKey,
+                model: 'gemini-1.5-flash-latest',
+                baseUrl: Config.geminiBaseUrl,
+                debug: Config.debug
+              })
+              const response = await fetch(img[0])
+              const base64Image = Buffer.from(await response.arrayBuffer())
+              let msg = e.msg.replace(/#(识图|图片识别|VQA|vqa)/, '') || 'describe this image in Simplified Chinese'
+              try {
+                let res = await client.sendMessage(msg, {
+                  image: base64Image.toString('base64')
+                })
+                prompt = prompt + "\n这条信息中包含一张图片，这张图片可以描述为：" + res.text;
+              } catch (err) {
+                await e.reply('❌识图出现问题啦喵~ 是Gemini的问题吗？ ' + err.message, true)
+              }
+            }
           }
           if (Config.enableGenerateContents) {
             opt.onImageCreateRequest = prompt => {
