@@ -1750,6 +1750,7 @@ export class chatgpt extends plugin {
                   image: base64Image.toString('base64')
                 })
                 prompt = prompt + "\n这条信息中包含一张图片，这张图片可以描述为：" + res.text;
+                logger.info('识图成功，内容为：', res.text)
               } catch (err) {
                 await e.reply('❌识图出现问题啦喵~ 是Gemini的问题吗？ ' + err.message, true)
               }
