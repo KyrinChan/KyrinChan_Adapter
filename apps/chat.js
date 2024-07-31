@@ -1308,7 +1308,7 @@ export class chatgpt extends plugin {
       const blockWord = Config.blockWords.find(word => response.toLowerCase().includes(word.toLowerCase()))
       if (blockWord) {
         const errormsg = getRandomErrorMessage();
-        await this.reply(errormsg, true)
+        await this.reply(errormsg, true, { recallMsg: 15 })
         return false
       }
       // 移除所有出现在实际回复中引用的网址
