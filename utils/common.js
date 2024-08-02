@@ -958,6 +958,7 @@ export async function generateAudio (e, pendingText, speakingEmotion, emotionDeg
   if (!Config.ttsSpace && !Config.azureTTSKey && !Config.voicevoxSpace) return false
   let wav
   const speaker = getUserSpeaker(await getUserReplySetting(e))
+  logger.info(`正在使用${speaker}，基于文本：'${text}'生成语音，模式'${Config.ttsMode}'`)
   let ignoreEncode = e.adapter === 'shamrock'
   try {
     if (!Config.ttsMode === 'azure' && Config.ttsSpace) {
