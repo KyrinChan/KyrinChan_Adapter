@@ -958,7 +958,7 @@ export async function generateAudio (e, pendingText, speakingEmotion, emotionDeg
   if (!Config.ttsSpace && !Config.azureTTSKey && !Config.voicevoxSpace) return false
   let wav
   const speaker = getUserSpeaker(await getUserReplySetting(e))
-  logger.info(`正在使用${speaker}，基于文本：'${text}'生成语音，模式'${Config.ttsMode}'`)
+  // logger.info(`正在使用${speaker}，基于文本：'${text}'生成语音，模式'${Config.ttsMode}'`)
   let ignoreEncode = e.adapter === 'shamrock'
   try {
     if (!Config.ttsMode === 'azure' && Config.ttsSpace) {
@@ -973,11 +973,11 @@ export async function generateAudio (e, pendingText, speakingEmotion, emotionDeg
       wav = await generateVitsAudio(pendingText, speaker, '中日混合（中文用[ZH][ZH]包裹起来，日文用[JA][JA]包裹起来）')
     } else if (Config.ttsMode === 'azure' && Config.azureTTSKey) {
       return await generateAzureAudio(pendingText, speaker, speakingEmotion, emotionDegree, ignoreEncode)
-    // } else if (Config.ttsMode === 'voicevox' && Config.voicevoxSpace) {
-    //   pendingText = (await translate(pendingText, '日')).replace('\n', '')
-    //   wav = await VoiceVoxTTS.generateAudio(pendingText, {
-    //     speaker
-    //   })
+    } else if (Config.ttsMode === 'voicevox' && Config.voicevoxSpace) {
+      pendingText = (await translate(pendingText, '日')).replace('\n', '')
+      wav = await VoiceVoxTTS.generateAudio(pendingText, {
+        speaker
+      })
     }
   } catch (err) {
     logger.error(err)
