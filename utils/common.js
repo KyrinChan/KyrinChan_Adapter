@@ -961,7 +961,7 @@ export async function generateAudio (e, pendingText, speakingEmotion, emotionDeg
   // logger.info(`正在使用${speaker}，基于文本：'${text}'生成语音，模式'${Config.ttsMode}'`)
   let ignoreEncode = e.adapter === 'shamrock'
   try {
-    if (!Config.ttsMode === 'azure' && Config.ttsSpace) {
+    if (Config.ttsMode === 'vits-uma-genshin-honkai' && Config.ttsSpace) {
       if (Config.autoJapanese) {
         try {
           pendingText = await translate(pendingText, '日')
