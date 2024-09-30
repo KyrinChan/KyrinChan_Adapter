@@ -83,6 +83,7 @@ import { getChatHistoryGroup } from '../utils/chat.js'
 import { CustomGoogleGeminiClient } from '../client/CustomGoogleGeminiClient.js'
 import { resizeAndCropImage } from '../utils/dalle.js'
 import fs from 'fs'
+import path from 'path'
 
 const roleMap = {
   owner: 'group owner',
@@ -1324,9 +1325,9 @@ export class chatgpt extends plugin {
           })
           let msg = '请根据这段设定为这段对话生成一个符合凯琳酱设定且自然的回复："' + Config.standaloneGen6Settings + '"，对话上文是"' + prompt + '" 要尽可能地自然而有趣。'
           let res = await client.sendMessage(msg, "")
-          logger.info(`Gen6回复成功: ${res.text}`)
+          logger.info(`GEN6特殊回复成功: ${res.text}`)
           response = res.text;
-          await this.renderImage(e, use, response, prompt, quotemessage, mood, favor, chatMessage.suggestedResponses, imgUrls)
+          await this.renderImage(e, use, response, prompt, "", "", "", "", "")
           return
         }
         else{
