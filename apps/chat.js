@@ -1323,7 +1323,7 @@ export class chatgpt extends plugin {
             baseUrl: Config.geminiBaseUrl,
             debug: Config.debug
           })
-          let msg = '请根据这段设定为这段对话生成一个符合凯琳酱设定且自然的回复："' + Config.standaloneGen6Settings + '"，对话上文是"' + prompt + '" 要尽可能地自然而有趣。'
+          let msg = '请根据这段设定为这段对话生成一个符合凯琳酱设定且自然的回复："' + Config.standaloneGen6Settings + '"，和你对话的人是"' + e.sender.nickname + '"，对话上文是"' + prompt + '" 要尽可能地自然而有趣。'
           let res = await client.sendMessage(msg, "")
           logger.info(`GEN6特殊回复成功: ${res.text}`)
           response = res.text;
@@ -1380,7 +1380,7 @@ export class chatgpt extends plugin {
           baseUrl: Config.geminiBaseUrl,
           debug: Config.debug
         })
-        let msg = '以下是一段对话的回复，"' + response + '" ，请将它变得更加风格化，更符合设定且更加自然，具体设定为"' + Config.enhanceGen6Settings + '"}，同时依据对话上文"' + prompt + '"适当进行修改，使其更加符合凯琳酱的设定。仅输出修改后的回复。'
+        let msg = '以下是一段对话的回复，"' + response + '" ，请将它变得更加风格化，更符合设定且更加自然，具体设定为"' + Config.enhanceGen6Settings + '"，和你对话的人是"' + e.sender.nickname + '"，同时依据对话上文"' + prompt + '"适当进行修改，使其更加符合凯琳酱的设定。仅输出修改后的回复。'
         let res = await client.sendMessage(msg, "")
         logger.info(`增强回复成功: ${response}`)
         response = res.text;
