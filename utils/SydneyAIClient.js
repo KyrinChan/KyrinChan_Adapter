@@ -419,7 +419,7 @@ export default class SydneyAIClient {
       message: {
         locale: 'zh-CN',
         market: 'zh-CN',
-        region: 'JP',
+        region: 'HK',
         location: 'lat:47.639557;long:-122.128159;re=1000m;',
         locationHints: [
           {

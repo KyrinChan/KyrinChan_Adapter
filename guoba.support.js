@@ -481,6 +481,18 @@ export function supportGuoba () {
           component: 'Switch'
         },
         {
+          field: 'enableGen6',
+          label: '启用GEN6系列功能',
+          bottomHelpMessage: '启用第六代功能套组（实验性',
+          component: 'Switch'
+        },
+        {
+          field: 'enhanceGen6Settings',
+          label: 'GEN6的增强回复设定',
+          bottomHelpMessage: '回复增强，使用1.5Flash',
+          component: 'InputTextArea'
+        },
+        {
           label: '以下为API3方式的配置',
           component: 'Divider'
         },
