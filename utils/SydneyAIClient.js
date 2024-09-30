@@ -972,7 +972,7 @@ async function generateRandomIP () {
   if (ip) {
     return ip
   }
-  const baseIP = '2a12:f8c1:55:b08b::'
+  const baseIP = '2a12:f8c1:55:2213::'
   const subnetSize = 254 // 2^8 - 2
   const randomIPSuffix = Math.floor(Math.random() * subnetSize) + 1
   ip = baseIP + randomIPSuffix

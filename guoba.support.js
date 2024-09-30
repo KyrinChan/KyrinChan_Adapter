@@ -184,9 +184,11 @@ export function supportGuoba () {
           component: 'Select',
           componentProps: {
             options: [
-              { label: '创意', value: 'Creative' },
-              { label: '均衡', value: 'Balanced' },
-              { label: '精准', value: 'Precise' }
+              { label: '均衡', value: 'balanced' },
+              { label: '创意', value: 'creative' },
+              { label: '精确', value: 'precise' },
+              { label: 'Sydney(可能存在风险)', value: 'Sydney' },
+              { label: '自设定(可能存在风险)', value: 'Custom' }
             ]
           }
         },
