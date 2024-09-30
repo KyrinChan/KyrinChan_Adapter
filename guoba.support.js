@@ -493,6 +493,12 @@ export function supportGuoba () {
           component: 'InputTextArea'
         },
         {
+          field: 'Gen6Standalone',
+          label: 'GEN6独立回复',
+          bottomHelpMessage: '生成更自然更好的回复（实验性',
+          component: 'Switch'
+        },
+        {
           label: '以下为API3方式的配置',
           component: 'Divider'
         },

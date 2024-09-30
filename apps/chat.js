@@ -1307,9 +1307,31 @@ export class chatgpt extends plugin {
       // 检索是否有屏蔽词
       const blockWord = Config.blockWords.find(word => response.toLowerCase().includes(word.toLowerCase()))
       if (blockWord) {
-        const errormsg = getRandomErrorMessage();
-        await this.reply(errormsg, true, { recallMsg: 15 })
-        return false
+        // Gen6 自主回复路线
+        if (Config.Gen6Standalone) {
+          if (!Config.geminiKey) {
+            const errormsg = getRandomErrorMessage();
+            await this.reply(errormsg, true, { recallMsg: 15 })
+            return false
+          }
+          let client = new CustomGoogleGeminiClient({
+            e,
+            userId: e.sender.user_id,
+            key: Config.geminiKey,
+            model: 'gemini-1.5-pro-latest',
+            baseUrl: Config.geminiBaseUrl,
+            debug: Config.debug
+          })
+          let msg = '请根据这段设定为这段对话生成一个符合凯琳酱设定且自然的回复："' + Config.enhanceGen6Settings + '"，对话上文是"' + prompt + '" 要尽可能地自然而有趣。'
+          let res = await client.sendMessage(msg, "")
+          logger.info(`Gen6回复成功: ${res.text}`)
+          response = res.text;
+        }
+        else{
+          const errormsg = getRandomErrorMessage();
+          await this.reply(errormsg, true, { recallMsg: 15 })
+          return false
+        }
       }
       // 移除所有出现在实际回复中引用的网址
       response = removeUrl(response)
