@@ -1326,6 +1326,8 @@ export class chatgpt extends plugin {
           let res = await client.sendMessage(msg, "")
           logger.info(`Gen6回复成功: ${res.text}`)
           response = res.text;
+          await this.renderImage(e, use, response, prompt, quotemessage, mood, favor, chatMessage.suggestedResponses, imgUrls)
+          return
         }
         else{
           const errormsg = getRandomErrorMessage();
