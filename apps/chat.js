@@ -1355,8 +1355,8 @@ export class chatgpt extends plugin {
           baseUrl: Config.geminiBaseUrl,
           debug: Config.debug
         })
-        let msg = '以下是一段对话的回复，{' + response + ' ，请将它变得更加风格化，更符合设定且更加自然，具体设定为"' + Config.enhanceGen6Settings + '"}，同时依据对话上文"' + prompt + '"适当进行修改，使其更加符合凯琳酱的设定。仅输出修改后的回复。'
-        let res = await client.sendMessage(msg)
+        let msg = '以下是一段对话的回复，"' + response + '" ，请将它变得更加风格化，更符合设定且更加自然，具体设定为"' + Config.enhanceGen6Settings + '"}，同时依据对话上文"' + prompt + '"适当进行修改，使其更加符合凯琳酱的设定。仅输出修改后的回复。'
+        let res = await client.sendMessage(msg, "")
         logger.info(`增强回复成功: ${response}`)
         response = res.text;
       }
