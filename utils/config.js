@@ -27,10 +27,14 @@ const defaultConfig = {
   openAiBaseUrl: defaultOpenAIReverseProxy,
   OpenAiPlatformRefreshToken: '',
   openAiForceUseReverse: false,
+  apiStream: false,
   drawCD: 30,
   model: '',
   temperature: 0.8,
-  toneStyle: 'Sydney', // or creative, precise
+  /**
+   * @type {'Precise' | 'Balanced' | 'Creative'}
+   */
+  toneStyle: 'Creative',
   sydney: pureSydneyInstruction,
   sydneyReverseProxy: 'https://666102.201666.xyz',
   sydneyForceUseReverse: false,
@@ -39,8 +43,15 @@ const defaultConfig = {
   sydneyBrainWashStrength: 15,
   sydneyBrainWashName: 'Sydney',
   sydneyMood: false,
+  sydneyGPTs: 'Copilot',
   sydneyImageRecognition: false,
   sydneyMoodTip: 'Your response should be divided into two parts, namely, the text and your mood. The mood available to you can only include: blandness, happy, shy, frustrated, disgusted, and frightened.All content should be replied in this format {"text": "", "mood": ""}.All content except mood should be placed in text, It is important to ensure that the content you reply to can be parsed by json.',
+  chatExampleUser1: '',
+  chatExampleUser2: '',
+  chatExampleUser3: '',
+  chatExampleBot1: '',
+  chatExampleBot2: '',
+  chatExampleBot3: '',
   enableSuggestedResponses: false,
   sydneyEnableSearch: false,
   api: defaultChatGPTAPI,
@@ -63,18 +74,14 @@ const defaultConfig = {
   xhRetReplace: '',
   promptPrefixOverride: 'Your answer shouldn\'t be too verbose. Prefer to answer in Chinese.',
   assistantLabel: 'ChatGPT',
-  // thinkingTips: true,
-  username: '',
-  password: '',
-  UA: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
   headless: false,
   chromePath: '',
-  '2captchaToken': '',
   proxy: '',
   debug: true,
   defaultTimeoutMs: 120000,
   chromeTimeoutMS: 120000,
   sydneyFirstMessageTimeout: 40000,
+  sunoApiTimeout: 60,
   ttsSpace: '',
   // https://114514.201666.xyz
   huggingFaceReverseProxy: '',
@@ -98,6 +105,8 @@ const defaultConfig = {
   sydneyApologyIgnored: true,
   enforceMaster: false,
   bingAPDraw: false,
+  bingSuno: 'bing',
+  bingSunoApi: '',
   serverPort: 3321,
   serverHost: '',
   viewHost: '',
@@ -123,9 +132,10 @@ const defaultConfig = {
   slackClaudeEnableGlobalPreset: true,
   slackClaudeGlobalPreset: '',
   slackClaudeSpecifiedChannel: '',
-  bardPsid: '',
-  bardReverseProxy: '',
-  bardForceUseReverse: false,
+  // slackCozeUserId: '',
+  // slackCozeEnableGlobalPreset: true,
+  // slackCozeGlobalPreset: '',
+  // slackCozeSpecifiedChannel: '',
   cloudTranscode: 'https://silk.201666.xyz',
   cloudRender: false,
   cloudMode: 'url',
@@ -140,6 +150,7 @@ const defaultConfig = {
   enhanceAzureTTSEmotion: false,
   autoJapanese: false,
   enableGenerateContents: false,
+  enableGenerateSuno: false,
   amapKey: '',
   azSerpKey: '',
   serpSource: 'ikechan8370',
@@ -164,11 +175,29 @@ const defaultConfig = {
   qwenTemperature: 1,
   qwenEnableSearch: true,
   geminiKey: '',
-  geminiModel: 'gemini-pro',
+  geminiModel: 'gemini-1.5-flash',
   geminiPrompt: 'You are Gemini. Your answer shouldn\'t be too verbose. Prefer to answer in Chinese.',
   // origin: https://generativelanguage.googleapis.com
   geminiBaseUrl: 'https://gemini.ikechan8370.com',
-  version: 'v2.7.8'
+  geminiTemperature: 0.9,
+  geminiMaxOutputTokens: 2000,
+
+  chatglmRefreshToken: '',
+  sunoSessToken: '',
+  sunoClientToken: '',
+  enableChatSuno: false,
+  SunoModel: 'local',
+
+  claudeApiKey: '',
+  claudeApiBaseUrl: 'http://claude-api.ikechan8370.com',
+  claudeApiMaxToken: 1024,
+  claudeApiTemperature: 0.8,
+  claudeApiModel: '', // claude-3-opus-20240229 claude-3-sonnet-20240229
+  claudeSystemPrompt: '', // claude api 设定
+  translateSource: 'openai',
+  enableMd: false, // 第三方md，非QQBot。需要适配器实现segment.markdown和segment.button方可使用，否则不建议开启，会造成各种错误
+  enableToolbox: true, // 默认关闭工具箱节省占用和加速启动
+  version: 'v2.8.1'
 }
 const _path = process.cwd()
 let config = {}

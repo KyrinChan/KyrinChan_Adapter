@@ -6,11 +6,10 @@ import websocket from '@fastify/websocket'
 
 import fs from 'fs'
 import path from 'path'
-import os from 'os'
 import websocketclient from 'ws'
 
 import { Config } from '../utils/config.js'
-import { UserInfo, GetUser, AddUser } from './modules/user_data.js'
+import { UserInfo, GetUser, AddUser, ReplaceUsers } from './modules/user_data.js'
 import { getPublicIP, getUserData, getMasterQQ, randomString, getUin } from '../utils/common.js'
 
 import webRoute from './modules/web_route.js'
@@ -20,39 +19,10 @@ import Guoba from './modules/guoba.js'
 import SettingView from './modules/setting_view.js'
 
 const __dirname = path.resolve()
-const server = fastify({
-  logger: Config.debug
-})
-
-async function setUserData(qq, data) {
-  const dir = 'resources/ChatGPTCache/user'
-  const filename = `${qq}.json`
-  const filepath = path.join(dir, filename)
-  fs.mkdirSync(dir, { recursive: true })
-  fs.writeFileSync(filepath, JSON.stringify(data))
-}
-
-await server.register(cors, {
-  origin: '*'
-})
-await server.register(fstatic, {
-  root: path.join(__dirname, 'plugins/chatgpt-plugin/server/static/')
-})
-await server.register(websocket, {
-  cors: true,
-  options: {
-    maxPayload: 1048576
-  }
-})
-await server.register(fastifyCookie)
-await server.register(webRoute)
-await server.register(webUser)
-await server.register(SettingView)
-await server.register(webPrompt)
-await server.register(Guoba)
+const isTrss = Array.isArray(Bot.uin)
 
 // 无法访问端口的情况下创建与media的通讯
-async function mediaLink() {
+async function mediaLink () {
   const ip = await getPublicIP()
   const testServer = await fetch(`${Config.cloudTranscode}/check`,
     {
@@ -74,7 +44,7 @@ async function mediaLink() {
         ws.send(JSON.stringify({
           command: 'register',
           region: getUin(),
-          type: 'server',
+          type: 'server'
         }))
       })
       ws.on('message', async (message) => {
@@ -108,14 +78,13 @@ async function mediaLink() {
               if (data.qq && data.passwd) {
                 const token = randomString(32)
                 if (data.qq == getUin() && await redis.get('CHATGPT:ADMIN_PASSWD') == data.passwd) {
-                  AddUser({ user: data.qq, token: token, autho: 'admin' })
-                  ws.send(JSON.stringify({ command: data.command, state: true, autho: 'admin', token: token, region: getUin(), type: 'server' }))
-
+                  await AddUser({ user: data.qq, token, autho: 'admin' })
+                  ws.send(JSON.stringify({ command: data.command, state: true, autho: 'admin', token, region: getUin(), type: 'server' }))
                 } else {
                   const user = await getUserData(data.qq)
                   if (user.passwd != '' && user.passwd === data.passwd) {
-                    AddUser({ user: data.qq, token: token, autho: 'user' })
-                    ws.send(JSON.stringify({ command: data.command, state: true, autho: 'user', token: token, region: getUin(), type: 'server' }))
+                    await AddUser({ user: data.qq, token, autho: 'user' })
+                    ws.send(JSON.stringify({ command: data.command, state: true, autho: 'user', token, region: getUin(), type: 'server' }))
                   } else {
                     ws.send(JSON.stringify({ command: data.command, state: false, error: `用户名密码错误,如果忘记密码请私聊机器人输入 ${data.qq == getUin() ? '#修改管理密码' : '#修改用户密码'} 进行修改`, region: getUin(), type: 'server' }))
                   }
@@ -141,7 +110,6 @@ async function mediaLink() {
           console.log(error)
         }
       })
-
     } else {
       console.log('本地服务网络正常，无需开启通讯')
     }
@@ -152,7 +120,38 @@ async function mediaLink() {
 // 未完工，暂不开启这个功能
 // mediaLink()
 
-export async function createServer() {
+export async function createServer () {
+  let server = fastify({
+    logger: Config.debug
+  })
+
+  async function setUserData (qq, data) {
+    const dir = 'resources/ChatGPTCache/user'
+    const filename = `${qq}.json`
+    const filepath = path.join(dir, filename)
+    fs.mkdirSync(dir, { recursive: true })
+    fs.writeFileSync(filepath, JSON.stringify(data))
+  }
+
+  await server.register(cors, {
+    origin: '*'
+  })
+  await server.register(fstatic, {
+    root: path.join(__dirname, 'plugins/chatgpt-plugin/server/static/')
+  })
+  await server.register(websocket, {
+    cors: true,
+    options: {
+      maxPayload: 1048576
+    }
+  })
+  await server.register(fastifyCookie)
+  await server.register(webRoute)
+  await server.register(webUser)
+  await server.register(SettingView)
+  await server.register(webPrompt)
+  await server.register(Guoba)
+
   // 页面数据获取
   server.post('/page', async (request, reply) => {
     const body = request.body || {}
@@ -292,7 +291,6 @@ export async function createServer() {
       connection.socket.send(JSON.stringify(response))
     })
     connection.socket.on('message', async (message) => {
-      const isTrss = Array.isArray(Bot.uin)
       try {
         const data = JSON.parse(message)
         const user = UserInfo(data.token)
@@ -305,7 +303,12 @@ export async function createServer() {
             if (data.id && data.message) {
               if (data.group) {
                 if (isTrss) {
-                  Bot[user.user].pickGroup(parseInt(data.id)).sendMsg(data.message)
+                  let msg = []
+                  if (data.quotable) {
+                    msg.push(segment.at(data.quotable.user_id, data.quotable.user_name))
+                  }
+                  msg.push(data.message)
+                  Bot[user.user].pickGroup(parseInt(data.id)).sendMsg(msg)
                 } else {
                   Bot.sendGroupMsg(parseInt(data.id), data.message, data.quotable)
                 }
@@ -316,7 +319,7 @@ export async function createServer() {
                   Bot.sendPrivateMsg(parseInt(data.id), data.message, data.quotable)
                 }
               }
-              await connection.socket.send(JSON.stringify({ command: data.command, state: true, }))
+              await connection.socket.send(JSON.stringify({ command: data.command, state: true }))
             } else {
               await connection.socket.send(JSON.stringify({ command: data.command, state: false, error: '参数不足' }))
             }
@@ -352,40 +355,84 @@ export async function createServer() {
             }
             const groupList = await _Bot.getGroupList()
             groupList.forEach(async (item) => {
-              const group = _Bot.pickGroup(item.group_id)
+              const group = _Bot.pickGroup(isTrss ? item : item.group_id)
               const groupMessages = await group.getChatHistory()
-              groupMessages.forEach(async (e) => {
+              if (groupMessages) {
+                groupMessages.forEach(async (e) => {
+                  e.message = e.message.map(item => {
+                    if (item.type === 'at') {
+                      return { ...item, text: group.pickMember(parseInt(item.qq)).card || group.pickMember(parseInt(item.qq)).nickname }
+                    }
+                    return item
+                  })
+                  const messageData = {
+                    notice: 'clientMessage',
+                    message: e.message,
+                    sender: e.sender,
+                    group: {
+                      isGroup: true,
+                      group_id: e.group_id,
+                      group_name: e.group_name || group.group_name
+                    },
+                    quotable: {
+                      user_id: e.user_id,
+                      time: e.time,
+                      seq: e.seq,
+                      rand: e.rand,
+                      message: e.message,
+                      user_name: e.sender.nickname
+                    },
+                    read: true
+                  }
+                  await connection.socket.send(JSON.stringify(messageData))
+                })
+              } else {
                 const messageData = {
-                  notice: 'clientMessage',
-                  message: e.message,
-                  sender: e.sender,
+                  notice: 'clientList',
+                  user_id: _Bot.uin,
+                  nickname: _Bot.nickname,
                   group: {
                     isGroup: true,
-                    group_id: e.group_id,
-                    group_name: e.group_name || item.group_name
+                    group_id: group.group_id,
+                    group_name: group.group_name
                   },
                   quotable: {
-                    user_id: e.user_id,
-                    time: e.time,
-                    seq: e.seq,
-                    rand: e.rand,
-                    message: e.message,
-                    user_name: e.sender.nickname,
+                    user_id: _Bot.uin,
+                    user_name: _Bot.nickname
                   },
-                  read: true
                 }
                 await connection.socket.send(JSON.stringify(messageData))
-              })
+              }
+            })
+            const friendList = await _Bot.getFriendList()
+            friendList.forEach(async (item) => {
+              const friend = _Bot.pickFriend(item)
+              const messageData = {
+                notice: 'clientList',
+                user_id: item,
+                nickname: friend.nickname,
+                group: {
+                  isGroup: false,
+                },
+                quotable: {
+                  user_id: _Bot.uin,
+                  user_name: _Bot.nickname
+                },
+              }
+              await connection.socket.send(JSON.stringify(messageData))
             })
 
             break
+          case 'ping': // 心跳
+            await connection.socket.send(JSON.stringify({ command: 'ping', time: new Date(), state: true }))
+            break
           default:
-            await connection.socket.send(JSON.stringify({ "data": data }))
+            await connection.socket.send(JSON.stringify({ data }))
             break
         }
       } catch (error) {
         console.error(error)
-        await connection.socket.send(JSON.stringify({ "error": error.message }))
+        await connection.socket.send(JSON.stringify({ error: error.message }))
       }
     })
     connection.socket.on('close', () => {
@@ -395,7 +442,19 @@ export async function createServer() {
     })
     return request
   }
-  Bot.on("message", e => {
+  Bot.on('message', e => {
+    e.message = e.message.map(item => {
+      if (item.type === 'at') {
+        let user
+        try {
+          user = e.group.pickMember(parseInt(item.qq)).card || e.group.pickMember(parseInt(item.qq)).nickname
+        } catch (error) {
+          user = item.qq
+        }
+        return { ...item, text: user }
+      }
+      return item
+    })
     const messageData = {
       notice: 'clientMessage',
       message: e.message,
@@ -403,7 +462,7 @@ export async function createServer() {
       group: {
         isGroup: e.isGroup || e.group_id != undefined,
         group_id: e.group_id,
-        group_name: e.group_name
+        group_name: e.group_name || e.bot.gl?.get(e.group_id)?.group_name || e.group_id
       },
       quotable: {
         user_id: e.user_id,
@@ -411,7 +470,7 @@ export async function createServer() {
         seq: e.seq,
         rand: e.rand,
         message: e.message,
-        user_name: e.sender.nickname,
+        user_name: e.sender.card || e.sender.nickname
       }
     }
     if (clients) {
@@ -486,10 +545,10 @@ export async function createServer() {
       for (let [keyPath, value] of Object.entries(chatdata)) {
         if (keyPath === 'blockWords' || keyPath === 'promptBlockWords' || keyPath === 'initiativeChatGroups') { value = value.toString().split(/[,，;；\|]/) }
         if (Config[keyPath] != value) {
-          //检查云服务api
+          // 检查云服务api
           if (keyPath === 'cloudTranscode') {
-            const referer = request.headers.referer;
-            const origin = referer.match(/(https?:\/\/[^/]+)/)[1];
+            const referer = request.headers.referer
+            const origin = referer.match(/(https?:\/\/[^/]+)/)[1]
             const checkCloud = await fetch(`${value}/check`,
               {
                 method: 'POST',
@@ -562,7 +621,7 @@ export async function createServer() {
   // 系统服务测试
   server.post('/serverTest', async (request, reply) => {
     let serverState = {
-      cache: false, //待移除
+      cache: false, // 待移除
       cloud: false
     }
     if (Config.cloudTranscode) {
@@ -575,6 +634,15 @@ export async function createServer() {
     return reply
   })
 
+  global.chatgpt.server = server
+  return server
+}
+
+export async function runServer () {
+  let server = global.chatgpt.server
+  if (!server) {
+    server = await createServer()
+  }
   server.listen({
     port: Config.serverPort || 3321,
     host: '::'
@@ -585,4 +653,12 @@ export async function createServer() {
       server.log.info(`server listening on ${server.server.address().port}`)
     }
   })
+  await ReplaceUsers()
+}
+
+export async function stopServer () {
+  let server = global.chatgpt.server
+  if (server) {
+    await server.close()
+  }
 }

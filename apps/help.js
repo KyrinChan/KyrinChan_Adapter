@@ -342,6 +342,6 @@ export class help extends plugin {
   }
 
   async help (e) {
-    await render(e, 'chatgpt-plugin', 'help/index', { helpData, version }) 
+    await render(e, 'chatgpt-plugin', 'help/index', { helpData, version })
   }
 }

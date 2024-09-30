@@ -1,4 +1,4 @@
-import { ShamrockTokenizer, Tokenizer } from './tokenizer.js'
+import Tokenizer from './tokenizer.js'
 import { render } from '../common.js'
 
 export async function makeWordcloud (e, groupId, duration = 0, userId) {
@@ -7,13 +7,14 @@ export async function makeWordcloud (e, groupId, duration = 0, userId) {
   let list = JSON.stringify(topK)
   logger.info(list)
   let img = await render(e, 'chatgpt-plugin', 'wordcloud/index', { list }, { retType: 'base64' })
-  await e.reply(img, true)
+  return img
 }
 
 function getTokenizer (e) {
-  if (e.adapter === 'shamrock') {
-    return new ShamrockTokenizer()
-  } else {
-    return new Tokenizer()
-  }
+  // if (e.adapter === 'shamrock') {
+  //   return Tokenizer.shamrock
+  // } else {
+  //   return Tokenizer.default
+  // }
+  return Tokenizer.default
 }

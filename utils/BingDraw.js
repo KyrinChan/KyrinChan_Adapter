@@ -2,6 +2,7 @@ import fetch, { FormData } from 'node-fetch'
 import { makeForwardMsg } from './common.js'
 import { Config } from './config.js'
 import { getProxy } from './proxy.js'
+import crypto from 'crypto'
 
 let proxy = getProxy()
 export default class BingDrawClient {
@@ -19,9 +20,9 @@ export default class BingDrawClient {
     // let d = Math.ceil(Math.random() * 255)
     // let randomIp = '141.11.138.' + d
     let headers = {
-      accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-      'accept-language': 'en-US,en;q=0.9',
-      'cache-control': 'max-age=0',
+      // accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+      // 'accept-language': 'en-US,en;q=0.9',
+      // 'cache-control': 'max-age=0',
       'content-type': 'application/x-www-form-urlencoded',
       referrer: 'https://www.bing.com/images/create/',
       origin: 'https://www.bing.com',
@@ -47,7 +48,7 @@ export default class BingDrawClient {
     }
     // headers['x-forwarded-for'] = '141.11.138.30'
     let body = new FormData()
-    body.append('q', prompt)
+    body.append('q', urlEncodedPrompt)
     body.append('qs', 'ds')
     let fetchOptions = {
       headers
@@ -56,7 +57,7 @@ export default class BingDrawClient {
       fetchOptions.agent = proxy(Config.proxy)
     }
     let success = false
-    let retry = 5
+    let retry = 1
     let response
     while (!success && retry >= 0) {
       response = await fetch(url, Object.assign(fetchOptions, { body, redirect: 'manual', method: 'POST', credentials: 'include' }))
@@ -65,6 +66,9 @@ export default class BingDrawClient {
         throw new Error('Your prompt has been blocked by Bing. Try to change any bad words and try again.')
       }
       if (response.status !== 302) {
+        if (this.debug) {
+          console.debug(`第一次重试绘图:${prompt}`)
+        }
         url = `${this.opts.baseUrl}/images/create?q=${urlEncodedPrompt}&rt=3&FORM=GENCRE`
         response = await fetch(url, Object.assign(fetchOptions, { body, redirect: 'manual', method: 'POST', credentials: 'include' }))
       }
