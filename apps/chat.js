@@ -1308,7 +1308,7 @@ export class chatgpt extends plugin {
       const blockWord = Config.blockWords.find(word => response.toLowerCase().includes(word.toLowerCase()))
       if (blockWord) {
         const errormsg = getRandomErrorMessage();
-        await this.reply(errormsg, true)
+        await this.reply(errormsg, true, { recallMsg: 15 })
         return false
       }
       // 移除所有出现在实际回复中引用的网址
@@ -1410,7 +1410,8 @@ export class chatgpt extends plugin {
         if (Config.enableSuggestedResponses && chatMessage.suggestedResponses) {
           this.reply(`猜猜看，你不会是想说：\n${chatMessage.suggestedResponses}`)
         }
-        if (Config.ttsMode === 'azure' && Config.azureTTSKey && Config.alsoSendText){
+        if (Config.alsoSendText){
+        // if (Config.ttsMode === 'azure' && Config.azureTTSKey && Config.alsoSendText){
           // 处理tts输入文本
           let ttsResponse, ttsRegex
           const regex = /^\/(.*)\/([gimuy]*)$/
@@ -1726,8 +1727,36 @@ export class chatgpt extends plugin {
           opt.toSummaryFileContent = toSummaryFileContent
           // 写入图片数据
           if (Config.sydneyImageRecognition) {
-            const image = await getImg(e)
-            opt.imageUrl = image ? image[0] : undefined
+            // const image = await getImg(e)
+            // opt.imageUrl = image ? image[0] : undefined
+            let img = await getImg(e)
+            if (img?.[0]) {
+              if (!Config.geminiKey) {
+                e.reply('Gemini API Key不见了喵~ 识图不能用哦')
+                return
+              }
+              let client = new CustomGoogleGeminiClient({
+                e,
+                userId: e.sender.user_id,
+                key: Config.geminiKey,
+                model: 'gemini-1.5-flash-latest',
+                baseUrl: Config.geminiBaseUrl,
+                debug: Config.debug
+              })
+              const response = await fetch(img[0])
+              const base64Image = Buffer.from(await response.arrayBuffer())
+              let msg = 'Please describe this image in English. The more detailed the better and try to highlight interesting details.'
+              try {
+                let res = await client.sendMessage(msg, {
+                  image: base64Image.toString('base64')
+                })
+                prompt = prompt + "\n这条信息中包含一张图片，这张图片可以描述为：" + res.text;
+                logger.info('识图成功，内容为：', res.text)
+              } catch (err) {
+                await e.reply('❌识图出现问题啦喵~ 是Gemini的问题吗？ ' + err.message, true, { recallMsg: 15 })
+                retry = 0
+              }
+            }
           }
           if (Config.enableGenerateContents) {
             opt.onImageCreateRequest = prompt => {
