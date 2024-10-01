@@ -1327,7 +1327,6 @@ export class chatgpt extends plugin {
             debug: Config.debug
           })
           // 档案前馈
-          let userjson = "";
           if (Config.Gen6Impressions) {
             const dir = 'resources/KyrinChanGEN6/impressions/data'
             const filename = `${e.sender.user_id}.json`
@@ -1450,7 +1449,6 @@ export class chatgpt extends plugin {
           debug: Config.debug
         })
         // 档案前馈
-        let userjson = "";
         if (Config.Gen6Impressions) {
           const dir = 'resources/KyrinChanGEN6/impressions/data'
           const filename = `${e.sender.user_id}.json`
