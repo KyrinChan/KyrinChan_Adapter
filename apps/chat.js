@@ -1327,7 +1327,7 @@ export class chatgpt extends plugin {
             debug: Config.debug
           })
           // 档案前馈
-          let userjson;
+          let data;
           let msg;
           if (Config.Gen6Impressions) {
             const dir = 'resources/KyrinChanGEN6/impressions/data'
@@ -1362,7 +1362,7 @@ export class chatgpt extends plugin {
             const filename = `${e.sender.user_id}.json`
             const filepath = path.join(dir, filename)
             if (fs.existsSync(filepath)) {
-              let msg = '请根据这段对话的内容以凯琳酱的设定来修订一下这份印象档案，它包含在一个json格式的字符串里 "' + userjson + '" 其中的数据具体为"' + Config.impressionDefinition + '"，要根据凯琳酱的人设和上下文判断有没有需要修改或追加的内容，并对其进行修改或增补，回复应当只包含该文档的字符串形式json，而且需要严格按照json语法完成，以确保能够解析。'
+              let msg = '请根据这段对话的内容以凯琳酱的设定来修订一下这份印象档案，它包含在一个json格式的字符串里 "' + data + '" 其中的数据具体为"' + Config.impressionDefinition + '"，要根据凯琳酱的人设和上下文判断有没有需要修改或追加的内容，并对其进行修改或增补，回复应当只包含该文档的字符串形式json，而且需要严格按照json语法完成，以确保能够解析。'
               let resjson = await summaryclient.sendMessage(msg, { conversationId: res.conversationId })
               let jsonObject = JSON.parse(removeJsonTags(resjson.text));
               const currentDate = new Date();
@@ -1448,7 +1448,7 @@ export class chatgpt extends plugin {
           debug: Config.debug
         })
         // 档案前馈
-        let userjson;
+        let data;
         let msg;
         if (Config.Gen6Impressions) {
           const dir = 'resources/KyrinChanGEN6/impressions/data'
@@ -1475,7 +1475,7 @@ export class chatgpt extends plugin {
           const filepath = path.join(dir, filename)
           // 检查文件是否存在
           if (fs.existsSync(filepath)) {
-            let msg = '请根据这段对话的内容以凯琳酱的设定来修订一下这份印象档案，它包含在一个json格式的字符串里 "' + userjson + '" 其中的数据具体为"' + Config.impressionDefinition + '"，要根据凯琳酱的人设和上下文判断有没有需要修改或追加的内容，并对其进行修改或增补，回复应当只包含该文档的字符串形式json，而且需要严格按照json语法完成，以确保能够解析。'
+            let msg = '请根据这段对话的内容以凯琳酱的设定来修订一下这份印象档案，它包含在一个json格式的字符串里 "' + data + '" 其中的数据具体为"' + Config.impressionDefinition + '"，要根据凯琳酱的人设和上下文判断有没有需要修改或追加的内容，并对其进行修改或增补，回复应当只包含该文档的字符串形式json，而且需要严格按照json语法完成，以确保能够解析。'
             let resjson = await client.sendMessage(msg, { conversationId: res.conversationId })
             let jsonObject = JSON.parse(removeJsonTags(resjson.text));
             const currentDate = new Date();
