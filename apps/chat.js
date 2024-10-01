@@ -1327,18 +1327,20 @@ export class chatgpt extends plugin {
             debug: Config.debug
           })
           // 档案前馈
+          let userjson = "";
           if (Config.Gen6Impressions) {
             const dir = 'resources/KyrinChanGEN6/impressions/data'
             const filename = `${e.sender.user_id}.json`
             const filepath = path.join(dir, filename)
-            let userjson = "";
             // 检查文件是否存在
             if (fs.existsSync(filepath)) {
-              userjson = fs.readFile(filepath, 'utf8');
+              userjson = fs.readFile(filepath);
             } else {
               logger.info(`未找到 ${e.sender.user_id} 的档案，也许是没有生成。。`)
               userjson = e.sender.nickname;
             }
+          } else {
+            userjson = e.sender.nickname;
           }
           let msg = '请根据这段设定为这段对话生成一个符合凯琳酱设定且自然的回复："' + Config.standaloneGen6Settings + '"，和你对话的人是"' + userjson + '"，对话上文是"' + prompt + '" 要尽可能地自然而有趣。'
           let res = await client.sendMessage(msg, "")
@@ -1423,11 +1425,11 @@ export class chatgpt extends plugin {
           debug: Config.debug
         })
         // 档案前馈
+        let userjson = "";
         if (Config.Gen6Impressions) {
           const dir = 'resources/KyrinChanGEN6/impressions/data'
           const filename = `${e.sender.user_id}.json`
           const filepath = path.join(dir, filename)
-          let userjson = "";
           // 检查文件是否存在
           if (fs.existsSync(filepath)) {
             userjson = fs.readFile(filepath);
@@ -1435,8 +1437,10 @@ export class chatgpt extends plugin {
             logger.info(`未找到 ${e.sender.user_id} 的档案，也许是没有生成。。`)
             userjson = e.sender.nickname;
           }
+        } else {
+          userjson = e.sender.nickname;
         }
-        let msg = '以下是一段对话的回复，"' + response + '" ，请将它变得更加风格化，更符合设定且更加自然，具体设定为"' + Config.enhanceGen6Settings + '"，和你对话的人是"' + e.sender.nickname + '"，同时依据对话上文"' + prompt + '"适当进行修改，使其更加符合凯琳酱的设定。仅输出修改后的回复。'
+        let msg = '以下是一段对话的回复，"' + response + '" ，请将它变得更加风格化，更符合设定且更加自然，具体设定为"' + Config.enhanceGen6Settings + '"，和你对话的人是"' + userjson + '"，同时依据对话上文"' + prompt + '"适当进行修改，使其更加符合凯琳酱的设定。仅输出修改后的回复。'
         let res = await client.sendMessage(msg, "")
         logger.info(`增强回复成功: ${response}`)
         response = res.text;
