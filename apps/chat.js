@@ -1341,12 +1341,12 @@ export class chatgpt extends plugin {
               baseUrl: Config.geminiBaseUrl,
               debug: Config.debug
             })
-            let msg = '请根据这段对话的内容总结一下你对"' + e.sender.nickname + '"，识别代码是"' + e.sender.user_id + '"的印象档案，包含在一个json文件里，结构为"' + Config.impressionStucture + '" 其中的数据具体为"' + Config.impressionDefinition + '"，整个文档需要严格按照json语法完成，确保能够解析。'
+            let msg = '请根据这段对话的内容总结一下你对"' + e.sender.nickname + '"，识别代码是"' + e.sender.user_id + '"的印象档案，包含在一个json文件里，结构为"' + Config.impressionStucture + '" 其中的数据具体为"' + Config.impressionDefinition + '"，回复应当只包含该文档的字符串形式json，而且需要严格按照json语法完成，确保能够解析。'
             let resjson = await summaryclient.sendMessage(msg, {conversationId: res.conversationId})
             const dir = 'resources/KyrinChanGEN6/impressions/data'
             const filename = `${e.sender.user_id}.json`
             const filepath = path.join(dir, filename)
-            fs.writeFileSync(filepath, JSON.stringify(resjson, null, 2));
+            fs.writeFileSync(filepath, resjson.text);
           }
           return
         }
@@ -1406,12 +1406,12 @@ export class chatgpt extends plugin {
         response = res.text;
         // 印象功能
         if (Config.Gen6Impressions) {
-          let msg = '请根据这段对话的内容总结一下你对"' + e.sender.nickname + '"，识别代码是"' + e.sender.user_id + '"的印象档案，包含在一个json文件里，结构为"' + Config.impressionStucture + '" 其中的数据具体为"' + Config.impressionDefinition + '"，整个文档需要严格按照json语法完成，确保能够解析。'
+          let msg = '请根据这段对话的内容总结一下你对"' + e.sender.nickname + '"，识别代码是"' + e.sender.user_id + '"的印象档案，包含在一个json文件里，结构为"' + Config.impressionStucture + '" 其中的数据具体为"' + Config.impressionDefinition + '"，回复应当只包含该文档的字符串形式json，而且需要严格按照json语法完成，确保能够解析。'
           let resjson = await client.sendMessage(msg, { conversationId: res.conversationId })
           const dir = 'resources/KyrinChanGEN6/impressions/data'
           const filename = `${e.sender.user_id}.json`
           const filepath = path.join(dir, filename)
-          fs.writeFileSync(filepath, JSON.stringify(resjson, null, 2));
+          fs.writeFileSync(filepath, resjson.text);
         }
       }
       if (useTTS) {
