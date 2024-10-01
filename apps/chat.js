@@ -1356,7 +1356,7 @@ export class chatgpt extends plugin {
               debug: Config.debug
             })
             if (fs.existsSync(filepath)) {
-              let beforejson = fs.readFile(filepath, 'utf8');
+              let beforejson = fs.readFile(filepath);
               let msg = '请根据这段对话的内容以凯琳酱的设定来看一下这份印象档案，它包含在一个json格式的字符串里 "' + beforejson + '" 其中的数据具体为"' + Config.impressionDefinition + '"，要根据凯琳酱的人设和上下文判断有没有需要修改或追加的内容，回复应当只包含该文档的字符串形式json，而且需要严格按照json语法完成，以确保能够解析。'
               let resjson = await summaryclient.sendMessage(msg, { conversationId: res.conversationId })
               let jsonObject = JSON.parse(removeJsonTags(resjson.text));
@@ -1430,7 +1430,7 @@ export class chatgpt extends plugin {
           let userjson = "";
           // 检查文件是否存在
           if (fs.existsSync(filepath)) {
-            userjson = fs.readFile(filepath, 'utf8');
+            userjson = fs.readFile(filepath);
           } else {
             logger.info(`未找到 ${e.sender.user_id} 的档案，也许是没有生成。。`)
             userjson = e.sender.nickname;
