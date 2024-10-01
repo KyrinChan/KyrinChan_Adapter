@@ -1346,7 +1346,7 @@ export class chatgpt extends plugin {
             const dir = 'resources/KyrinChanGEN6/impressions/data'
             const filename = `${e.sender.user_id}.json`
             const filepath = path.join(dir, filename)
-            fs.writeFileSync(filepath, resjson);
+            fs.writeFileSync(filepath, JSON.stringify(resjson, null, 2));
           }
           return
         }
@@ -1411,7 +1411,7 @@ export class chatgpt extends plugin {
           const dir = 'resources/KyrinChanGEN6/impressions/data'
           const filename = `${e.sender.user_id}.json`
           const filepath = path.join(dir, filename)
-          fs.writeFileSync(filepath, resjson);
+          fs.writeFileSync(filepath, JSON.stringify(resjson, null, 2));
         }
       }
       if (useTTS) {
