@@ -1397,6 +1397,18 @@ export class chatgpt extends plugin {
           }
         })
       }
+
+      function removeJsonTags(inputString) {
+        const startTag = '```json';
+        const endTag = '```';
+
+        if (inputString.startsWith(startTag) && inputString.endsWith(endTag)) {
+          return inputString.slice(startTag.length, -endTag.length).trim();
+        } else {
+          return inputString;
+        }
+      }
+      
       // 处理内容和引用中的图片
       const regex = /\b((?:https?|ftp|file):\/\/[-a-zA-Z0-9+&@#\/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#\/%=~_|])/g
       let responseUrls = response.match(regex)
@@ -2228,18 +2240,6 @@ export class chatgpt extends plugin {
       async function gm(id) {
         return await getMessageById(id, 'QWEN')
       }
-
-      function removeJsonTags(inputString) {
-        const startTag = '```json';
-        const endTag = '```';
-
-        if (inputString.startsWith(startTag) && inputString.endsWith(endTag)) {
-          return inputString.slice(startTag.length, -endTag.length).trim();
-        } else {
-          return inputString;
-        }
-      }
-
 
       let opts = {
         apiKey: Config.qwenApiKey,
