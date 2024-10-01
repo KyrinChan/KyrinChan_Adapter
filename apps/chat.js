@@ -1328,18 +1328,16 @@ export class chatgpt extends plugin {
           })
           // 档案前馈
           let userjson = "";
-          if (Config.Gen6Impressions) {
-            const dir = 'resources/KyrinChanGEN6/impressions/data'
-            const filename = `${e.sender.user_id}.json`
-            const filepath = path.join(dir, filename)
-            // 检查文件是否存在
-            if (fs.existsSync(filepath)) {
-              userjson = fs.readFile(filepath);
-            } else {
-              logger.info(`未找到 ${e.sender.user_id} 的档案，也许是没有生成。。`)
-              userjson = e.sender.nickname;
-            }
+          if (fs.existsSync(filepath)) {
+            fs.readFile(filepath, 'utf8', (err, data) => {
+              if (err) {
+                logger.warn('读取文件时出错:', err)
+                return;
+              }
+              userjson = data;
+            });
           } else {
+            logger.info(`未找到 ${e.sender.user_id} 的档案，也许是没有生成。。`)
             userjson = e.sender.nickname;
           }
           let msg = '请根据这段设定为这段对话生成一个符合凯琳酱设定且自然的回复："' + Config.standaloneGen6Settings + '"，和你对话的人是"' + userjson + '"，对话上文是"' + prompt + '" 要尽可能地自然而有趣。'
@@ -1374,7 +1372,7 @@ export class chatgpt extends plugin {
           }
           return
         }
-        else{
+        else {
           const errormsg = getRandomErrorMessage();
           await this.reply(errormsg, true, { recallMsg: 15 })
           return false
@@ -1432,7 +1430,13 @@ export class chatgpt extends plugin {
           const filepath = path.join(dir, filename)
           // 检查文件是否存在
           if (fs.existsSync(filepath)) {
-            userjson = fs.readFile(filepath);
+            fs.readFile(filepath, 'utf8', (err, data) => {
+              if (err) {
+                logger.warn('读取文件时出错:', err)
+                return;
+              }
+              userjson = data;
+            });
           } else {
             logger.info(`未找到 ${e.sender.user_id} 的档案，也许是没有生成。。`)
             userjson = e.sender.nickname;
@@ -2237,7 +2241,7 @@ export class chatgpt extends plugin {
           return inputString;
         }
       }
-    
+
 
       let opts = {
         apiKey: Config.qwenApiKey,
