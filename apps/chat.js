@@ -1334,13 +1334,8 @@ export class chatgpt extends plugin {
             const filepath = path.join(dir, filename)
             // 检查文件是否存在
             if (fs.existsSync(filepath)) {
-              fs.readFile(filepath, 'utf8', (err, data) => {
-                if (err) {
-                  logger.warn('读取文件时出错:', err)
-                  return;
-                }
-                userjson = data;
-              });
+              data = await fs.readFile(filepath, 'utf8');
+              userjson = data;
             } else {
               logger.info(`未找到 ${e.sender.user_id} 的档案，也许是没有生成。。`)
               userjson = e.sender.nickname;
@@ -1350,7 +1345,7 @@ export class chatgpt extends plugin {
           }
           let msg = '请根据这段设定为这段对话生成一个符合凯琳酱设定且自然的回复："' + Config.standaloneGen6Settings + '"，和你对话的人是"' + userjson + '"，对话上文是"' + prompt + '" 要尽可能地自然而有趣。'
           let res = await client.sendMessage(msg, "")
-          logger.info(`GEN6特殊回复成功: ${res.text} ${userjson}`)
+          logger.info(`GEN6特殊回复成功: ${res.text}`)
           response = res.text;
           await this.renderImage(e, use, response, prompt, "", "", "", "", "")
           // 印象功能
@@ -1457,13 +1452,8 @@ export class chatgpt extends plugin {
           const filepath = path.join(dir, filename)
           // 检查文件是否存在
           if (fs.existsSync(filepath)) {
-            fs.readFile(filepath, 'utf8', (err, data) => {
-              if (err) {
-                logger.warn('读取文件时出错:', err)
-                return;
-              }
-              userjson = data;
-            });
+            data = await fs.readFile(filepath, 'utf8');
+            userjson = data;
           } else {
             logger.info(`未找到 ${e.sender.user_id} 的档案，也许是没有生成。。`)
             userjson = e.sender.nickname;
@@ -1473,7 +1463,7 @@ export class chatgpt extends plugin {
         }
         let msg = '以下是一段对话的回复，"' + response + '" ，请将它变得更加风格化，更符合设定且更加自然，具体设定为"' + Config.enhanceGen6Settings + '"，和你对话的人是"' + userjson + '"，同时依据对话上文"' + prompt + '"适当进行修改，使其更加符合凯琳酱的设定。仅输出修改后的回复。'
         let res = await client.sendMessage(msg, "")
-        logger.info(`增强回复成功: ${response} ${userjson}`)
+        logger.info(`增强回复成功: ${response}`)
         response = res.text;
         // 印象功能
         if (Config.Gen6Impressions) {
