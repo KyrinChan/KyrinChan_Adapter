@@ -1328,16 +1328,24 @@ export class chatgpt extends plugin {
           })
           // 档案前馈
           let userjson = "";
-          if (fs.existsSync(filepath)) {
-            fs.readFile(filepath, 'utf8', (err, data) => {
-              if (err) {
-                logger.warn('读取文件时出错:', err)
-                return;
-              }
-              userjson = data;
-            });
+          if (Config.Gen6Impressions) {
+            const dir = 'resources/KyrinChanGEN6/impressions/data'
+            const filename = `${e.sender.user_id}.json`
+            const filepath = path.join(dir, filename)
+            // 检查文件是否存在
+            if (fs.existsSync(filepath)) {
+              fs.readFile(filepath, 'utf8', (err, data) => {
+                if (err) {
+                  logger.warn('读取文件时出错:', err)
+                  return;
+                }
+                userjson = data;
+              });
+            } else {
+              logger.info(`未找到 ${e.sender.user_id} 的档案，也许是没有生成。。`)
+              userjson = e.sender.nickname;
+            }
           } else {
-            logger.info(`未找到 ${e.sender.user_id} 的档案，也许是没有生成。。`)
             userjson = e.sender.nickname;
           }
           let msg = '请根据这段设定为这段对话生成一个符合凯琳酱设定且自然的回复："' + Config.standaloneGen6Settings + '"，和你对话的人是"' + userjson + '"，对话上文是"' + prompt + '" 要尽可能地自然而有趣。'
