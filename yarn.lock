@@ -476,6 +476,66 @@
     semver "^7.3.5"
     tar "^6.1.11"
 
+"@node-rs/jieba-android-arm-eabi@1.7.0":
+  version "1.7.0"
+  resolved "https://registry.npmmirror.com/@node-rs/jieba-android-arm-eabi/-/jieba-android-arm-eabi-1.7.0.tgz"
+  integrity sha512-XF4OYcZCyDiBK+jm1Zmt2o+xEO7K2K5OvUC3MTc9jd3Lwvy3EdHp8tpGvEp8PxfVFe2/JxNzX4OQQQP3Dhmk9A==
+
+"@node-rs/jieba-android-arm64@1.7.0":
+  version "1.7.0"
+  resolved "https://registry.npmmirror.com/@node-rs/jieba-android-arm64/-/jieba-android-arm64-1.7.0.tgz"
+  integrity sha512-9oWwFVr/37T89WC+jjiI9A6u0zUJNTJl5ZC4CMxX45MVMokWI7bBXU7t7qBmMdFBzj+OFwDd3sm1fh4vl7NSWA==
+
+"@node-rs/jieba-darwin-arm64@1.7.0":
+  version "1.7.0"
+  resolved "https://registry.npmmirror.com/@node-rs/jieba-darwin-arm64/-/jieba-darwin-arm64-1.7.0.tgz"
+  integrity sha512-9gBuxJCNITNI/gU5l8eeVGQ9MAf0BV86lfeo9TeU61vJCy6sqyx26wFMLODQgLNdiMP+q/fZme/G0hfZUjfPVA==
+
+"@node-rs/jieba-darwin-x64@1.7.0":
+  version "1.7.0"
+  resolved "https://registry.npmmirror.com/@node-rs/jieba-darwin-x64/-/jieba-darwin-x64-1.7.0.tgz"
+  integrity sha512-FFUSMY4tl0Prpxa1SHy7Yzze2KfV/bZzccpO5nd+a8zCKbiX6gVkJ89FfxSAD2QrXUGkZvJYiPmu5nkZItqRZQ==
+
+"@node-rs/jieba-freebsd-x64@1.7.0":
+  version "1.7.0"
+  resolved "https://registry.npmmirror.com/@node-rs/jieba-freebsd-x64/-/jieba-freebsd-x64-1.7.0.tgz"
+  integrity sha512-QFz2pz0Br+621QbKkgQPqTn90j1kcCD9jaI++qTLNHJGlWLRn6sFoAjb+jQEQEy9aE7VqfIV56eaVcCoU5VO2w==
+
+"@node-rs/jieba-linux-arm-gnueabihf@1.7.0":
+  version "1.7.0"
+  resolved "https://registry.npmmirror.com/@node-rs/jieba-linux-arm-gnueabihf/-/jieba-linux-arm-gnueabihf-1.7.0.tgz"
+  integrity sha512-kHJxO2sd7gMKqI1YS5DjABEcRwRemaCtgbKSuUqEaHGmUz9nAaUF6FSY8U4rXwr7HXt+kQa4NgyYDjgz+Pscrw==
+
+"@node-rs/jieba-linux-arm64-gnu@1.7.0":
+  version "1.7.0"
+  resolved "https://registry.npmmirror.com/@node-rs/jieba-linux-arm64-gnu/-/jieba-linux-arm64-gnu-1.7.0.tgz"
+  integrity sha512-3qoCV9pF6llPBGDMu7K8JdHjI10WPkrq6P2gpZESqekcE4DatV6DcU9FWR+QL7MK/7meoE3/Zhjm7OK+qBd8gg==
+
+"@node-rs/jieba-linux-arm64-musl@1.7.0":
+  version "1.7.0"
+  resolved "https://registry.npmmirror.com/@node-rs/jieba-linux-arm64-musl/-/jieba-linux-arm64-musl-1.7.0.tgz"
+  integrity sha512-xv6hvzOV7iTCq7mM8SWhC3zEk6CqmBwhOSlfbb3gvPkc4U1UA1hmvcrD7oO5Qn+U+nuswysGCdVU6Z5AypLDfg==
+
+"@node-rs/jieba-linux-x64-gnu@1.7.0":
+  version "1.7.0"
+  resolved "https://registry.npmmirror.com/@node-rs/jieba-linux-x64-gnu/-/jieba-linux-x64-gnu-1.7.0.tgz"
+  integrity sha512-NpelWidMSNLoFTw+ov3y5jhJZjapHwEnh0Fyfm/7mvqkdwzVyedqNj22etRGum+nsAosMotCUWUznIMAD075gQ==
+
+"@node-rs/jieba-linux-x64-musl@1.7.0":
+  version "1.7.0"
+  resolved "https://registry.npmmirror.com/@node-rs/jieba-linux-x64-musl/-/jieba-linux-x64-musl-1.7.0.tgz"
+  integrity sha512-yG4F8sy+fW4RbhyKXmEMT/JGuQuKH0TGymCEGYgT0km2I60iys63jWf2VTzCtrx583wxN5XoHv5HN60nhtIBtw==
+
+"@node-rs/jieba-win32-arm64-msvc@1.7.0":
+  version "1.7.0"
+  resolved "https://registry.npmmirror.com/@node-rs/jieba-win32-arm64-msvc/-/jieba-win32-arm64-msvc-1.7.0.tgz"
+  integrity sha512-R6l/BSMs6R6BwpZS6DIDZuAEjUIPdAHgyi+xptP3mICjm6U+GMsvsRTeZkIJ7a/yzYUfqvz54VpQsfE5f0psBQ==
+
+"@node-rs/jieba-win32-ia32-msvc@1.7.0":
+  version "1.7.0"
+  resolved "https://registry.npmmirror.com/@node-rs/jieba-win32-ia32-msvc/-/jieba-win32-ia32-msvc-1.7.0.tgz"
+  integrity sha512-FwibbuizEjzom02K2JM2T8tL0VlxW5xGDDy3L3dgx46xIGE85PwGYjgju+eDt4UODgxDsxGC4DUMMZf3XvCc7A==
+
 "@node-rs/jieba-win32-x64-msvc@1.7.0":
   version "1.7.0"
   resolved "https://registry.npmmirror.com/@node-rs/jieba-win32-x64-msvc/-/jieba-win32-x64-msvc-1.7.0.tgz"
@@ -1187,6 +1247,52 @@ cfb@~1.2.1:
     adler-32 "~1.3.0"
     crc-32 "~1.2.0"
 
+"chatgpt-plugin@file:":
+  resolved "file:"
+  dependencies:
+    "@azure/openai" "^1.0.0-beta.1"
+    "@fastify/cookie" "^8.3.0"
+    "@fastify/cors" "^8.2.0"
+    "@fastify/static" "^6.9.0"
+    "@fastify/websocket" "^8.2.0"
+    "@google/generative-ai" "^0.1.1"
+    "@slack/bolt" "^3.13.2"
+    asn1.js "^5.0.0"
+    chatgpt-plugin "file:"
+    diff "^5.1.0"
+    emoji-strip "^1.0.1"
+    eventsource "^2.0.2"
+    eventsource-parser "^1.0.0"
+    fastify "^4.18.0"
+    form-data "^4.0.0"
+    https-proxy-agent "7.0.1"
+    js-tiktoken "^1.0.5"
+    keyv "^4.5.3"
+    keyv-file "^0.2.0"
+    lodash "^4.17.21"
+    microsoft-cognitiveservices-speech-sdk "1.32.0"
+    node-fetch "^3.3.1"
+    openai "^3.2.1"
+    p-timeout "^6.1.2"
+    quick-lru "6.1.1"
+    random "^4.1.0"
+    undici "^5.21.0"
+    uuid "^9.0.0"
+    ws "^8.13.0"
+  optionalDependencies:
+    "@node-rs/jieba" "^1.6.2"
+    cycletls "^1.0.21"
+    jimp "^0.22.7"
+    mammoth "^1.6.0"
+    node-silk "^0.1.0"
+    nodejs-pptx "^1.2.4"
+    pdfjs-dist "^3.11.174"
+    puppeteer-extra "^3.3.6"
+    puppeteer-extra-plugin-recaptcha "^3.6.8"
+    puppeteer-extra-plugin-stealth "^2.11.2"
+    sharp "^0.32.3"
+    xlsx "^0.18.5"
+
 chownr@^1.1.1:
   version "1.1.4"
   resolved "https://registry.npmmirror.com/chownr/-/chownr-1.1.4.tgz"
@@ -1379,11 +1485,6 @@ define-properties@^1.1.3, define-properties@^1.1.4, define-properties@^1.2.0:
   dependencies:
     has-property-descriptors "^1.0.0"
     object-keys "^1.1.1"
-
-delay@^6.0.0:
-  version "6.0.0"
-  resolved "https://registry.npmjs.org/delay/-/delay-6.0.0.tgz"
-  integrity sha512-2NJozoOHQ4NuZuVIr5CWd0iiLVIRSDepakaovIN+9eIDHEhdCAEvSy2cuf1DCrPPQLvHmbqTHODlhHg8UCy4zw==
 
 delayed-stream@~1.0.0:
   version "1.0.0"

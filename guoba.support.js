@@ -481,6 +481,10 @@ export function supportGuoba () {
           component: 'Switch'
         },
         {
+          label: 'GEN6 配置文档',
+          component: 'Divider'
+        },
+        {
           field: 'enableGen6',
           label: '启用GEN6系列功能',
           bottomHelpMessage: '启用第六代功能套组（实验性',
@@ -488,20 +492,38 @@ export function supportGuoba () {
         },
         {
           field: 'enhanceGen6Settings',
-          label: 'GEN6的增强回复设定',
+          label: '增强回复设定',
           bottomHelpMessage: '回复增强，使用1.5Flash',
           component: 'InputTextArea'
         },
         {
           field: 'Gen6Standalone',
-          label: 'GEN6独立回复',
+          label: '自主回复',
           bottomHelpMessage: '生成更自然更好的回复（实验性',
           component: 'Switch'
         },
         {
           field: 'standaloneGen6Settings',
-          label: 'GEN6的自主回复设定',
+          label: '自主回复设定',
           bottomHelpMessage: '独立生成回复，使用1.5Pro',
+          component: 'InputTextArea'
+        },
+        {
+          field: 'Gen6Impressions',
+          label: '印象档案',
+          bottomHelpMessage: '启用印象档案相关功能',
+          component: 'Switch'
+        },
+        {
+          field: 'impressionStucture',
+          label: '印象档案结构',
+          bottomHelpMessage: '印象档案存储的结构（json格式）',
+          component: 'InputTextArea'
+        },
+        {
+          field: 'impressionDefinition',
+          label: '档案释义',
+          bottomHelpMessage: '解释印象档案各部分作用的提示词',
           component: 'InputTextArea'
         },
         {
