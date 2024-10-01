@@ -1333,8 +1333,16 @@ export class chatgpt extends plugin {
           await this.renderImage(e, use, response, prompt, "", "", "", "", "")
           // 印象功能
           if (Config.Gen6Impressions) {
-            let msg = '请再根据上文中的内容总结一下你对"' + e.sender.nickname + '"，识别代码是"' + e.sender.user_id + '"的印象档案，包含在一个json文件里，结构为"' + Config.impressionStucture + '" 其中的数据具体为"' + Config.impressionDefinition + '"，整个文档需要严格按照json语法完成，确保能够解析。'
-            let resjson = await client.sendMessage(msg, {conversationId: res.conversationId})
+            let summaryclient = new CustomGoogleGeminiClient({
+              e,
+              userId: e.sender.user_id,
+              key: Config.geminiKey,
+              model: 'gemini-1.5-flash-latest',
+              baseUrl: Config.geminiBaseUrl,
+              debug: Config.debug
+            })
+            let msg = '请根据这段对话的内容总结一下你对"' + e.sender.nickname + '"，识别代码是"' + e.sender.user_id + '"的印象档案，包含在一个json文件里，结构为"' + Config.impressionStucture + '" 其中的数据具体为"' + Config.impressionDefinition + '"，整个文档需要严格按照json语法完成，确保能够解析。'
+            let resjson = await summaryclient.sendMessage(msg, {conversationId: res.conversationId})
             const dir = 'resources/KyrinChanGEN6/impressions/data'
             const filename = `${e.sender.user_id}.json`
             const filepath = path.join(dir, filename)
@@ -1396,6 +1404,15 @@ export class chatgpt extends plugin {
         let res = await client.sendMessage(msg, "")
         logger.info(`增强回复成功: ${response}`)
         response = res.text;
+        // 印象功能
+        if (Config.Gen6Impressions) {
+          let msg = '请根据这段对话的内容总结一下你对"' + e.sender.nickname + '"，识别代码是"' + e.sender.user_id + '"的印象档案，包含在一个json文件里，结构为"' + Config.impressionStucture + '" 其中的数据具体为"' + Config.impressionDefinition + '"，整个文档需要严格按照json语法完成，确保能够解析。'
+          let resjson = await client.sendMessage(msg, { conversationId: res.conversationId })
+          const dir = 'resources/KyrinChanGEN6/impressions/data'
+          const filename = `${e.sender.user_id}.json`
+          const filepath = path.join(dir, filename)
+          fs.writeFileSync(filepath, resjson);
+        }
       }
       if (useTTS) {
         // 缓存数据
@@ -1540,6 +1557,8 @@ export class chatgpt extends plugin {
           // 这里是否还需要上传到缓存服务器呐？多半是代理服务器的问题，本地也修不了，应该不用吧。
           // await this.renderImage(e, use, `捏捏捏，凯琳云组网似乎出什么问题了 Errlog: \n \`\`\`${err?.message || err?.data?.message || (typeof (err) === 'object' ? JSON.stringify(err) : err) || '未能确认错误类型！'}\`\`\``, prompt)
           await this.renderImage(e, use, `捏捏捏，凯琳云组网似乎出什么问题了，请稍后再试试看！`, prompt)
+          logger.warn('出现了错误！！')
+          logger.error(err)
         }
       }
     }

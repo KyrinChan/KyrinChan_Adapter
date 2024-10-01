@@ -146,7 +146,7 @@ export class CustomGoogleGeminiClient extends GoogleGeminiClient {
         }
       ],
       generationConfig: {
-        maxOutputTokens: 1000,
+        maxOutputTokens: 2500,
         temperature: 0.9,
         topP: 0.95,
         topK: 16
