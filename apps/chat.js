@@ -1334,7 +1334,7 @@ export class chatgpt extends plugin {
             const filepath = path.join(dir, filename)
             // 检查文件是否存在
             if (fs.existsSync(filepath)) {
-              data = await fs.readFile(filepath, 'utf8');
+              data = await fs.readFileSync(filepath, 'utf8');
               userjson = data;
             } else {
               logger.info(`未找到 ${e.sender.user_id} 的档案，也许是没有生成。。`)
@@ -1452,7 +1452,7 @@ export class chatgpt extends plugin {
           const filepath = path.join(dir, filename)
           // 检查文件是否存在
           if (fs.existsSync(filepath)) {
-            data = await fs.readFile(filepath, 'utf8');
+            data = await fs.readFileSync(filepath, 'utf8');
             userjson = data;
           } else {
             logger.info(`未找到 ${e.sender.user_id} 的档案，也许是没有生成。。`)
