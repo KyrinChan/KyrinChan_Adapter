@@ -1326,7 +1326,21 @@ export class chatgpt extends plugin {
             baseUrl: Config.geminiBaseUrl,
             debug: Config.debug
           })
-          let msg = '请根据这段设定为这段对话生成一个符合凯琳酱设定且自然的回复："' + Config.standaloneGen6Settings + '"，和你对话的人是"' + e.sender.nickname + '"，对话上文是"' + prompt + '" 要尽可能地自然而有趣。'
+          // 档案前馈
+          if (Config.Gen6Impressions) {
+            const dir = 'resources/KyrinChanGEN6/impressions/data'
+            const filename = `${e.sender.user_id}.json`
+            const filepath = path.join(dir, filename)
+            let userjson = "";
+            // 检查文件是否存在
+            if (fs.existsSync(filepath)) {
+              userjson = fs.readFile(filepath, 'utf8');
+            } else {
+              logger.info(`未找到 ${e.sender.user_id} 的档案，也许是没有生成。。`)
+              userjson = e.sender.nickname;
+            }
+          }
+          let msg = '请根据这段设定为这段对话生成一个符合凯琳酱设定且自然的回复："' + Config.standaloneGen6Settings + '"，和你对话的人是"' + userjson + '"，对话上文是"' + prompt + '" 要尽可能地自然而有趣。'
           let res = await client.sendMessage(msg, "")
           logger.info(`GEN6特殊回复成功: ${res.text}`)
           response = res.text;
@@ -1341,12 +1355,20 @@ export class chatgpt extends plugin {
               baseUrl: Config.geminiBaseUrl,
               debug: Config.debug
             })
-            let msg = '请根据这段对话的内容总结一下你对"' + e.sender.nickname + '"，识别代码是"' + e.sender.user_id + '"的印象档案，包含在一个json文件里，结构为"' + Config.impressionStucture + '" 其中的数据具体为"' + Config.impressionDefinition + '"，回复应当只包含该文档的字符串形式json，而且需要严格按照json语法完成，不需要外加markdown代码块，以确保能够解析。'
-            let resjson = await summaryclient.sendMessage(msg, {conversationId: res.conversationId})
-            const dir = 'resources/KyrinChanGEN6/impressions/data'
-            const filename = `${e.sender.user_id}.json`
-            const filepath = path.join(dir, filename)
-            fs.writeFileSync(filepath, resjson.text);
+            if (fs.existsSync(filepath)) {
+              let beforejson = fs.readFile(filepath, 'utf8');
+              let msg = '请根据这段对话的内容以凯琳酱的设定来看一下这份印象档案，它包含在一个json格式的字符串里 "' + beforejson + '" 其中的数据具体为"' + Config.impressionDefinition + '"，要根据凯琳酱的人设和上下文判断有没有需要修改或追加的内容，回复应当只包含该文档的字符串形式json，而且需要严格按照json语法完成，以确保能够解析。'
+              let resjson = await summaryclient.sendMessage(msg, { conversationId: res.conversationId })
+              let jsonObject = JSON.parse(removeJsonTags(resjson.text));
+              const currentDate = new Date();
+              const formattedDate = currentDate.toISOString().replace('T', ' ').split('.')[0].replace(/-/g, '/');
+              jsonObject.lastseen = formattedDate;
+              fs.writeFileSync(filepath, JSON.stringify(jsonObject, null, 2));
+            } else {
+              let msg = '请根据这段对话的内容总结一下你对"' + e.sender.nickname + '"，识别代码是"' + e.sender.user_id + '"的印象档案，包含在一个json文件里，结构为"' + Config.impressionStucture + '" 其中的数据具体为"' + Config.impressionDefinition + '"，回复应当只包含该文档的字符串形式json，而且需要严格按照json语法完成，以确保能够解析。'
+              let resjson = await summaryclient.sendMessage(msg, { conversationId: res.conversationId })
+              fs.writeFileSync(filepath, removeJsonTags(resjson.text));
+            }
           }
           return
         }
@@ -1400,18 +1422,44 @@ export class chatgpt extends plugin {
           baseUrl: Config.geminiBaseUrl,
           debug: Config.debug
         })
+        // 档案前馈
+        if (Config.Gen6Impressions) {
+          const dir = 'resources/KyrinChanGEN6/impressions/data'
+          const filename = `${e.sender.user_id}.json`
+          const filepath = path.join(dir, filename)
+          let userjson = "";
+          // 检查文件是否存在
+          if (fs.existsSync(filepath)) {
+            userjson = fs.readFile(filepath, 'utf8');
+          } else {
+            logger.info(`未找到 ${e.sender.user_id} 的档案，也许是没有生成。。`)
+            userjson = e.sender.nickname;
+          }
+        }
         let msg = '以下是一段对话的回复，"' + response + '" ，请将它变得更加风格化，更符合设定且更加自然，具体设定为"' + Config.enhanceGen6Settings + '"，和你对话的人是"' + e.sender.nickname + '"，同时依据对话上文"' + prompt + '"适当进行修改，使其更加符合凯琳酱的设定。仅输出修改后的回复。'
         let res = await client.sendMessage(msg, "")
         logger.info(`增强回复成功: ${response}`)
         response = res.text;
         // 印象功能
         if (Config.Gen6Impressions) {
-          let msg = '请根据这段对话的内容总结一下你对"' + e.sender.nickname + '"，识别代码是"' + e.sender.user_id + '"的印象档案，包含在一个json文件里，结构为"' + Config.impressionStucture + '" 其中的数据具体为"' + Config.impressionDefinition + '"，回复应当只包含该文档的字符串形式json，而且需要严格按照json语法完成，不需要外加markdown代码块，以确保能够解析。'
-          let resjson = await client.sendMessage(msg, { conversationId: res.conversationId })
           const dir = 'resources/KyrinChanGEN6/impressions/data'
           const filename = `${e.sender.user_id}.json`
           const filepath = path.join(dir, filename)
-          fs.writeFileSync(filepath, resjson.text);
+          // 检查文件是否存在
+          if (fs.existsSync(filepath)) {
+            let beforejson = fs.readFile(filePath);
+            let msg = '请根据这段对话的内容以凯琳酱的设定来看一下这份印象档案，它包含在一个json格式的字符串里 "' + beforejson + '" 其中的数据具体为"' + Config.impressionDefinition + '"，要根据凯琳酱的人设和上下文判断有没有需要修改或追加的内容，回复应当只包含该文档的字符串形式json，而且需要严格按照json语法完成，以确保能够解析。'
+            let resjson = await client.sendMessage(msg, { conversationId: res.conversationId })
+            let jsonObject = JSON.parse(removeJsonTags(resjson.text));
+            const currentDate = new Date();
+            const formattedDate = currentDate.toISOString().replace('T', ' ').split('.')[0].replace(/-/g, '/');
+            jsonObject.lastseen = formattedDate;
+            fs.writeFileSync(filepath, JSON.stringify(jsonObject, null, 2));
+          } else {
+            let msg = '请根据这段对话的内容总结一下你对"' + e.sender.nickname + '"，识别代码是"' + e.sender.user_id + '"的印象档案，包含在一个json文件里，结构为"' + Config.impressionStucture + '" 其中的数据具体为"' + Config.impressionDefinition + '"，回复应当只包含该文档的字符串形式json，而且需要严格按照json语法完成，以确保能够解析。'
+            let resjson = await client.sendMessage(msg, { conversationId: res.conversationId })
+            fs.writeFileSync(filepath, removeJsonTags(resjson.text));
+          }
         }
       }
       if (useTTS) {
@@ -2174,6 +2222,18 @@ export class chatgpt extends plugin {
       async function gm(id) {
         return await getMessageById(id, 'QWEN')
       }
+
+      function removeJsonTags(inputString) {
+        const startTag = '```json';
+        const endTag = '```';
+
+        if (inputString.startsWith(startTag) && inputString.endsWith(endTag)) {
+          return inputString.slice(startTag.length, -endTag.length).trim();
+        } else {
+          return inputString;
+        }
+      }
+    
 
       let opts = {
         apiKey: Config.qwenApiKey,
