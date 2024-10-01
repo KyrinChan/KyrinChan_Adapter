@@ -1358,6 +1358,9 @@ export class chatgpt extends plugin {
               baseUrl: Config.geminiBaseUrl,
               debug: Config.debug
             })
+            const dir = 'resources/KyrinChanGEN6/impressions/data'
+            const filename = `${e.sender.user_id}.json`
+            const filepath = path.join(dir, filename)
             if (fs.existsSync(filepath)) {
               let msg = '请根据这段对话的内容以凯琳酱的设定来修订一下这份印象档案，它包含在一个json格式的字符串里 "' + userjson + '" 其中的数据具体为"' + Config.impressionDefinition + '"，要根据凯琳酱的人设和上下文判断有没有需要修改或追加的内容，并对其进行修改或增补，回复应当只包含该文档的字符串形式json，而且需要严格按照json语法完成，以确保能够解析。'
               let resjson = await summaryclient.sendMessage(msg, { conversationId: res.conversationId })
