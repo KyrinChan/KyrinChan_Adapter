@@ -1639,7 +1639,8 @@ export class chatgpt extends plugin {
         } else {
           // 这里是否还需要上传到缓存服务器呐？多半是代理服务器的问题，本地也修不了，应该不用吧。
           // await this.renderImage(e, use, `捏捏捏，凯琳云组网似乎出什么问题了 Errlog: \n \`\`\`${err?.message || err?.data?.message || (typeof (err) === 'object' ? JSON.stringify(err) : err) || '未能确认错误类型！'}\`\`\``, prompt)
-          await this.renderImage(e, use, `捏捏捏，凯琳云组网似乎出什么问题了，请稍后再试试看！`, prompt)
+          // await this.renderImage(e, use, `捏捏捏，凯琳云组网似乎出什么问题了，请稍后再试试看！`, prompt)
+          await this.reply('捏捏捏，凯琳云组网似乎出什么问题了，请稍后再试试看！', true, { recallMsg: e.isGroup ? 10 : 0 })
           logger.warn('出现了错误！！')
           logger.error(err)
         }
