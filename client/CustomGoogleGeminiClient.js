@@ -151,12 +151,12 @@ export class CustomGoogleGeminiClient extends GoogleGeminiClient {
         temperature: 0.9,
         topP: 0.95,
         topK: 16
-      },
-      tools: [
-        {
-          functionDeclarations: this.tools.map(tool => tool.function())
-        }
-      ]
+      }
+      // tools: [
+      //   {
+      //     functionDeclarations: this.tools.map(tool => tool.function())
+      //   }
+      // ]
     }
     body.contents.forEach(content => {
       delete content.id
