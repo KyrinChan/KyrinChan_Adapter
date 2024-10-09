@@ -120,7 +120,8 @@ export class CustomGoogleGeminiClient extends GoogleGeminiClient {
       })
     }
     history.push(_.cloneDeep(thisMessage))
-    let url = `${this.baseUrl}/v1beta/models/${this.model}:generateContent?key=${this._key}`
+    // let url = `${this.baseUrl}/v1beta/models/${this.model}:generateContent?key=${this._key}`
+    let url = `${this.baseUrl}/v1/models/${this.model}:generateContent?key=${this._key}`
     let body = {
       // 不去兼容官方的简单格式了，直接用，免得function还要转换
       /**
