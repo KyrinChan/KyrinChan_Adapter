@@ -1353,13 +1353,13 @@ export class chatgpt extends plugin {
             // 检查文件是否存在
             if (fs.existsSync(filepath)) {
               userInfo = await fs.readFileSync(filepath, 'utf8');
-              system += '请生成一个关于接下来消息的符合凯琳酱设定的回复，和你对话的人的档案是"' + userInfo + '"，档案的结构为："' + Config.impressionDefinition + '"要尽可能地自然而有趣。'
+              system += '请生成一个关于接下来消息的符合凯琳酱设定的回复，和你对话的人的档案是"' + userInfo + '"，档案的结构为："' + Config.impressionDefinition + '"，要尽可能地自然而有趣，一定要是凯琳酱的第一人称哦！'
             } else {
               logger.info(`未找到 ${e.sender.user_id} 的档案，也许是没有生成。。`)
-              system += '请生成一个关于接下来消息的符合凯琳酱设定的回复，和你对话的人是"' + e.sender.nickname + '"，要尽可能地自然而有趣。'
+              system += '请生成一个关于接下来消息的符合凯琳酱设定的回复，和你对话的人是"' + e.sender.nickname + '"，要尽可能地自然而有趣，一定要是凯琳酱的第一人称哦！'
             }
           } else {
-            system += '请生成一个关于接下来消息的符合凯琳酱设定的回复，和你对话的人是"' + e.sender.nickname + '"，要尽可能地自然而有趣。'
+            system += '请生成一个关于接下来消息的符合凯琳酱设定的回复，和你对话的人是"' + e.sender.nickname + '"，，要尽可能地自然而有趣，一定要是凯琳酱的第一人称哦！'
           }
           // 处理附加图片
           const image = await getImg(e)
@@ -1546,7 +1546,7 @@ export class chatgpt extends plugin {
           option.image = buffer.toString('base64')
         }
         option.system = system
-        msg = '请以你，也就是凯琳酱的身份修改以下给定的回复，使其更符合设定且更加自然:"' + response + '",使其更加符合你的设定。'
+        msg = '请以你，也就是凯琳酱的身份修改以下给定的回复，使其符合凯琳酱的风格且更加自然:"' + response + '"，一定要是凯琳酱的第一人称哦！'
         let res = await client.sendMessage(msg, option)
         logger.info(`增强回复成功: ${response} ${userInfo}`)
         response = res.text;
