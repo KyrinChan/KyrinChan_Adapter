@@ -1525,7 +1525,7 @@ export class chatgpt extends plugin {
           // 检查文件是否存在
           if (fs.existsSync(filepath)) {
             userInfo = await fs.readFileSync(filepath, 'utf8');
-            system += '和凯琳酱你对话的人的档案是"' + userInfo + '"，档案的结构为："' + Config.impressionDefinition + '"，同时也可以参考对方的问题："' + prompt + '"'
+            system += '和凯琳酱你对话的人的档案是"' + userInfo + '"，档案的结构为："' + Config.impressionDefinition + '"，同时也可以参考对方的问题："' + prompt + '"，如果回复太短，可以适当的根据对方的问题进行继续回复哦。'
           } else {
             logger.info(`未找到 ${e.sender.user_id} 的档案，也许是没有生成。。`)
             system += '和凯琳酱你对话的人是"' + e.sender.nickname + '"，同时也可以参考对方的问题："' + prompt + '"'
