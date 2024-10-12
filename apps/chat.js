@@ -1318,7 +1318,7 @@ export class chatgpt extends plugin {
             await this.reply(errormsg, true, { recallMsg: 15 })
             return false
           }
-          let client = new CustomGoogleGeminiClient({
+          let standaloneclient = new CustomGoogleGeminiClient({
             e,
             userId: e.sender.user_id,
             key: Config.geminiKey,
@@ -1329,6 +1329,17 @@ export class chatgpt extends plugin {
           // 档案前馈
           let userInfo;
           let msg;
+          let system = Config.standaloneGen6Settings
+          let option = {
+            stream: false,
+            onProgress: (data) => {
+              if (Config.debug) {
+                logger.info(data)
+              }
+            },
+            parentMessageId: conversation.parentMessageId,
+            conversationId: conversation.conversationId
+          }
           if (Config.Gen6Impressions) {
             const dir = 'resources/KyrinChanGEN6/impressions/data'
             const filename = `${e.sender.user_id}.json`
@@ -1336,51 +1347,58 @@ export class chatgpt extends plugin {
             // 检查文件是否存在
             if (fs.existsSync(filepath)) {
               userInfo = await fs.readFileSync(filepath, 'utf8');
-              msg = '请根据这段设定为这段对话生成一个符合凯琳酱设定且自然的回复："' + Config.standaloneGen6Settings + '"，和你对话的人的档案是"' + userInfo + '"，档案的结构为："' + Config.impressionDefinition + '"，对话上文是"' + prompt + '" 要尽可能地自然而有趣。'
+              system += '请生成一个关于接下来消息的符合凯琳酱设定的回复，和你对话的人的档案是"' + userInfo + '"，档案的结构为："' + Config.impressionDefinition + '"要尽可能地自然而有趣。'
             } else {
               logger.info(`未找到 ${e.sender.user_id} 的档案，也许是没有生成。。`)
-              msg = '请根据这段设定为这段对话生成一个符合凯琳酱设定且自然的回复："' + Config.standaloneGen6Settings + '"，和你对话的人是"' + e.sender.nickname + '"，对话上文是"' + prompt + '" 要尽可能地自然而有趣。'
+              system += '请生成一个关于接下来消息的符合凯琳酱设定的回复，和你对话的人是"' + e.sender.nickname + '"，要尽可能地自然而有趣。'
             }
           } else {
-            msg = '请根据这段设定为这段对话生成一个符合凯琳酱设定且自然的回复："' + Config.standaloneGen6Settings + '"，和你对话的人是"' + e.sender.nickname + '"，对话上文是"' + prompt + '" 要尽可能地自然而有趣。'
+            system += '请生成一个关于接下来消息的符合凯琳酱设定的回复，和你对话的人是"' + e.sender.nickname + '"，要尽可能地自然而有趣。'
           }
-          let res = await client.sendMessage(msg, "")
+          option.system = system
+          msg = response
+          let res = await standaloneclient.sendMessage(msg, option)
           logger.info(`GEN6特殊回复成功: ${res.text} ${userInfo}`)
           response = res.text;
           await this.renderImage(e, use, response, prompt, "", "", "", "", "")
           // 印象功能
           if (Config.Gen6Impressions) {
-            let summaryclient = new CustomGoogleGeminiClient({
-              e,
-              userId: e.sender.user_id,
-              key: Config.geminiKey,
-              model: 'gemini-1.5-flash-latest',
-              baseUrl: Config.geminiBaseUrl,
-              debug: Config.debug
-            })
-            const dir = 'resources/KyrinChanGEN6/impressions/data'
-            const filename = `${e.sender.user_id}.json`
-            const filepath = path.join(dir, filename)
-            if (fs.existsSync(filepath)) {
-              let msg = '请根据这段对话的内容以凯琳酱的设定来修订一下这份印象档案，它包含在一个json格式的字符串里 "' + userInfo + '" 其中的数据具体为"' + Config.impressionDefinition + '"，要根据凯琳酱的人设和上下文判断有没有需要修改或追加的内容，并对其进行修改或增补，回复应当只包含该文档的字符串形式！而且需要严格按照json语法完成，以确保能够解析！'
-              let resjson = await summaryclient.sendMessage(msg, { conversationId: res.conversationId })
-              let jsonObject = JSON.parse(removeJsonTags(resjson.text));
-              const currentDate = new Date();
-              const utc8Date = new Date(currentDate.getTime() + 8 * 60 * 60 * 1000);
-              // 格式化日期
-              const formattedDate = utc8Date.toISOString().replace('T', ' ').split('.')[0].replace(/-/g, '/');
-              jsonObject.lastseen = formattedDate;
-              fs.writeFileSync(filepath, JSON.stringify(jsonObject, null, 2));
-            } else {
-              let msg = '请根据这段对话的内容总结一下你对"' + e.sender.nickname + '"，识别代码是"' + e.sender.user_id + '"的印象档案，包含在一个json字符串里，结构为"' + Config.impressionStucture + '" 其中的数据具体为"' + Config.impressionDefinition + '"，回复应当只包含该文档的字符串形式！而且需要严格按照json语法完成，以确保能够解析！'
-              let resjson = await summaryclient.sendMessage(msg, { conversationId: res.conversationId })
-              let jsonObject = JSON.parse(removeJsonTags(resjson.text));
-              const currentDate = new Date();
-              const utc8Date = new Date(currentDate.getTime() + 8 * 60 * 60 * 1000);
-              // 格式化日期
-              const formattedDate = utc8Date.toISOString().replace('T', ' ').split('.')[0].replace(/-/g, '/');
-              jsonObject.lastseen = formattedDate;
-              fs.writeFileSync(filepath, JSON.stringify(jsonObject, null, 2));
+            try {
+              let summaryclient = new CustomGoogleGeminiClient({
+                e,
+                userId: e.sender.user_id,
+                key: Config.geminiKey,
+                model: 'gemini-1.5-flash-latest',
+                baseUrl: Config.geminiBaseUrl,
+                debug: Config.debug
+              })
+              const dir = 'resources/KyrinChanGEN6/impressions/data'
+              const filename = `${e.sender.user_id}.json`
+              const filepath = path.join(dir, filename)
+              if (fs.existsSync(filepath)) {
+                let msg = '请根据这段对话的内容以凯琳酱的设定来修订一下这份印象档案，它包含在一个json格式的字符串里 "' + userInfo + '" 其中的数据具体为"' + Config.impressionDefinition + '"，要根据凯琳酱的人设和上下文判断有没有需要修改或追加的内容，并对其进行修改或增补，回复应当只包含该文档的字符串形式！而且需要严格按照json语法完成，以确保能够解析！'
+                let resjson = await summaryclient.sendMessage(msg, { conversationId: res.conversationId })
+                let jsonObject = JSON.parse(removeJsonTags(resjson.text));
+                const currentDate = new Date();
+                const utc8Date = new Date(currentDate.getTime() + 8 * 60 * 60 * 1000);
+                // 格式化日期
+                const formattedDate = utc8Date.toISOString().replace('T', ' ').split('.')[0].replace(/-/g, '/');
+                jsonObject.lastseen = formattedDate;
+                fs.writeFileSync(filepath, JSON.stringify(jsonObject, null, 2));
+              } else {
+                let msg = '请根据这段对话的内容总结一下你对"' + e.sender.nickname + '"，识别代码是"' + e.sender.user_id + '"的印象档案，包含在一个json字符串里，结构为"' + Config.impressionStucture + '" 其中的数据具体为"' + Config.impressionDefinition + '"，回复应当只包含该文档的字符串形式！而且需要严格按照json语法完成，以确保能够解析！'
+                let resjson = await summaryclient.sendMessage(msg, { conversationId: res.conversationId })
+                let jsonObject = JSON.parse(removeJsonTags(resjson.text));
+                const currentDate = new Date();
+                const utc8Date = new Date(currentDate.getTime() + 8 * 60 * 60 * 1000);
+                // 格式化日期
+                const formattedDate = utc8Date.toISOString().replace('T', ' ').split('.')[0].replace(/-/g, '/');
+                jsonObject.lastseen = formattedDate;
+                fs.writeFileSync(filepath, JSON.stringify(jsonObject, null, 2));
+              }
+            } catch (err) {
+              logger.warn('在更新档案的时候出现了错误啦！此份档案将不会被保存')
+              logger.error(err)
             }
           }
           return
@@ -1450,6 +1468,38 @@ export class chatgpt extends plugin {
         // 档案前馈
         let userInfo;
         let msg;
+        let system = Config.enhanceGen6Settings
+        let option = {
+          stream: false,
+          onProgress: (data) => {
+            if (Config.debug) {
+              logger.info(data)
+            }
+          },
+          parentMessageId: conversation.parentMessageId,
+          conversationId: conversation.conversationId
+        }
+        if (Config.enableGroupContext && e.isGroup) {
+          let chats = await getChatHistoryGroup(e, Config.groupContextLength)
+          const namePlaceholder = '[name]'
+          const defaultBotName = '凯琳酱'
+          const groupContextTip = Config.groupContextTip
+          let botName = e.isGroup ? (e.group.pickMember(getUin(e)).card || e.group.pickMember(getUin(e)).nickname) : e.bot.nickname
+          system = system.replaceAll(namePlaceholder, botName || defaultBotName) +
+            ((Config.enableGroupContext && e.group_id) ? groupContextTip : '')
+          system += 'Attention, you are currently chatting in a K2Chat group, the one who asks you now is' + `${e.sender.card || e.sender.nickname}(${e.sender.user_id}).`
+          system += `the group name is ${e.group.name || e.group_name}, group id is ${e.group_id}.`
+          system += `Your nickname is ${botName} in the group,`
+          if (chats) {
+            system += 'There is the conversation history in the group, you must chat according to the conversation history context"'
+            system += chats
+              .map(chat => {
+                let sender = chat.sender || {}
+                return `【${sender.card || sender.nickname}】(识别代码：${sender.user_id}, ${roleMap[sender.role] || '一般成员'}，${sender.area ? 'from ' + sender.area + ', ' : ''} ${sender.age} years old, 群头衔：${sender.title}, gender: ${sender.sex}, time：${formatDate(new Date(chat.time * 1000))}, messageId: ${chat.message_id}) 说：${chat.raw_message}`
+              })
+              .join('\n')
+          }
+        }
         if (Config.Gen6Impressions) {
           const dir = 'resources/KyrinChanGEN6/impressions/data'
           const filename = `${e.sender.user_id}.json`
@@ -1457,43 +1507,50 @@ export class chatgpt extends plugin {
           // 检查文件是否存在
           if (fs.existsSync(filepath)) {
             userInfo = await fs.readFileSync(filepath, 'utf8');
-            msg = '以下是一段对话的回复，"' + response + '" ，请将它变得更加风格化，更符合设定且更加自然，具体设定为"' + Config.enhanceGen6Settings + '"，和你对话的人的档案是"' + userInfo + '"，档案的结构为："' + Config.impressionDefinition + '"，同时依据对话上文"' + prompt + '"适当进行修改，使其更加符合凯琳酱的设定。仅输出修改后的回复。'
+            system += '以下是一段对话的回复，请将它变得更加风格化，更符合设定且更加自然，和你对话的人的档案是"' + userInfo + '"，档案的结构为："' + Config.impressionDefinition + '"，同时依据对话问题："' + prompt + '"适当进行修改，使其更加符合凯琳酱的设定。仅输出修改后的回复。'
           } else {
             logger.info(`未找到 ${e.sender.user_id} 的档案，也许是没有生成。。`)
-            msg = '以下是一段对话的回复，"' + response + '" ，请将它变得更加风格化，更符合设定且更加自然，具体设定为"' + Config.enhanceGen6Settings + '"，和你对话的人是"' + e.sender.nickname + '"，同时依据对话上文"' + prompt + '"适当进行修改，使其更加符合凯琳酱的设定。仅输出修改后的回复。'
+            system += '以下是一段对话的回复，请将它变得更加风格化，更符合设定且更加自然，和你对话的人是"' + e.sender.nickname + '"，同时依据对话问题："' + prompt + '"适当进行修改，使其更加符合凯琳酱的设定。仅输出修改后的回复。'
           }
         } else {
-          msg = '以下是一段对话的回复，"' + response + '" ，请将它变得更加风格化，更符合设定且更加自然，具体设定为"' + Config.enhanceGen6Settings + '"，和你对话的人是"' + e.sender.nickname + '"，同时依据对话上文"' + prompt + '"适当进行修改，使其更加符合凯琳酱的设定。仅输出修改后的回复。'
+          system += '以下是一段对话的回复，请将它变得更加风格化，更符合设定且更加自然，和你对话的人是"' + e.sender.nickname + '"，同时依据对话问题："' + prompt + '"适当进行修改，使其更加符合凯琳酱的设定。仅输出修改后的回复。'
         }
-        let res = await client.sendMessage(msg, "")
+        option.system = system
+        msg = response
+        let res = await client.sendMessage(msg, option)
         logger.info(`增强回复成功: ${response} ${userInfo}`)
         response = res.text;
         // 印象功能
         if (Config.Gen6Impressions) {
-          const dir = 'resources/KyrinChanGEN6/impressions/data'
-          const filename = `${e.sender.user_id}.json`
-          const filepath = path.join(dir, filename)
-          // 检查文件是否存在
-          if (fs.existsSync(filepath)) {
-            let msg = '请根据这段对话的内容以凯琳酱的设定来修订一下这份印象档案，它包含在一个json格式的字符串里 "' + userInfo + '" 其中的数据具体为"' + Config.impressionDefinition + '"，要根据凯琳酱的人设和上下文判断有没有需要修改或追加的内容，并对其进行修改或增补，回复应当只包含该文档的字符串形式！而且需要严格按照json语法完成，以确保能够解析！'
-            let resjson = await client.sendMessage(msg, { conversationId: res.conversationId })
-            let jsonObject = JSON.parse(removeJsonTags(resjson.text));
-            const currentDate = new Date();
-            const utc8Date = new Date(currentDate.getTime() + 8 * 60 * 60 * 1000);
-            // 格式化日期
-            const formattedDate = utc8Date.toISOString().replace('T', ' ').split('.')[0].replace(/-/g, '/');
-            jsonObject.lastseen = formattedDate;
-            fs.writeFileSync(filepath, JSON.stringify(jsonObject, null, 2));
-          } else {
-            let msg = '请根据这段对话的内容总结一下你对"' + e.sender.nickname + '"，识别代码是"' + e.sender.user_id + '"的印象档案，包含在一个json文件里，结构为"' + Config.impressionStucture + '" 其中的数据具体为"' + Config.impressionDefinition + '"，回复应当只包含该文档的字符串形式！而且需要严格按照json语法完成，以确保能够解析！'
-            let resjson = await client.sendMessage(msg, { conversationId: res.conversationId })
-            let jsonObject = JSON.parse(removeJsonTags(resjson.text));
-            const currentDate = new Date();
-            const utc8Date = new Date(currentDate.getTime() + 8 * 60 * 60 * 1000);
-            // 格式化日期
-            const formattedDate = utc8Date.toISOString().replace('T', ' ').split('.')[0].replace(/-/g, '/');
-            jsonObject.lastseen = formattedDate;
-            fs.writeFileSync(filepath, JSON.stringify(jsonObject, null, 2));
+          try {
+            const dir = 'resources/KyrinChanGEN6/impressions/data'
+            const filename = `${e.sender.user_id}.json`
+            const filepath = path.join(dir, filename)
+            // 检查文件是否存在
+            if (fs.existsSync(filepath)) {
+              let msg = '请根据这段对话的内容以凯琳酱的设定来修订一下这份印象档案，它包含在一个json格式的字符串里 "' + userInfo + '" 其中的数据具体为"' + Config.impressionDefinition + '"，要根据凯琳酱的人设和上下文判断有没有需要修改或追加的内容，并对其进行修改或增补，回复应当只包含该文档的字符串形式！而且需要严格按照json语法完成，以确保能够解析！'
+              let resjson = await client.sendMessage(msg, { conversationId: res.conversationId })
+              let jsonObject = JSON.parse(removeJsonTags(resjson.text));
+              const currentDate = new Date();
+              const utc8Date = new Date(currentDate.getTime() + 8 * 60 * 60 * 1000);
+              // 格式化日期
+              const formattedDate = utc8Date.toISOString().replace('T', ' ').split('.')[0].replace(/-/g, '/');
+              jsonObject.lastseen = formattedDate;
+              fs.writeFileSync(filepath, JSON.stringify(jsonObject, null, 2));
+            } else {
+              let msg = '请根据这段对话的内容总结一下你对"' + e.sender.nickname + '"，识别代码是"' + e.sender.user_id + '"的印象档案，包含在一个json文件里，结构为"' + Config.impressionStucture + '" 其中的数据具体为"' + Config.impressionDefinition + '"，回复应当只包含该文档的字符串形式！而且需要严格按照json语法完成，以确保能够解析！'
+              let resjson = await client.sendMessage(msg, { conversationId: res.conversationId })
+              let jsonObject = JSON.parse(removeJsonTags(resjson.text));
+              const currentDate = new Date();
+              const utc8Date = new Date(currentDate.getTime() + 8 * 60 * 60 * 1000);
+              // 格式化日期
+              const formattedDate = utc8Date.toISOString().replace('T', ' ').split('.')[0].replace(/-/g, '/');
+              jsonObject.lastseen = formattedDate;
+              fs.writeFileSync(filepath, JSON.stringify(jsonObject, null, 2));
+            }
+          } catch (err) {
+            logger.warn('在更新档案的时候出现了错误啦！此份档案将不会被保存')
+            logger.error(err)
           }
         }
       }
@@ -1887,7 +1944,16 @@ export class chatgpt extends plugin {
           if (Config.sydneyImageRecognition) {
             // const image = await getImg(e)
             // opt.imageUrl = image ? image[0] : undefined
-            let img = await getImg(e)
+            const image = await getImg(e)
+            let imageUrl = image ? image[0] : undefined
+            if (imageUrl) {
+              let md5 = imageUrl.split(/[/-]/).find(s => s.length === 32)?.toUpperCase()
+              let imageLoc = await getOrDownloadFile(`ocr/${md5}.png`, imageUrl)
+              let outputLoc = imageLoc.replace(`${md5}.png`, `${md5}_512.png`)
+              await resizeAndCropImage(imageLoc, outputLoc, 512)
+              let buffer = fs.readFileSync(outputLoc)
+              option.image = buffer.toString('base64')
+            }
             if (img?.[0]) {
               if (!Config.geminiKey) {
                 e.reply('Gemini API Key不见了喵~ 识图不能用哦')
