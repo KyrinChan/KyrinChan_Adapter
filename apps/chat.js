@@ -1547,7 +1547,7 @@ export class chatgpt extends plugin {
           option.image = buffer.toString('base64')
         }
         option.system = system
-        msg = '请适当基于凯琳酱的设定调整以下的回复，使其更加自然和有凯琳酱的风格，使用的语言风格一定自然而且灵动可爱！:"' + response + '"，同时也可以参考对方的问题："' + prompt + '"，要根据对话对方的相关档案进行回复。注意保留markdown格式化，并且只输出修改后的回复！'
+        msg = '以下是一段对话的回复，"' + response + '" ，请将它变得更加风格化，更符合设定且更加自然，具体设定为"' + Config.enhanceGen6Settings + '"，和你对话的人是"' + `${e.sender.card || e.sender.nickname}(${e.sender.user_id})(${e.sender.gender})` + '"，同时依据对话上文"' + prompt + '"适当进行修改，使其更加符合凯琳酱的设定。仅输出修改后的回复。'
         let res = await client.sendMessage(msg, option)
         logger.info(`增强回复成功: ${response} ${userInfo}`)
         response = res.text;
