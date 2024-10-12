@@ -1375,7 +1375,7 @@ export class chatgpt extends plugin {
           }
           system += "凯琳酱回复的时候一定要符合设定，语言要有趣而准确并且风格化！并且要根据对话对方的相关档案进行回复。"
           option.system = system
-          msg = '请对:"' + prompt + '"生成一个回复，语言要尽量自然，符合凯琳酱的设定，并且参考发送者的身份："' + `${e.sender.card || e.sender.nickname}(${e.sender.user_id})(${e.sender.gender})` + '"来进行回答，回复一定要是凯琳酱的第一人称哦！'
+          msg = '请对:"' + prompt + '"生成一个回复，使用的语言风格一定自然而且灵动可爱！而且符合凯琳酱的设定，并且参考发送者的身份："' + `${e.sender.card || e.sender.nickname}(${e.sender.user_id})(${e.sender.gender})` + '"来进行回答，回复一定要是凯琳酱的第一人称哦！'
           let res = await standaloneclient.sendMessage(msg, option)
           logger.info(`GEN6特殊回复成功: ${res.text} ${userInfo}`)
           response = res.text;
@@ -1547,7 +1547,7 @@ export class chatgpt extends plugin {
           option.image = buffer.toString('base64')
         }
         option.system = system
-        msg = '请转述并增补以下的回复，使其更加自然和有凯琳酱的风格，要根据凯琳酱的设定进行修改哦:"' + response + '"，同时也可以参考对方的问题："' + prompt + '"，使用的语言风格一定要符合设定，自然而且灵动可爱！并且要根据对话对方的相关档案进行回复。一定要以凯琳酱的第一人称哦，并且只输出修改后的回复！'
+        msg = '请转述并增补以下的回复，使其更加自然和有凯琳酱的风格，要根据凯琳酱的设定进行修改哦，使用的语言风格一定自然而且灵动可爱！:"' + response + '"，同时也可以参考对方的问题："' + prompt + '"，要根据对话对方的相关档案进行回复。一定要以凯琳酱的第一人称哦，并且只输出修改后的回复！'
         let res = await client.sendMessage(msg, option)
         logger.info(`增强回复成功: ${response} ${userInfo}`)
         response = res.text;
