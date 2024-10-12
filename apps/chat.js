@@ -1340,6 +1340,12 @@ export class chatgpt extends plugin {
             parentMessageId: conversation.parentMessageId,
             conversationId: conversation.conversationId
           }
+          // 传入一些现实数据
+          const currentDate = new Date();
+          const utc8Date = new Date(currentDate.getTime() + 8 * 60 * 60 * 1000);
+          // 格式化日期
+          const formattedDate = utc8Date.toISOString().replace('T', ' ').split('.')[0].replace(/-/g, '/');
+          system += '另外，现在的北京时间（UTC+8）是：' + formattedDate
           if (Config.Gen6Impressions) {
             const dir = 'resources/KyrinChanGEN6/impressions/data'
             const filename = `${e.sender.user_id}.json`
@@ -1367,12 +1373,6 @@ export class chatgpt extends plugin {
             let buffer = fs.readFileSync(outputLoc)
             option.image = buffer.toString('base64')
           }
-          // 传入一些现实数据
-          const currentDate = new Date();
-          const utc8Date = new Date(currentDate.getTime() + 8 * 60 * 60 * 1000);
-          // 格式化日期
-          const formattedDate = utc8Date.toISOString().replace('T', ' ').split('.')[0].replace(/-/g, '/');
-          system += '另外，现在的北京时间（UTC+8）是：' + formattedDate
           option.system = system
           msg = response
           let res = await standaloneclient.sendMessage(msg, option)
@@ -1512,6 +1512,12 @@ export class chatgpt extends plugin {
               .join('\n')
           }
         }
+        // 传入一些现实数据
+        const currentDate = new Date();
+        const utc8Date = new Date(currentDate.getTime() + 8 * 60 * 60 * 1000);
+        // 格式化日期
+        const formattedDate = utc8Date.toISOString().replace('T', ' ').split('.')[0].replace(/-/g, '/');
+        system += '另外，现在的北京时间（UTC+8）是：' + formattedDate
         if (Config.Gen6Impressions) {
           const dir = 'resources/KyrinChanGEN6/impressions/data'
           const filename = `${e.sender.user_id}.json`
@@ -1519,13 +1525,13 @@ export class chatgpt extends plugin {
           // 检查文件是否存在
           if (fs.existsSync(filepath)) {
             userInfo = await fs.readFileSync(filepath, 'utf8');
-            system += '以下是一段对话的回复，请将它变得更加风格化，更符合设定且更加自然，和你对话的人的档案是"' + userInfo + '"，档案的结构为："' + Config.impressionDefinition + '"，同时依据对话问题："' + prompt + '"适当进行修改，使其更加符合凯琳酱的设定。仅输出修改后的回复。'
+            system += '请以凯琳酱的第一人称修改以下给定的回复，使其更符合设定且更加自然，和你对话的人的档案是"' + userInfo + '"，档案的结构为："' + Config.impressionDefinition + '"，同时依据对话问题："' + prompt + '"适当进行修改，使其更加符合凯琳酱的设定。仅输出修改后的回复。'
           } else {
             logger.info(`未找到 ${e.sender.user_id} 的档案，也许是没有生成。。`)
-            system += '以下是一段对话的回复，请将它变得更加风格化，更符合设定且更加自然，和你对话的人是"' + e.sender.nickname + '"，同时依据对话问题："' + prompt + '"适当进行修改，使其更加符合凯琳酱的设定。仅输出修改后的回复。'
+            system += '请以凯琳酱的第一人称修改以下给定的回复，使其更符合设定且更加自然，和你对话的人是"' + e.sender.nickname + '"，同时依据对话问题："' + prompt + '"适当进行修改，使其更加符合凯琳酱的设定。仅输出修改后的回复。'
           }
         } else {
-          system += '以下是一段对话的回复，请将它变得更加风格化，更符合设定且更加自然，和你对话的人是"' + e.sender.nickname + '"，同时依据对话问题："' + prompt + '"适当进行修改，使其更加符合凯琳酱的设定。仅输出修改后的回复。'
+          system += '请以凯琳酱的第一人称修改以下给定的回复，使其更符合设定且更加自然，和你对话的人是"' + e.sender.nickname + '"，同时依据对话问题："' + prompt + '"适当进行修改，使其更加符合凯琳酱的设定。仅输出修改后的回复。'
         }
         // 处理附加图片
         const image = await getImg(e)
@@ -1539,12 +1545,6 @@ export class chatgpt extends plugin {
           let buffer = fs.readFileSync(outputLoc)
           option.image = buffer.toString('base64')
         }
-        // 传入一些现实数据
-        const currentDate = new Date();
-        const utc8Date = new Date(currentDate.getTime() + 8 * 60 * 60 * 1000);
-        // 格式化日期
-        const formattedDate = utc8Date.toISOString().replace('T', ' ').split('.')[0].replace(/-/g, '/');
-        system += '另外，现在的北京时间（UTC+8）是：' + formattedDate
         option.system = system
         msg = response
         let res = await client.sendMessage(msg, option)
