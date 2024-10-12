@@ -1360,6 +1360,7 @@ export class chatgpt extends plugin {
           let imageUrl = image ? image[0] : undefined
           if (imageUrl) {
             let md5 = imageUrl.split(/[/-]/).find(s => s.length === 32)?.toUpperCase()
+            imageUrl = imageUrl.replace(/&r/g, '/');
             let imageLoc = await getOrDownloadFile(`ocr/${md5}.png`, imageUrl)
             let outputLoc = imageLoc.replace(`${md5}.png`, `${md5}_512.png`)
             await resizeAndCropImage(imageLoc, outputLoc, 512)
@@ -1531,6 +1532,7 @@ export class chatgpt extends plugin {
         let imageUrl = image ? image[0] : undefined
         if (imageUrl) {
           let md5 = imageUrl.split(/[/-]/).find(s => s.length === 32)?.toUpperCase()
+          imageUrl = imageUrl.replace(/&r/g, '/');
           let imageLoc = await getOrDownloadFile(`ocr/${md5}.png`, imageUrl)
           let outputLoc = imageLoc.replace(`${md5}.png`, `${md5}_512.png`)
           await resizeAndCropImage(imageLoc, outputLoc, 512)
