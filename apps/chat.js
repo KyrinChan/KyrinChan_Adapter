@@ -1375,7 +1375,7 @@ export class chatgpt extends plugin {
           }
           system += "凯琳酱回复的时候一定要符合设定，语言要有趣而准确并且风格化！并且要根据对话对方的相关档案进行回复。"
           option.system = system
-          msg = '请对:"' + prompt + '"生成一个回复，语言要尽量自然，一定要是凯琳酱的第一人称哦！'
+          msg = '请对:"' + prompt + '"生成一个回复，语言要尽量自然，符合凯琳酱的设定，并且参考发送者的身份："' + `${e.sender.card || e.sender.nickname}(${e.sender.user_id})(${e.sender.gender})` + '"来进行回答，回复一定要是凯琳酱的第一人称哦！'
           let res = await standaloneclient.sendMessage(msg, option)
           logger.info(`GEN6特殊回复成功: ${res.text} ${userInfo}`)
           response = res.text;
