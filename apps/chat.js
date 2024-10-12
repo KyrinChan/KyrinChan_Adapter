@@ -1373,6 +1373,7 @@ export class chatgpt extends plugin {
             let buffer = fs.readFileSync(outputLoc)
             option.image = buffer.toString('base64')
           }
+          system += "凯琳酱回复的时候一定要符合设定，语言要有趣而准确并且风格化！并且要根据对话对方的相关档案进行回复。"
           option.system = system
           msg = '请对:"' + prompt + '"生成一个回复，语言要尽量自然，一定要是凯琳酱的第一人称哦！'
           let res = await standaloneclient.sendMessage(msg, option)
@@ -1533,6 +1534,7 @@ export class chatgpt extends plugin {
         } else {
           system += '和凯琳酱你对话的人是"' + e.sender.nickname + '"，同时也可以参考对方的问题："' + prompt + '"'
         }
+        system += "凯琳酱回复的时候一定要符合设定，语言要有趣而准确并且风格化！并且要根据对话对方的相关档案进行回复。"
         // 处理附加图片
         const image = await getImg(e)
         let imageUrl = image ? image[0] : undefined
