@@ -1492,7 +1492,7 @@ export class chatgpt extends plugin {
           // parentMessageId: conversation.parentMessageId,
           // conversationId: conversation.conversationId
         }
-        if (Config.enableGroupContext && e.isGroup) {
+        if (Config.Gen6GroupContext && e.isGroup) {
           let chats = await getChatHistoryGroup(e, Config.groupContextLength)
           const namePlaceholder = '[name]'
           const defaultBotName = '凯琳酱'

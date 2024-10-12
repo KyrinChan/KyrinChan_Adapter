@@ -509,6 +509,12 @@ export function supportGuoba () {
           component: 'InputTextArea'
         },
         {
+          field: 'Gen6GroupContext',
+          label: '读取群聊上下文',
+          bottomHelpMessage: '独立读取上下文（可能冲淡设定',
+          component: 'Switch'
+        },
+        {
           field: 'Gen6Impressions',
           label: '印象档案',
           bottomHelpMessage: '启用印象档案相关功能',
