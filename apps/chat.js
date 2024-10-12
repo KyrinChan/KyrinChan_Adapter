@@ -1355,6 +1355,17 @@ export class chatgpt extends plugin {
           } else {
             system += '请生成一个关于接下来消息的符合凯琳酱设定的回复，和你对话的人是"' + e.sender.nickname + '"，要尽可能地自然而有趣。'
           }
+          // 处理附加图片
+          const image = await getImg(e)
+          let imageUrl = image ? image[0] : undefined
+          if (imageUrl) {
+            let md5 = imageUrl.split(/[/-]/).find(s => s.length === 32)?.toUpperCase()
+            let imageLoc = await getOrDownloadFile(`ocr/${md5}.png`, imageUrl)
+            let outputLoc = imageLoc.replace(`${md5}.png`, `${md5}_512.png`)
+            await resizeAndCropImage(imageLoc, outputLoc, 512)
+            let buffer = fs.readFileSync(outputLoc)
+            option.image = buffer.toString('base64')
+          }
           option.system = system
           msg = response
           let res = await standaloneclient.sendMessage(msg, option)
@@ -1514,6 +1525,17 @@ export class chatgpt extends plugin {
           }
         } else {
           system += '以下是一段对话的回复，请将它变得更加风格化，更符合设定且更加自然，和你对话的人是"' + e.sender.nickname + '"，同时依据对话问题："' + prompt + '"适当进行修改，使其更加符合凯琳酱的设定。仅输出修改后的回复。'
+        }
+        // 处理附加图片
+        const image = await getImg(e)
+        let imageUrl = image ? image[0] : undefined
+        if (imageUrl) {
+          let md5 = imageUrl.split(/[/-]/).find(s => s.length === 32)?.toUpperCase()
+          let imageLoc = await getOrDownloadFile(`ocr/${md5}.png`, imageUrl)
+          let outputLoc = imageLoc.replace(`${md5}.png`, `${md5}_512.png`)
+          await resizeAndCropImage(imageLoc, outputLoc, 512)
+          let buffer = fs.readFileSync(outputLoc)
+          option.image = buffer.toString('base64')
         }
         option.system = system
         msg = response
@@ -1944,16 +1966,6 @@ export class chatgpt extends plugin {
           if (Config.sydneyImageRecognition) {
             // const image = await getImg(e)
             // opt.imageUrl = image ? image[0] : undefined
-            const image = await getImg(e)
-            let imageUrl = image ? image[0] : undefined
-            if (imageUrl) {
-              let md5 = imageUrl.split(/[/-]/).find(s => s.length === 32)?.toUpperCase()
-              let imageLoc = await getOrDownloadFile(`ocr/${md5}.png`, imageUrl)
-              let outputLoc = imageLoc.replace(`${md5}.png`, `${md5}_512.png`)
-              await resizeAndCropImage(imageLoc, outputLoc, 512)
-              let buffer = fs.readFileSync(outputLoc)
-              option.image = buffer.toString('base64')
-            }
             if (img?.[0]) {
               if (!Config.geminiKey) {
                 e.reply('Gemini API Key不见了喵~ 识图不能用哦')
