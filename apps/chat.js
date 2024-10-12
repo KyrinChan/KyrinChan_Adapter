@@ -1367,6 +1367,12 @@ export class chatgpt extends plugin {
             let buffer = fs.readFileSync(outputLoc)
             option.image = buffer.toString('base64')
           }
+          // 传入一些现实数据
+          const currentDate = new Date();
+          const utc8Date = new Date(currentDate.getTime() + 8 * 60 * 60 * 1000);
+          // 格式化日期
+          const formattedDate = utc8Date.toISOString().replace('T', ' ').split('.')[0].replace(/-/g, '/');
+          system += '另外，现在的北京时间（UTC+8）是：' + formattedDate
           option.system = system
           msg = response
           let res = await standaloneclient.sendMessage(msg, option)
@@ -1391,8 +1397,6 @@ export class chatgpt extends plugin {
                 let msg = '请根据这段对话的内容以凯琳酱的设定来修订一下这份印象档案，它包含在一个json格式的字符串里 "' + userInfo + '" 其中的数据具体为"' + Config.impressionDefinition + '"，要根据凯琳酱的人设和上下文判断有没有需要修改或追加的内容，并对其进行修改或增补，回复应当只包含该文档的字符串形式！而且需要严格按照json语法完成，以确保能够解析！'
                 let resjson = await summaryclient.sendMessage(msg, { conversationId: res.conversationId })
                 let jsonObject = JSON.parse(removeJsonTags(resjson.text));
-                const currentDate = new Date();
-                const utc8Date = new Date(currentDate.getTime() + 8 * 60 * 60 * 1000);
                 // 格式化日期
                 const formattedDate = utc8Date.toISOString().replace('T', ' ').split('.')[0].replace(/-/g, '/');
                 jsonObject.lastseen = formattedDate;
@@ -1401,10 +1405,6 @@ export class chatgpt extends plugin {
                 let msg = '请根据这段对话的内容总结一下你对"' + e.sender.nickname + '"，识别代码是"' + e.sender.user_id + '"的印象档案，包含在一个json字符串里，结构为"' + Config.impressionStucture + '" 其中的数据具体为"' + Config.impressionDefinition + '"，回复应当只包含该文档的字符串形式！而且需要严格按照json语法完成，以确保能够解析！'
                 let resjson = await summaryclient.sendMessage(msg, { conversationId: res.conversationId })
                 let jsonObject = JSON.parse(removeJsonTags(resjson.text));
-                const currentDate = new Date();
-                const utc8Date = new Date(currentDate.getTime() + 8 * 60 * 60 * 1000);
-                // 格式化日期
-                const formattedDate = utc8Date.toISOString().replace('T', ' ').split('.')[0].replace(/-/g, '/');
                 jsonObject.lastseen = formattedDate;
                 fs.writeFileSync(filepath, JSON.stringify(jsonObject, null, 2));
               }
@@ -1539,6 +1539,12 @@ export class chatgpt extends plugin {
           let buffer = fs.readFileSync(outputLoc)
           option.image = buffer.toString('base64')
         }
+        // 传入一些现实数据
+        const currentDate = new Date();
+        const utc8Date = new Date(currentDate.getTime() + 8 * 60 * 60 * 1000);
+        // 格式化日期
+        const formattedDate = utc8Date.toISOString().replace('T', ' ').split('.')[0].replace(/-/g, '/');
+        system += '另外，现在的北京时间（UTC+8）是：' + formattedDate
         option.system = system
         msg = response
         let res = await client.sendMessage(msg, option)
@@ -1555,20 +1561,12 @@ export class chatgpt extends plugin {
               let msg = '请根据这段对话的内容以凯琳酱的设定来修订一下这份印象档案，它包含在一个json格式的字符串里 "' + userInfo + '" 其中的数据具体为"' + Config.impressionDefinition + '"，要根据凯琳酱的人设和上下文判断有没有需要修改或追加的内容，并对其进行修改或增补，回复应当只包含该文档的字符串形式！而且需要严格按照json语法完成，以确保能够解析！'
               let resjson = await client.sendMessage(msg, { conversationId: res.conversationId })
               let jsonObject = JSON.parse(removeJsonTags(resjson.text));
-              const currentDate = new Date();
-              const utc8Date = new Date(currentDate.getTime() + 8 * 60 * 60 * 1000);
-              // 格式化日期
-              const formattedDate = utc8Date.toISOString().replace('T', ' ').split('.')[0].replace(/-/g, '/');
               jsonObject.lastseen = formattedDate;
               fs.writeFileSync(filepath, JSON.stringify(jsonObject, null, 2));
             } else {
               let msg = '请根据这段对话的内容总结一下你对"' + e.sender.nickname + '"，识别代码是"' + e.sender.user_id + '"的印象档案，包含在一个json文件里，结构为"' + Config.impressionStucture + '" 其中的数据具体为"' + Config.impressionDefinition + '"，回复应当只包含该文档的字符串形式！而且需要严格按照json语法完成，以确保能够解析！'
               let resjson = await client.sendMessage(msg, { conversationId: res.conversationId })
               let jsonObject = JSON.parse(removeJsonTags(resjson.text));
-              const currentDate = new Date();
-              const utc8Date = new Date(currentDate.getTime() + 8 * 60 * 60 * 1000);
-              // 格式化日期
-              const formattedDate = utc8Date.toISOString().replace('T', ' ').split('.')[0].replace(/-/g, '/');
               jsonObject.lastseen = formattedDate;
               fs.writeFileSync(filepath, JSON.stringify(jsonObject, null, 2));
             }
