@@ -1488,7 +1488,7 @@ export class chatgpt extends plugin {
             if (Config.debug) {
               logger.info(data)
             }
-          },
+          }
           // parentMessageId: conversation.parentMessageId,
           // conversationId: conversation.conversationId
         }
