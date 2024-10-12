@@ -1374,7 +1374,7 @@ export class chatgpt extends plugin {
             option.image = buffer.toString('base64')
           }
           option.system = system
-          msg = '请生成一个关于接下来消息的符合凯琳酱设定的回复:"' + prompt + '"，语言要风格化和尽量自然，一定要是凯琳酱的第一人称哦！'
+          msg = '请对:"' + prompt + '"生成一个回复，语言要尽量自然，一定要是凯琳酱的第一人称哦！'
           let res = await standaloneclient.sendMessage(msg, option)
           logger.info(`GEN6特殊回复成功: ${res.text} ${userInfo}`)
           response = res.text;
@@ -1546,7 +1546,7 @@ export class chatgpt extends plugin {
           option.image = buffer.toString('base64')
         }
         option.system = system
-        msg = '请以你，也就是凯琳酱的身份修改以下给定的回复，使其符合凯琳酱的风格且更加自然:"' + response + '"，一定要是凯琳酱的第一人称哦！'
+        msg = '请适当修改和增补以下的回复，使其更加自然和修正所有不像凯琳酱你的语言:"' + response + '"，一定要以凯琳酱的第一人称哦，并且只输出修改后的回复！'
         let res = await client.sendMessage(msg, option)
         logger.info(`增强回复成功: ${response} ${userInfo}`)
         response = res.text;
