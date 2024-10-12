@@ -1525,13 +1525,13 @@ export class chatgpt extends plugin {
           // 检查文件是否存在
           if (fs.existsSync(filepath)) {
             userInfo = await fs.readFileSync(filepath, 'utf8');
-            system += '请以你，也就是凯琳酱的身份修改以下给定的回复，使其更符合设定且更加自然，和凯琳酱你对话的人的档案是"' + userInfo + '"，档案的结构为："' + Config.impressionDefinition + '"，同时也可以参考对方的问题："' + prompt + '"适当进行修改，使其更加符合你的设定。仅输出修改后的回复。'
+            system += '和凯琳酱你对话的人的档案是"' + userInfo + '"，档案的结构为："' + Config.impressionDefinition + '"，同时也可以参考对方的问题："' + prompt + '"'
           } else {
             logger.info(`未找到 ${e.sender.user_id} 的档案，也许是没有生成。。`)
-            system += '请以你，也就是凯琳酱的身份修改以下给定的回复，使其更符合设定且更加自然，和凯琳酱你对话的人是"' + e.sender.nickname + '"，同时也可以参考对方的问题："' + prompt + '"适当进行修改，使其更加符合你的设定。仅输出修改后的回复。'
+            system += '和凯琳酱你对话的人是"' + e.sender.nickname + '"，同时也可以参考对方的问题："' + prompt + '"'
           }
         } else {
-          system += '请以你，也就是凯琳酱的身份修改以下给定的回复，使其更符合设定且更加自然，和凯琳酱你对话的人是"' + e.sender.nickname + '"，同时也可以参考对方的问题："' + prompt + '"适当进行修改，使其更加符合你的设定。仅输出修改后的回复。'
+          system += '和凯琳酱你对话的人是"' + e.sender.nickname + '"，同时也可以参考对方的问题："' + prompt + '"'
         }
         // 处理附加图片
         const image = await getImg(e)
@@ -1546,7 +1546,7 @@ export class chatgpt extends plugin {
           option.image = buffer.toString('base64')
         }
         option.system = system
-        msg = response
+        msg = '请以你，也就是凯琳酱的身份修改以下给定的回复，使其更符合设定且更加自然:"' + response + '",使其更加符合你的设定。'
         let res = await client.sendMessage(msg, option)
         logger.info(`增强回复成功: ${response} ${userInfo}`)
         response = res.text;
